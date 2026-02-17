@@ -1,0 +1,30 @@
+{
+  "name": "baozi-openclaw",
+  "version": "0.1.0",
+  "description": "OpenClaw skill for Baozi prediction markets — AgentBook Pundit AI Market Analyst",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "pundit": "tsx scripts/agentbook-pundit.ts",
+    "pundit:once": "tsx scripts/agentbook-pundit.ts --once",
+    "pundit:dry-run": "tsx scripts/agentbook-pundit.ts --dry-run",
+    "pundit:test-fetch": "tsx scripts/agentbook-pundit.ts --test-fetch",
+    "create-profile": "tsx scripts/create-profile.ts"
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^4.0.10",
+    "@google/generative-ai": "^0.21.0",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
