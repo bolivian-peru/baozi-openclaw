@@ -13,6 +13,7 @@ import {
     statusEmoji,
     layerLabel,
     baoziFooter,
+    safeDescription,
     EMBED_COLORS,
 } from './helpers.js';
 
@@ -74,7 +75,7 @@ export function buildRaceListEmbed(
     return new EmbedBuilder()
         .setColor(EMBED_COLORS.RACE)
         .setTitle(title)
-        .setDescription(lines.length > 0 ? lines.join('\n') : '_No race markets found._')
+        .setDescription(lines.length > 0 ? safeDescription(lines.join('\n')) : '_No race markets found._')
         .setFooter(baoziFooter())
         .setTimestamp();
 }

@@ -38,6 +38,14 @@ async function getClient(): Promise<Client> {
 
         client = new Client({ name: 'baozi-discord-bot', version: '1.0.0' }, { capabilities: {} });
         await client.connect(transport);
+
+        // Auto-reconnect if MCP server crashes
+        transport.onclose = () => {
+            console.warn('[MCP] Connection lost — will reconnect on next request');
+            client = null;
+            transport = null;
+        };
+
         console.log('[MCP] Connected to @baozi.bet/mcp-server');
         return client;
     } catch (err) {
@@ -113,20 +121,20 @@ export interface RaceMarket {
 
 export interface Position {
     marketId: string;
-    market: string;
-    question: string;
+    publicKey: string;
+    marketQuestion: string;
     side: string;
-    amountSol: number;
+    totalAmountSol: number;
     status: string;
     winningOutcome: string | null;
-    claimable: boolean;
+    claimed: boolean;
 }
 
 export interface PositionsSummary {
     wallet: string;
     totalPositions: number;
     activePositions: number;
-    totalInvested: number;
+    totalBetSol: number;
     positions: Position[];
 }
 
@@ -162,7 +170,9 @@ export async function listMarkets(status?: string, layer?: string): Promise<Bool
  */
 export async function getMarket(publicKey: string): Promise<BooleanMarket | null> {
     const result = await callTool('get_market', { publicKey });
-    return (result as BooleanMarket) || null;
+    // MCP wraps in { success, network, market: {...} }
+    const data = result as any;
+    return (data?.market as BooleanMarket) || null;
 }
 
 /**
@@ -170,7 +180,9 @@ export async function getMarket(publicKey: string): Promise<BooleanMarket | null
  */
 export async function getQuote(market: string, side: string, amount: number): Promise<QuoteResult | null> {
     const result = await callTool('get_quote', { market, side, amount });
-    return (result as QuoteResult) || null;
+    // MCP wraps in { success, network, quote: {...} }
+    const data = result as any;
+    return (data?.quote as QuoteResult) || null;
 }
 
 /**
@@ -192,7 +204,9 @@ export async function listRaceMarkets(status?: string): Promise<RaceMarket[]> {
  */
 export async function getRaceMarket(publicKey: string): Promise<RaceMarket | null> {
     const result = await callTool('get_race_market', { publicKey });
-    return (result as RaceMarket) || null;
+    // MCP wraps in { success, network, market: {...} }
+    const data = result as any;
+    return (data?.market as RaceMarket) || null;
 }
 
 /**
@@ -207,7 +221,9 @@ export async function getRaceQuote(market: string, outcomeIndex: number, amount:
  */
 export async function getPositions(wallet: string): Promise<PositionsSummary | null> {
     const result = await callTool('get_positions', { wallet });
-    return (result as PositionsSummary) || null;
+    // MCP wraps in { success, network, portfolio: {...} }
+    const data = result as any;
+    return (data?.portfolio as PositionsSummary) || null;
 }
 
 /**

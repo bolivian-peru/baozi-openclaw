@@ -89,13 +89,9 @@ async function buildRoundupEmbeds(): Promise<EmbedBuilder[]> {
         );
     }
 
-    // ── Recently created (boolean markets from today) ──
+    // ── Closing soon (within 24h) ──
     const now = Date.now();
     const oneDayAgo = now - 24 * 60 * 60 * 1000;
-    // Since we don't have createdAt in the market data, use markets that are
-    // active with very small pools (newly created likely have small pools)
-    // Actually, we can check closing time — new markets tend to have future closing times
-    // Let's show markets closing soonest that still have activity
     const closingSoon = [...boolMarkets]
         .filter((m) => {
             const closeTime = new Date(m.closingTime).getTime();

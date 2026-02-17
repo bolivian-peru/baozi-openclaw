@@ -25,11 +25,11 @@ export function buildPortfolioEmbed(data: PositionsSummary): EmbedBuilder {
     } else {
         const toShow = data.positions.slice(0, 10);
         for (const pos of toShow) {
-            const emoji = pos.claimable ? '💸' : statusEmoji(pos.status);
+            const emoji = pos.claimed ? '💸' : statusEmoji(pos.status);
             lines.push(
                 [
-                    `${emoji} **${truncate(pos.question || `Market ${shortKey(pos.market)}`, 50)}**`,
-                    `Side: **${pos.side}** | Bet: ${formatSol(pos.amountSol)}${pos.claimable ? ' | **Claimable!**' : ''}`,
+                    `${emoji} **${truncate(pos.marketQuestion || `Market ${shortKey(pos.publicKey)}`, 50)}**`,
+                    `Side: **${pos.side}** | Bet: ${formatSol(pos.totalAmountSol)}${pos.claimed ? ' | **Claimed**' : ''}`,
                 ].join('\n')
             );
         }
@@ -46,7 +46,7 @@ export function buildPortfolioEmbed(data: PositionsSummary): EmbedBuilder {
         .addFields(
             { name: '📊 Total Positions', value: `${data.totalPositions}`, inline: true },
             { name: '🟢 Active', value: `${data.activePositions}`, inline: true },
-            { name: '💰 Total Invested', value: formatSol(data.totalInvested), inline: true }
+            { name: '💰 Total Bet', value: formatSol(data.totalBetSol), inline: true }
         )
         .setFooter(baoziFooter())
         .setTimestamp();

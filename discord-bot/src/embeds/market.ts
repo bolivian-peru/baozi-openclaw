@@ -14,6 +14,7 @@ import {
     statusEmoji,
     layerLabel,
     baoziFooter,
+    safeDescription,
     EMBED_COLORS,
 } from './helpers.js';
 
@@ -80,7 +81,7 @@ export function buildMarketListEmbed(
         .setTitle(title)
         .setDescription(
             lines.length > 0
-                ? lines.join('\n')
+                ? safeDescription(lines.join('\n'))
                 : '_No markets found._'
         )
         .setFooter({

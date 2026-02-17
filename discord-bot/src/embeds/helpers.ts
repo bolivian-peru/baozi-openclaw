@@ -148,3 +148,12 @@ export function errorEmbed(title: string, description: string): EmbedBuilder {
 export function baoziFooter(): { text: string; iconURL?: string } {
     return { text: 'Baozi.bet • Prediction Markets on Solana' };
 }
+
+/**
+ * Guard against Discord's 4096-char embed description limit.
+ * Truncates with an overflow message if needed.
+ */
+export function safeDescription(text: string, maxLen = 4000): string {
+    if (text.length <= maxLen) return text;
+    return text.slice(0, maxLen) + '\n\n_…truncated — use specific commands for details_';
+}
