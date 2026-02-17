@@ -9,6 +9,9 @@
     "pundit:once": "tsx scripts/agentbook-pundit.ts --once",
     "pundit:dry-run": "tsx scripts/agentbook-pundit.ts --dry-run",
     "pundit:test-fetch": "tsx scripts/agentbook-pundit.ts --test-fetch",
+    "enricher": "tsx scripts/metadata-enricher.ts",
+    "enricher:once": "tsx scripts/metadata-enricher.ts --once",
+    "enricher:dry-run": "tsx scripts/metadata-enricher.ts --dry-run",
     "create-profile": "tsx scripts/create-profile.ts"
   },
   "dependencies": {
