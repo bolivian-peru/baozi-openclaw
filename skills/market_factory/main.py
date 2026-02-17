@@ -19,7 +19,7 @@ class MarketFactorySkill:
 
     async def fetch_news(self):
         """Ingests live news shards from decentralized and legacy RSS manifolds."""
-        print("📡 [INGEST] Sifting live news for market-worthy events...")
+        print("[INGEST] Sifting live news for market-worthy events...")
         events = []
         async with httpx.AsyncClient() as client:
             for feed in self.feeds:
@@ -36,7 +36,7 @@ class MarketFactorySkill:
                                 "raw_date": pub_date
                             })
                 except Exception as e:
-                    print(f"⚠️  [INGEST] Failed to sip from feed {feed}: {str(e)}")
+                    print(f"[INGEST] Failed to sip from feed {feed}: {str(e)}")
         return events
 
     def generate_market_params(self, event):
@@ -67,7 +67,7 @@ class MarketFactorySkill:
         for event in events:
             params = self.generate_market_params(event)
             if params:
-                print(f"🚀 [CREATE] Manifesting market: {params['question']}")
+                print(f"[CREATE] Manifesting market: {params['question']}")
                 # Simulation of successful emission
                 markets_created.append(params)
                 await asyncio.sleep(0.5)
@@ -77,4 +77,4 @@ class MarketFactorySkill:
 if __name__ == "__main__":
     factory = MarketFactorySkill()
     results = asyncio.run(factory.run_cycle())
-    print(f"\n💎 Cycle Complete. Manifested {len(results)} market proposals.")
+    print(f"Cycle Complete. Manifested {len(results)} market proposals.")
