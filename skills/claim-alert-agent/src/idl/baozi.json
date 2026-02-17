@@ -1,0 +1,47 @@
+{
+  "version": "4.7.6",
+  "name": "baozi_markets",
+  "instructions": [],
+  "accounts": [
+    {
+      "name": "Position",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "market", "type": "publicKey" },
+          { "name": "outcome_index", "type": "u8" },
+          { "name": "amount", "type": "u64" },
+          { "name": "entry_price", "type": "u64" },
+          { "name": "claimed", "type": "bool" }
+        ]
+      }
+    },
+    {
+      "name": "Market",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "creator", "type": "publicKey" },
+          { "name": "resolved", "type": "bool" },
+          { "name": "winning_outcome_index", "type": { "option": "u8" } },
+          { "name": "closing_time", "type": "i64" },
+          { "name": "total_volume", "type": "u64" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Outcome",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "name", "type": "string" },
+          { "name": "probability", "type": "u64" },
+          { "name": "price", "type": "u64" }
+        ]
+      }
+    }
+  ],
+  "errors": []
+}
