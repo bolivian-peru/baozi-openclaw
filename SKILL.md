@@ -89,3 +89,7 @@ Markets reference real-world events. Common sources:
 - **Entertainment:** Netflix Top 10, Billboard, Spotify Charts
 - **Politics:** Official election results
 - **Weather:** NOAA, Weather.gov
+
+## Market Factory (Issue #3)
+Autonomous prediction market generator from RSS news feeds. Uses Cortex Reasoning for high-fidelity question generation.
+Location: `skills/market_factory/`
