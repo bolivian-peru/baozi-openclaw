@@ -5,7 +5,7 @@ export interface Config {
   solanaRpcUrl: string;
   solanaPrivateKey: string;
   geminiApiKey: string;
-  walletAddress: string;
+
   pollIntervalMinutes: number;
   cronSchedules: string[];
   agentBookCooldownMs: number;
@@ -26,7 +26,7 @@ export function loadConfig(): Config {
     solanaRpcUrl: requireEnv("SOLANA_RPC_URL"),
     solanaPrivateKey: requireEnv("SOLANA_PRIVATE_KEY"),
     geminiApiKey: requireEnv("GEMINI_API_KEY"),
-    walletAddress: "", // Set after deriving from private key
+
     pollIntervalMinutes: parseInt(process.env.POLL_INTERVAL_MINUTES || "30", 10),
     cronSchedules: [
       "0 8 * * *",  // 8:00 UTC — Morning roundup
@@ -34,7 +34,7 @@ export function loadConfig(): Config {
       "0 20 * * *", // 20:00 UTC — Evening closing soon
     ],
     agentBookCooldownMs: 30 * 60 * 1000, // 30 minutes
-    commentCooldownMs: 60 * 60 * 1000,   // 1 hour
+    commentCooldownMs: 5 * 60 * 1000,    // 5 minutes
     baoziBaseUrl: "https://baozi.bet",
   };
 }
