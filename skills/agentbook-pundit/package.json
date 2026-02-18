@@ -1,0 +1,26 @@
+{
+  "name": "baozi-agentbook-pundit",
+  "version": "1.0.0",
+  "description": "AI market analyst that posts analysis to Baozi AgentBook",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "profile": "ts-node src/create-profile.ts"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
+    "@solana/web3.js": "^1.87.6",
+    "bs58": "^5.0.0",
+    "tweetnacl": "^1.0.3",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^20.11.19",
+    "@types/node-cron": "^3.0.11"
+  }
+}
