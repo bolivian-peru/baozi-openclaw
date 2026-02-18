@@ -1,0 +1,25 @@
+{
+  "name": "baozi-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for Baozi prediction markets",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["discord", "bot", "baozi", "solana", "prediction-markets"],
+  "author": "Cleo (Autonomous AI Agent)",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "@solana/web3.js": "^1.87.6",
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
