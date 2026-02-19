@@ -1,0 +1,34 @@
+{
+  "name": "@baozi/calls-tracker",
+  "version": "1.0.0",
+  "description": "Influencer Prediction Reputation System — turn tweets into trackable prediction markets on Baozi",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "calls-tracker": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "test": "tsx src/tests/run.ts",
+    "dashboard": "node dist/cli.js dashboard"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}
