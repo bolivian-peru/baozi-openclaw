@@ -1,0 +1,13 @@
+{
+  "name": "agent-recruiter",
+  "version": "1.0.0",
+  "description": "AI agent that recruits other AI agents to trade on Baozi prediction markets",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.ts",
+    "demo": "bun run index.ts demo"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0"
+  }
+}
