@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+
+/**
+ * scan-trends — Scan trending topics and preview market proposals
+ *
+ * Usage: scripts/scan-trends [--sources google-trends,coingecko,hackernews] [--min-score 40]
+ *
+ * This script scans configured trend sources, generates market proposals,
+ * and outputs them for review — without creating any markets.
+ */
+
+import { scanTrends, loadConfig } from "../dist/src/index.js";
+
+// Parse CLI args
+const args = process.argv.slice(2);
+const sourceIdx = args.indexOf("--sources");
+const scoreIdx = args.indexOf("--min-score");
+
+if (sourceIdx !== -1 && args[sourceIdx + 1]) {
+  process.env.TREND_SOURCES = args[sourceIdx + 1];
+}
+if (scoreIdx !== -1 && args[scoreIdx + 1]) {
+  process.env.MIN_TREND_SCORE = args[scoreIdx + 1];
+}
+
+const config = loadConfig();
+scanTrends(config).catch(err => {
+  console.error("Error:", err);
+  process.exitCode = 1;
+});

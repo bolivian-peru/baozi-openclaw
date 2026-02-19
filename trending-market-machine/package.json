@@ -1,0 +1,27 @@
+{
+  "name": "@baozi-openclaw/trending-market-machine",
+  "version": "1.0.0",
+  "description": "Auto-create Baozi Labs prediction markets from trending topics across multiple sources",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "scan": "node dist/src/cli.js scan",
+    "create": "node dist/src/cli.js run-cycle",
+    "run-cycle": "node dist/src/cli.js run-cycle",
+    "test": "node --test dist/tests/*.test.js",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "google-trends-api": "^4.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
