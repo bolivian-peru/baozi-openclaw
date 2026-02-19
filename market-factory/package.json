@@ -1,0 +1,28 @@
+{
+  "name": "@baozi/market-factory",
+  "version": "1.0.0",
+  "description": "Auto-create Baozi prediction markets from news, sports, crypto, and event sources",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "scan": "npx tsx scripts/scan-news.ts",
+    "create": "npx tsx scripts/create-market.ts",
+    "resolve": "npx tsx scripts/resolve-markets.ts",
+    "status": "npx tsx scripts/factory-status.ts",
+    "test": "npx tsx tests/run-tests.ts"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.0",
+    "bs58": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

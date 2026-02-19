@@ -1,0 +1,7 @@
+node_modules/
+dist/
+memory/factory-state.json
+.env
+*.js
+*.d.ts
+*.js.map
