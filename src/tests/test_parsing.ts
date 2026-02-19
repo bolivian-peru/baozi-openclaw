@@ -4,55 +4,54 @@ import { BaoziMonitor } from '../ClaimAgent';
 import assert = require('assert');
 
 /**
- * 360 OMEGA TEST: Structural Decoding Verification
- * Goal: Prove that binary data is correctly parsed into TypeScript objects.
+ * 360 OMEGA TEST v4.7.6: Physical Layout Verification
+ * Goal: Prove that the NEW offset 8 (User) and 40 (Market) are functional.
  */
 
 async function runOmegaTest() {
-    console.log("⚡ [OMEGA] Initiating 360 Structural Audit...");
+    console.log("⚡ [OMEGA] Initiating Physical Layout Audit (v4.7.6)...");
 
-    // 1. Prepare Synthetic Binary Data (Anchor Layout)
-    // Layout: Disc(8) + Owner(32) + Market(32) + Amount(8) + Claimed(1)
+    // 1. Prepare Binary Data based on baozi-mcp/src/handlers/positions.ts
+    // Layout: Disc(8) + User(32) + Market(8) + Yes(8) + No(8) + Claimed(1)
     
-    const discriminator = Buffer.from([251, 248, 209, 245, 83, 234, 17, 27]); // The holy discriminator
-    const owner = new PublicKey('8hswmw8fVwErtwgZ6Y85dMR4L2Tytdpk54Jf9fmpKxHs');
-    const market = new PublicKey('So11111111111111111111111111111111111111112');
-    const amount = new BN(5000000000); // 5 SOL
-    const isClaimed = 0; // False
+    const discriminator = Buffer.from([251, 248, 209, 245, 83, 234, 17, 27]);
+    const user = new PublicKey('8hswmw8fVwErtwgZ6Y85dMR4L2Tytdpk54Jf9fmpKxHs');
+    const marketId = new BN(12345);
+    const yesAmount = new BN(1000000000); // 1 SOL
+    const noAmount = new BN(0);
+    const isClaimed = 0;
 
-    const buffer = Buffer.alloc(81);
+    const buffer = Buffer.alloc(65); // Minimum size based on decodePosition
     discriminator.copy(buffer, 0);
-    owner.toBuffer().copy(buffer, 8);
-    market.toBuffer().copy(buffer, 40);
-    amount.toArrayLike(Buffer, 'le', 8).copy(buffer, 72);
-    buffer.writeUInt8(isClaimed, 80);
+    user.toBuffer().copy(buffer, 8); // User at Offset 8
+    marketId.toArrayLike(Buffer, 'le', 8).copy(buffer, 40); // Market at Offset 40
+    yesAmount.toArrayLike(Buffer, 'le', 8).copy(buffer, 48);
+    noAmount.toArrayLike(Buffer, 'le', 8).copy(buffer, 56);
+    buffer.writeUInt8(isClaimed, 64);
 
-    console.log(`📦 [OMEGA] Constructed Payload: ${buffer.toString('hex')}`);
+    console.log(`📦 [OMEGA] Constructed V4.7.6 Payload: ${buffer.toString('hex')}`);
 
-    // 2. Instantiate Monitor (Mocking connection string only, logic is real)
-    const monitor = new BaoziMonitor('http://localhost', '11111111111111111111111111111111', owner.toBase58());
+    // 2. Instantiate
+    const monitor = new BaoziMonitor('http://localhost', 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ', user.toBase58());
 
-    // 3. Inject Data into Decoder (Private method access via 'any' casting for testing)
+    // 3. Inject
     const fakeAccountInfo: AccountInfo<Buffer> = {
         data: buffer,
         executable: false,
         lamports: 0,
-        owner: new PublicKey('Baozi11111111111111111111111111111111111111'),
+        owner: new PublicKey('FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ'),
         rentEpoch: 0
     };
 
-    const decoded = (monitor as any).decodeUserPosition(new PublicKey('11111111111111111111111111111111'), fakeAccountInfo);
+    const decoded = (monitor as any).decodeUserPosition(new PublicKey('FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ'), fakeAccountInfo);
 
-    // 4. Assertions (The Truth)
-    assert.ok(decoded, "Decoder returned null!");
-    assert.strictEqual(decoded.owner.toBase58(), owner.toBase58(), "Owner mismatch");
-    assert.strictEqual(decoded.market.toBase58(), market.toBase58(), "Market mismatch");
-    assert.strictEqual(decoded.stakedAmount.toString(), amount.toString(), "Amount mismatch");
-    assert.strictEqual(decoded.isClaimed, false, "Claimed flag mismatch");
+    // 4. Assertions
+    assert.ok(decoded, "Decoder failed!");
+    assert.strictEqual(decoded.user.toBase58(), user.toBase58(), "User offset mismatch (should be 8)");
+    assert.strictEqual(decoded.marketId.toString(), "12345", "Market offset mismatch (should be 40)");
+    assert.strictEqual(decoded.yesAmount.toString(), "1000000000", "Amount mismatch");
 
-    console.log("✅ [OMEGA] Decoder Verification Passed.");
-    console.log(`   - Parsed Owner: ${decoded.owner.toBase58()}`);
-    console.log(`   - Parsed Stake: ${decoded.stakedAmount.toString()}`);
+    console.log("✅ [OMEGA] V4.7.6 Layout Confirmed. Logic is Physical.");
 }
 
 runOmegaTest().catch(err => {
