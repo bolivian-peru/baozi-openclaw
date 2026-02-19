@@ -1,6 +1,6 @@
 import { Market, RaceMarket, BaoziAPI } from './baozi-api';
 import { config } from './config';
-import { containsPredictiveLanguage, sanitize, getGuardrailPromptSuffix } from './guardrails';
+import { containsPredictiveLanguage, sanitize, getGuardrailPromptSuffix, isV7Banned } from './guardrails';
 
 /**
  * LLM-powered market analyst. Uses OpenAI for genuine AI analysis
@@ -93,14 +93,18 @@ export class Analyst {
       return { content: 'Market Roundup: No active markets right now. Stay tuned for new opportunities on Baozi!' };
     }
 
-    // Build market data context for LLM
-    const marketData = hot.map(m => ({
-      question: m.question,
-      yesPercent: m.yesPercent,
-      noPercent: m.noPercent,
-      poolSOL: m.totalPoolSol.toFixed(2),
-      category: m.category || 'uncategorized',
-    }));
+    // Build market data context for LLM (with v7.0 compliance flags)
+    const marketData = hot.map(m => {
+      const v7 = isV7Banned(m.question);
+      return {
+        question: m.question,
+        yesPercent: m.yesPercent,
+        noPercent: m.noPercent,
+        poolSOL: m.totalPoolSol.toFixed(2),
+        category: m.category || 'uncategorized',
+        v7Status: v7.banned ? `🚫 ${v7.reason}` : '✅ compliant',
+      };
+    });
 
     const closingData = closing.slice(0, 3).map(m => {
       const hoursLeft = Math.max(0, (new Date(m.closingTime).getTime() - Date.now()) / (1000 * 60 * 60));

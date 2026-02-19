@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { containsPredictiveLanguage, sanitize, getGuardrailPromptSuffix } from '../src/guardrails';
+import { containsPredictiveLanguage, sanitize, getGuardrailPromptSuffix, isV7Banned } from '../src/guardrails';
 
 describe('Guardrail Compliance', () => {
   describe('containsPredictiveLanguage', () => {
@@ -67,5 +67,23 @@ describe('Guardrail Compliance', () => {
       expect(suffix).toContain('closed');
       expect(suffix).toContain('retrospective');
     });
+  });
+});
+
+describe('Parimutuel Rules v7.0', () => {
+  it('flags price prediction markets as banned', () => {
+    expect(isV7Banned('Will BTC be above $100000?').banned).toBe(true);
+    expect(isV7Banned('Will SOL reach $300 by Q2?').banned).toBe(true);
+    expect(isV7Banned('Will Bitcoin price exceed $150000?').banned).toBe(true);
+  });
+
+  it('flags measurement-period markets as banned', () => {
+    expect(isV7Banned('Will volume during this week exceed 1M?').banned).toBe(true);
+  });
+
+  it('allows event-based markets', () => {
+    expect(isV7Banned('Will OpenAI announce GPT-5 by April?').banned).toBe(false);
+    expect(isV7Banned('Who will win the BAFTA?').banned).toBe(false);
+    expect(isV7Banned('Will @baozibet tweet a pizza emoji by March 1?').banned).toBe(false);
   });
 });
