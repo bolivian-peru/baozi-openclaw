@@ -1,0 +1,35 @@
+{
+  "name": "openclaw_repo",
+  "version": "1.0.0",
+  "description": "Build agents, bots, and tools for [Baozi.bet](https://baozi.bet) — Solana-native pari-mutuel prediction markets. We're paying SOL bounties for working integrations.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bronyhomie365/baozi-openclaw.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bronyhomie365/baozi-openclaw/issues"
+  },
+  "homepage": "https://github.com/bronyhomie365/baozi-openclaw#readme",
+  "devDependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "@types/node": "^25.3.0",
+    "axios": "^1.13.5",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@types/bn.js": "^5.2.0",
+    "bn.js": "^5.2.3",
+    "bs58": "^6.0.0",
+    "buffer-layout": "^1.2.2"
+  }
+}
