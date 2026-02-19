@@ -1,21 +1,39 @@
 import { Market, RaceMarket, BaoziAPI } from './baozi-api';
 import { config } from './config';
+import { containsPredictiveLanguage, sanitize, getGuardrailPromptSuffix } from './guardrails';
 
 /**
  * LLM-powered market analyst. Uses OpenAI for genuine AI analysis
  * of prediction markets, not just string templates.
+ *
+ * Guardrail compliance:
+ * - Open markets: FACTUAL ONLY (odds, pool, timing)
+ * - Closed/resolved: Full analysis permitted
  */
 
 interface LLMResponse {
   content: string;
 }
 
-async function callLLM(prompt: string, maxTokens = 500): Promise<string> {
+/**
+ * Build a market link with optional affiliate code.
+ */
+function marketLink(marketPda: string): string {
+  const base = `baozi.bet/market/${marketPda}`;
+  if (config.affiliateCode) {
+    return `${base}?${config.affiliateQueryParam}=${config.affiliateCode}`;
+  }
+  return base;
+}
+
+async function callLLM(prompt: string, maxTokens = 500, isBettingOpen = true): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     console.warn('No OPENAI_API_KEY set, falling back to template analysis');
     return '';
   }
+
+  const guardrailSuffix = getGuardrailPromptSuffix(isBettingOpen);
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -29,17 +47,28 @@ async function callLLM(prompt: string, maxTokens = 500): Promise<string> {
         messages: [
           {
             role: 'system',
-            content: `You are a sharp, data-driven prediction market analyst for Baozi (baozi.bet). Write concise, engaging analysis posts. Use emojis sparingly. Focus on odds, pool dynamics, and contrarian opportunities. Keep posts under ${maxTokens * 3} characters. Never give financial advice - just analysis.`,
+            content: `You are a sharp, data-driven prediction market analyst for Baozi (baozi.bet). Write concise, engaging analysis posts. Use emojis sparingly. Focus on odds, pool dynamics, and observable data. Keep posts under ${maxTokens * 3} characters. Never give financial advice.${guardrailSuffix}`,
           },
           { role: 'user', content: prompt },
         ],
         max_tokens: maxTokens,
-        temperature: 0.8,
+        temperature: 0.7,
       }),
     });
 
     const data = await response.json() as any;
-    return data.choices?.[0]?.message?.content || '';
+    let content = data.choices?.[0]?.message?.content || '';
+
+    // Post-generation guardrail check for open markets
+    if (isBettingOpen && content) {
+      const check = containsPredictiveLanguage(content);
+      if (check.hasPrediction) {
+        console.warn(`  🛡️ Guardrail: sanitizing ${check.matches.length} predictive patterns from LLM output`);
+        content = sanitize(content);
+      }
+    }
+
+    return content;
   } catch (err: any) {
     console.error('LLM call failed:', err.message);
     return '';
@@ -143,20 +172,20 @@ Category: ${target.category || 'General'}
 Time Remaining: ${hoursLeft.toFixed(1)} hours
 Status: ${target.status}
 
-Consider: Is the market pricing this correctly? What could cause odds to shift? Is there a contrarian case? What should traders watch for? Any edge from pool size dynamics?
+Consider: What do the current odds reflect? What could cause odds to shift? What should observers watch for? Note any interesting pool size dynamics.
 
-Write as a market analyst post. Be specific and data-driven.`;
+Write as a market analyst post. Be specific and data-driven. Report observable facts and odds - do NOT predict outcomes.`;
 
-    const llmAnalysis = await callLLM(prompt, 400);
+    const llmAnalysis = await callLLM(prompt, 400, target.isBettingOpen);
 
     if (llmAnalysis) {
-      const content = `${llmAnalysis}\n\nbaozi.bet/market/${target.publicKey}`;
+      const content = `${llmAnalysis}\n\n${marketLink(target.publicKey)}`;
       return { content: content.substring(0, 2000), marketPda: target.publicKey };
     }
 
     // Fallback
     const spread = Math.abs(target.yesPercent - target.noPercent);
-    const analysis = `Market Analysis: "${target.question}"\n\nYes: ${target.yesPercent}% | No: ${target.noPercent}%\nSpread: ${spread.toFixed(1)}pp | Pool: ${target.totalPoolSol.toFixed(2)} SOL\n\n${spread < 10 ? 'Razor-close market. Small bets could swing odds.' : target.yesPercent > 75 ? `Strong Yes consensus. Contrarians: No at ${target.noPercent}% = ${(100 / target.noPercent).toFixed(1)}x implied.` : `Moderate lean. Watch for momentum shifts.`}\n\nbaozi.bet/market/${target.publicKey}`;
+    const analysis = `Market Analysis: "${target.question}"\n\nYes: ${target.yesPercent}% | No: ${target.noPercent}%\nSpread: ${spread.toFixed(1)}pp | Pool: ${target.totalPoolSol.toFixed(2)} SOL\n\n${spread < 10 ? 'Razor-close market. Small bets could swing odds.' : target.yesPercent > 75 ? `Strong Yes consensus at ${target.yesPercent}%.` : `Moderate lean. Pool dynamics worth watching.`}\n\n${marketLink(target.publicKey)}`;
     return { content: analysis.substring(0, 2000), marketPda: target.publicKey };
   }
 
@@ -179,15 +208,15 @@ Pool: ${target.totalPoolSol.toFixed(4)} SOL
 
 Create urgency. Mention the current odds and what the final window means for traders. Keep it tight.`;
 
-    const llmAnalysis = await callLLM(prompt, 250);
+    const llmAnalysis = await callLLM(prompt, 250, target.isBettingOpen);
 
     if (llmAnalysis) {
-      const content = `${llmAnalysis}\n\nbaozi.bet/market/${target.publicKey}`;
+      const content = `${llmAnalysis}\n\n${marketLink(target.publicKey)}`;
       return { content: content.substring(0, 2000), marketPda: target.publicKey };
     }
 
     // Fallback
-    const content = `Last Call: "${target.question}"\n\nClosing in ${hoursLeft.toFixed(1)} hours\nOdds: Yes ${target.yesPercent}% | No ${target.noPercent}%\nPool: ${target.totalPoolSol.toFixed(2)} SOL\n\nFinal chance to take a position.\n\nbaozi.bet/market/${target.publicKey}`;
+    const content = `Last Call: "${target.question}"\n\nClosing in ${hoursLeft.toFixed(1)} hours\nOdds: Yes ${target.yesPercent}% | No ${target.noPercent}%\nPool: ${target.totalPoolSol.toFixed(2)} SOL\n\nFinal chance to take a position.\n\n${marketLink(target.publicKey)}`;
     return { content: content.substring(0, 2000), marketPda: target.publicKey };
   }
 
