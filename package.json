@@ -1,0 +1,39 @@
+{
+  "name": "baozi-openclaw",
+  "version": "1.0.0",
+  "description": "Build agents, bots, and tools for [Baozi.bet](https://baozi.bet) — Solana-native pari-mutuel prediction markets. We're paying SOL bounties for working integrations.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "night-kitchen": "ts-node scripts/night-kitchen.ts",
+    "build": "tsc",
+    "start": "node dist/scripts/night-kitchen.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bolivian-peru/baozi-openclaw.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bolivian-peru/baozi-openclaw/issues"
+  },
+  "homepage": "https://github.com/bolivian-peru/baozi-openclaw#readme",
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "@types/bs58": "^4.0.4",
+    "@types/node": "^25.3.0",
+    "axios": "^1.13.5",
+    "bs58": "^6.0.0",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
