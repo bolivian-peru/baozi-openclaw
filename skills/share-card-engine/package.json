@@ -1,0 +1,22 @@
+{
+  "name": "@baozi/share-card-engine",
+  "version": "1.0.0",
+  "description": "Share Card Viral Engine — every bet becomes a billboard",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
+  }
+}
