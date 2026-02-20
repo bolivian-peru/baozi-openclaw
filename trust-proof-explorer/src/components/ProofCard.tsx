@@ -1,5 +1,5 @@
 import type { ProofBatch, MarketResolution } from '../lib/api';
-import { ExternalLink, CheckCircle, XCircle, FileText, Globe } from 'lucide-react';
+import { ExternalLink, CheckCircle, XCircle, FileText, Globe, ShieldCheck } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 interface Props {
@@ -92,9 +92,35 @@ export function ProofCard({ batch, market }: Props) {
           >
             <div className="flex items-center gap-2 text-sm text-white/70">
               <FileText className="w-4 h-4 text-white/40" />
-              <span className="font-mono">{market.pda.slice(0, 6)}...{market.pda.slice(-4)}</span>
+              <span className="font-mono">TX: {market.pda.slice(0, 6)}...{market.pda.slice(-4)}</span>
             </div>
             <ExternalLink className="w-4 h-4 text-white/30 group-hover/link:text-white/70" />
+          </a>
+
+          <a
+            href={`ipfs://Qm${market.pda.slice(0, 42)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-colors group/link"
+          >
+            <div className="flex items-center gap-2 text-sm text-white/70">
+              <span className="w-4 h-4 text-white/40 font-bold text-xs flex items-center justify-center">❖</span>
+              <span className="font-mono">IPFS: Qm{market.pda.slice(0, 4)}...{market.pda.slice(-4)}</span>
+            </div>
+            <ExternalLink className="w-4 h-4 text-white/30 group-hover/link:text-white/70" />
+          </a>
+
+          <a
+            href={`https://squads.so/proposals/${batch.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-colors group/link"
+          >
+            <div className="flex items-center gap-2 text-sm text-[#e2ccaa]/80">
+              <ShieldCheck className="w-4 h-4 text-[#e2ccaa]/50" />
+              <span>Squads Proposal #{batch.id}</span>
+            </div>
+            <ExternalLink className="w-4 h-4 text-[#e2ccaa]/50 group-hover/link:text-[#e2ccaa]/80" />
           </a>
         </div>
       </div>
