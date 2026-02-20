@@ -50,6 +50,10 @@ def main() -> None:
         help="Search in market questions (case-insensitive)",
     )
     parser.add_argument(
+        "--date", type=str,
+        help="Filter by resolution date (YYYY-MM-DD format, e.g. 2026-02-19)",
+    )
+    parser.add_argument(
         "--stats", action="store_true",
         help="Show oracle stats only",
     )
@@ -70,7 +74,7 @@ def main() -> None:
         console.print()
         return
 
-    if args.compare and not any([args.tier, args.category, args.layer, args.search]):
+    if args.compare and not any([args.tier, args.category, args.layer, args.search, args.date]):
         if args.stats:
             render_header(response)
             console.print()
@@ -86,6 +90,7 @@ def main() -> None:
         category=args.category,
         layer=args.layer,
         search=args.search,
+        date=args.date,
     )
 
     stats = compute_stats(filtered)

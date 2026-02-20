@@ -142,6 +142,13 @@ def render_stats(stats: dict, oracle_tiers: list | None = None) -> None:
     layer_parts = [f"{layer}: {count}" for layer, count in sorted(stats["by_layer"].items())]
     t.add_row("By Layer", "\n".join(layer_parts))
 
+    # Average resolution time per tier (from oracle tier speed metadata)
+    if oracle_tiers:
+        avg_time_parts = []
+        for ot in oracle_tiers:
+            avg_time_parts.append(f"Tier {ot.tier} ({ot.name}): {ot.speed}")
+        t.add_row("Avg Resolution Time", "\n".join(avg_time_parts))
+
     # Oracle tier details
     if oracle_tiers:
         tier_detail = []

@@ -176,6 +176,7 @@ def filter_proofs(
     category: Optional[str] = None,
     layer: Optional[str] = None,
     search: Optional[str] = None,
+    date: Optional[str] = None,
 ) -> list[Proof]:
     """Apply CLI filters to the proof list. All filters are combinable."""
     result = proofs
@@ -197,6 +198,10 @@ def filter_proofs(
             p for p in result
             if any(search_lower in m.question.lower() for m in p.markets)
         ]
+
+    if date is not None:
+        # Accepts YYYY-MM-DD; matches proofs resolved on that date
+        result = [p for p in result if p.date.startswith(date)]
 
     return result
 
