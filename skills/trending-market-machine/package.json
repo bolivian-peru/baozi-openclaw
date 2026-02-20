@@ -1,0 +1,29 @@
+{
+  "name": "@baozi/trending-market-machine",
+  "version": "1.0.0",
+  "description": "Trending Market Machine — Auto-Create Labs Markets from Viral Topics",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.0",
+    "axios": "^1.7.0",
+    "better-sqlite3": "^11.0.0",
+    "bs58": "^5.0.0",
+    "rss-parser": "^3.13.0",
+    "tweetnacl": "^1.0.3",
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "vitest": "^1.0.0"
+  }
+}
