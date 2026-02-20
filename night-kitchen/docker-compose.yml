@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  night-kitchen:
+    build: .
+    container_name: night-kitchen
+    environment:
+      - WALLET_ADDRESS=${WALLET_ADDRESS:-}
+      - HELIUS_RPC_URL=${HELIUS_RPC_URL:-}
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - night-kitchen-data:/app/data
+
+volumes:
+  night-kitchen-data:
