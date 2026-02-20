@@ -11,7 +11,7 @@ import type { PublisherConfig } from '../agentbook.js';
 
 describe('isValidWalletAddress', () => {
   it('should accept valid Ethereum addresses', () => {
-    expect(isValidWalletAddress('0x59c7D3E9926403FBfdA678503827eFF0c5390D83')).toBe(true);
+    expect(isValidWalletAddress('FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx')).toBe(true);
   });
 
   it('should reject invalid Ethereum addresses (too short)', () => {
@@ -33,7 +33,7 @@ describe('isValidWalletAddress', () => {
 
 describe('postToAgentBook — dry run', () => {
   const config: PublisherConfig = {
-    walletAddress: '0x59c7D3E9926403FBfdA678503827eFF0c5390D83',
+    walletAddress: 'FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx',
     dryRun: true,
   };
 
@@ -84,7 +84,7 @@ describe('postToAgentBook — dry run', () => {
 
 describe('batchPost — dry run', () => {
   const config: PublisherConfig = {
-    walletAddress: '0x59c7D3E9926403FBfdA678503827eFF0c5390D83',
+    walletAddress: 'FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx',
     dryRun: true,
   };
 
