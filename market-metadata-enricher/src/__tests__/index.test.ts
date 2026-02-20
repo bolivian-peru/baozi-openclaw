@@ -404,7 +404,11 @@ async function runTests() {
   console.log('\n⚙️  Config:');
 
   await test('DEFAULT_CONFIG has valid wallet address', () => {
-    assert.ok(DEFAULT_CONFIG.walletAddress.startsWith('0x'));
+    // Solana wallet addresses are base58-encoded, 32-44 chars
+    assert.ok(
+      DEFAULT_CONFIG.walletAddress.length >= 32 && DEFAULT_CONFIG.walletAddress.length <= 44,
+      `Expected Solana base58 address (32-44 chars), got ${DEFAULT_CONFIG.walletAddress.length} chars`,
+    );
   });
 
   await test('DEFAULT_CONFIG has reasonable poll interval', () => {
