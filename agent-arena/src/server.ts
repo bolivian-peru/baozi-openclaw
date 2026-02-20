@@ -27,25 +27,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ── Default agent wallets to track ───────────────────────────────────────
-// These are discovered from on-chain activity. Users can add more via env.
+// No hardcoded wallets — configure via AGENT_WALLETS env variable.
+// Example: AGENT_WALLETS=wallet1,wallet2,wallet3
 
-const DEFAULT_AGENTS: AgentConfig[] = [
-  {
-    wallet: '2hgph1xwES4mUtAX6kan8qcU27oSWeSXeew99CgVWcER',
-    name: 'Baozi Deployer',
-    emoji: '🥟',
-  },
-  {
-    wallet: '36DypUbxfXUe2sL2hjQ1hk7SH4h4nMUuwUAogs3cax3Q',
-    name: 'Grandma Mei',
-    emoji: '👵',
-  },
-  {
-    wallet: 'CRiSToxYfnmgHBz2LXKH3LDNdfrHPSfXVmhS9jS6MjDm',
-    name: 'Cristol',
-    emoji: '🤖',
-  },
-];
+const DEFAULT_AGENTS: AgentConfig[] = [];
 
 function loadAgents(): AgentConfig[] {
   const envWallets = process.env.AGENT_WALLETS;

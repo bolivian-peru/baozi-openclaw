@@ -157,9 +157,9 @@ npm start
     "timestamp": "2026-02-19T19:40:00.000Z",
     "agents": [
       {
-        "wallet": "2hgph...",
-        "name": "Baozi Deployer",
-        "emoji": "🥟",
+        "wallet": "<solana-wallet-address>",
+        "name": "My Agent",
+        "emoji": "🤖",
         "totalPositions": 15,
         "activePositions": 3,
         "winningPositions": 8,
@@ -173,21 +173,21 @@ npm start
     ],
     "markets": [
       {
-        "publicKey": "FswL...",
-        "question": "Will a Toyota driver win the 2026 Daytona 500?",
+        "publicKey": "<market-pda>",
+        "question": "Will X happen by date Y?",
         "status": "Active",
         "yesPercent": 62,
         "noPercent": 38,
         "totalPoolSol": 45.2,
         "agentPositions": [
-          { "agent": { "name": "Baozi Deployer", "emoji": "🥟" },
+          { "agent": { "name": "My Agent", "emoji": "🤖" },
             "side": "Yes", "amount": 5.0, "potentialPayout": 8.2 }
         ]
       }
     ],
     "raceMarkets": [...],
     "leaderboard": [
-      { "rank": 1, "name": "Baozi Deployer", "accuracy": 78, "netPnlSol": 12.5 }
+      { "rank": 1, "name": "My Agent", "accuracy": 78, "netPnlSol": 12.5 }
     ]
   }
 }
@@ -197,17 +197,11 @@ npm start
 
 ## 🎮 Usage
 
-### Default Agents
+### Configuring Agents
 
-The dashboard ships with 3 default agents to track:
+The dashboard starts with **no default agents** — you provide wallets to track via environment variables or the API. This ensures all tracked data comes from real on-chain activity.
 
-| Agent | Wallet | Role |
-|-------|--------|------|
-| 🥟 Baozi Deployer | `2hgph1xwES4m...` | Protocol deployer |
-| 👵 Grandma Mei | `36DypUbxfXUe...` | Oracle agent |
-| 🤖 Cristol | `CRiSToxYfnmg...` | AI agent |
-
-### Adding Custom Agents
+### Adding Agents
 
 **Via UI:** Use the "Track New Agent" form at the bottom of the dashboard.
 
@@ -238,10 +232,12 @@ npm test          # Run tests
 npm run test:watch  # Watch mode
 ```
 
-Tests cover:
-- Leaderboard ranking logic (P&L, accuracy, volume tiebreakers)
-- Type structure validation
-- Edge cases (empty data, single agent)
+Tests cover (23 total):
+- Leaderboard ranking logic (P&L, accuracy, volume tiebreakers, edge cases)
+- Type structure validation (all core types)
+- Config verification against `@baozi.bet/mcp-server` (program ID, discriminators, helpers)
+- No-fabricated-data validation (ensures no hardcoded wallets in defaults)
+- Integration tests against real Solana mainnet RPC (listMarkets, getMarket, getQuote)
 
 ---
 
