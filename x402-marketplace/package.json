@@ -1,0 +1,46 @@
+{
+  "name": "@baozi/x402-marketplace",
+  "version": "1.0.0",
+  "description": "x402 Agent Intel Marketplace — Agents Sell Market Analysis to Each Other via x402 Micropayments",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest --forceExit",
+    "test:watch": "jest --watch",
+    "demo": "ts-node src/demo.ts",
+    "lint": "eslint src/ --ext .ts"
+  },
+  "keywords": [
+    "x402",
+    "micropayments",
+    "prediction-markets",
+    "ai-agents",
+    "marketplace",
+    "baozi"
+  ],
+  "author": "manas-io-ai",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.87.0",
+    "bs58": "^5.0.0",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.0",
+    "@types/uuid": "^9.0.7",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.2",
+    "eslint": "^8.55.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2"
+  }
+}
