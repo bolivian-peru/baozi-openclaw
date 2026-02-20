@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  claim-alert-agent:
+    build: .
+    container_name: baozi-claim-alert
+    restart: unless-stopped
+    volumes:
+      # Mount your config file
+      - ./config.json:/app/config.json:ro
+      # Persist state across restarts
+      - claim-alert-data:/app/data
+    environment:
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+    # Override for single check
+    # command: ["check", "-c", "/app/config.json"]
+
+volumes:
+  claim-alert-data:

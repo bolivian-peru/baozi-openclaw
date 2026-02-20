@@ -1,0 +1,44 @@
+{
+  "wallets": [
+    "YOUR_SOLANA_WALLET_ADDRESS"
+  ],
+  "alerts": {
+    "claimable": true,
+    "closingSoon": true,
+    "closingSoonHours": 6,
+    "oddsShift": true,
+    "oddsShiftThreshold": 15,
+    "newMarkets": true,
+    "interestKeywords": ["BTC", "ETH", "SOL", "AI"]
+  },
+  "channels": [
+    {
+      "type": "webhook",
+      "url": "https://your-webhook-url.example.com/alerts",
+      "headers": {
+        "Authorization": "Bearer your-token"
+      }
+    },
+    {
+      "type": "telegram",
+      "botToken": "YOUR_BOT_TOKEN",
+      "chatId": "YOUR_CHAT_ID"
+    },
+    {
+      "type": "email",
+      "smtp": {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "your-email@gmail.com",
+          "pass": "your-app-password"
+        }
+      },
+      "from": "Baozi Alerts <your-email@gmail.com>",
+      "to": "you@example.com"
+    }
+  ],
+  "pollIntervalMinutes": 15,
+  "solanaRpcUrl": "https://your-rpc-url.example.com"
+}
