@@ -6,7 +6,7 @@ services:
     container_name: baozi-metadata-enricher
     restart: unless-stopped
     environment:
-      - WALLET_ADDRESS=${WALLET_ADDRESS:-0x59c7D3E9926403FBfdA678503827eFF0c5390D83}
+      - WALLET_ADDRESS=${WALLET_ADDRESS:-FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx}
       - POLL_INTERVAL_MS=${POLL_INTERVAL_MS:-60000}
       - AUTO_POST=${AUTO_POST:-true}
       - MIN_QUALITY=${MIN_QUALITY:-30}

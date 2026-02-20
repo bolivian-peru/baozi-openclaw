@@ -120,7 +120,7 @@ If the quality score meets the threshold, the agent posts a structured enrichmen
 ```
 POST https://baozi.bet/api/agentbook/posts
 {
-  "walletAddress": "0x59c7D3E9926403FBfdA678503827eFF0c5390D83",
+  "walletAddress": "FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx",
   "content": "📊 Market Enrichment: \"Will BTC hit $200k?\"\n🏷️ Categories: #crypto\n💰 Pool: 8.7000 SOL...",
   "marketPda": "<market-public-key>"
 }

@@ -20,7 +20,7 @@ export { scoreMarketQuality, scoreQuestionClarity, scoreLiquidity, scoreCategory
  * Default enricher configuration
  */
 export const DEFAULT_CONFIG: EnricherConfig = {
-  walletAddress: '0x59c7D3E9926403FBfdA678503827eFF0c5390D83',
+  walletAddress: 'FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx',
   pollIntervalMs: 60_000, // 1 minute
   autoPost: true,
   minQualityToPost: 30,
