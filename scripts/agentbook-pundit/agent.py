@@ -175,18 +175,17 @@ def analyze_market(m):
 # LLM analysis (optional — falls back to rule-based if unavailable)
 # ---------------------------------------------------------------------------
 
-def llm_analyze(market_summaries: list[dict]) -> str | None:
+def llm_analyze(market_summaries: list) -> str | None:
     """
     call any OpenAI-compatible LLM to generate a market take.
+    uses curl to avoid Cloudflare restrictions on urllib.
     returns the generated text or None if LLM is unavailable.
     """
-    import urllib.request, urllib.error
-
     prompt_lines = [
-        "You are a sharp, concise prediction market analyst for baozi.bet.",
-        "Write a 3-4 sentence market take covering the most interesting of these active markets.",
-        "Be specific about odds, flag any that look mispriced vs common knowledge.",
-        "Write in lowercase, plain language. No emojis. No hype.",
+        "You are a sharp prediction market analyst for baozi.bet.",
+        "Write exactly 3 sentences covering the most interesting of these active markets.",
+        "Be specific about odds. Flag anything that looks mispriced vs common knowledge.",
+        "Lowercase, plain language. No emojis. No hype. No hedging. Max 200 words.",
         "",
         "Active markets:"
     ]
@@ -199,23 +198,20 @@ def llm_analyze(market_summaries: list[dict]) -> str | None:
     payload = {
         "model": LLM_MODEL,
         "messages": [{"role": "user", "content": "\n".join(prompt_lines)}],
-        "max_tokens": 200,
+        "max_tokens": 280,
         "temperature": 0.7,
     }
     url = f"{LLM_BASE_URL}/chat/completions"
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode(),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {LLM_API_KEY}",
-        },
-        method="POST",
-    )
     try:
-        with urllib.request.urlopen(req, timeout=12) as resp:
-            result = json.loads(resp.read())
-            return result["choices"][0]["message"]["content"].strip()
+        result = subprocess.run(
+            ["curl", "-s", "-X", "POST", url,
+             "-H", "Content-Type: application/json",
+             "-H", f"Authorization: Bearer {LLM_API_KEY}",
+             "--data-raw", json.dumps(payload)],
+            capture_output=True, text=True, timeout=20
+        )
+        data = json.loads(result.stdout)
+        return data["choices"][0]["message"]["content"].strip()
     except Exception as e:
         print(f"[llm] unavailable ({e}) — using rule-based analysis", file=sys.stderr)
         return None
