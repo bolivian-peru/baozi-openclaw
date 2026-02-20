@@ -50,14 +50,26 @@ def _detect_provider(key: str):
         return "https://api.groq.com/openai/v1", "llama-3.1-8b-instant"
     if key.startswith("key-"):
         return "https://api.together.xyz/v1", "meta-llama/Llama-3-8b-chat-hf"
-    # fallback: local Ollama
-    return "http://localhost:11434/v1", "llama3.2"
+    # fallback: local Ollama — glm-4.7-flash is non-reasoning, fast, good for analysis
+    return "http://localhost:11434/v1", "glm-4.7-flash:q4_K_M"
 
 _auto_url, _auto_model = _detect_provider(_raw_key)
 
 LLM_BASE_URL = os.environ.get("LLM_BASE_URL", _auto_url)
 LLM_API_KEY  = _raw_key or "ollama"
 LLM_MODEL    = os.environ.get("LLM_MODEL", _auto_model)
+
+def _is_ollama() -> bool:
+    """true if LLM_BASE_URL looks like a local Ollama instance."""
+    return "11434" in LLM_BASE_URL or LLM_BASE_URL.rstrip("/").endswith("/v1") and (
+        "localhost" in LLM_BASE_URL or "127.0.0.1" in LLM_BASE_URL
+        or "host.docker.internal" in LLM_BASE_URL
+        or "172." in LLM_BASE_URL
+    )
+
+def _ollama_base() -> str:
+    """derive the bare Ollama host URL (no /v1) from LLM_BASE_URL."""
+    return LLM_BASE_URL.rstrip("/").removesuffix("/v1")
 
 # ed25519 keypair bytes (64 bytes: privkey seed + pubkey)
 KEYPAIR = [
@@ -69,6 +81,9 @@ KEYPAIR = [
 
 AGENTBOOK_URL = "https://baozi.bet/api/agentbook/posts"
 COMMENTS_URL  = "https://baozi.bet/api/markets/{pda}/comments"
+
+# set to True via --require-llm to abort instead of silently falling back
+REQUIRE_LLM = False
 
 
 # ---------------------------------------------------------------------------
@@ -202,15 +217,64 @@ def analyze_market(m):
 # LLM analysis (optional — falls back to rule-based if unavailable)
 # ---------------------------------------------------------------------------
 
-def llm_analyze(market_summaries: list) -> str | None:
+def _call_llm(prompt: str, max_tokens: int = 400, temperature: float = 0.7) -> str:
     """
-    call any OpenAI-compatible LLM to generate a market take.
-    uses curl to avoid Cloudflare restrictions on urllib.
-    returns the generated text or None if LLM is unavailable.
+    low-level LLM call. returns content string or raises RuntimeError.
+    routes to native Ollama /api/chat (think:false) for local instances,
+    or OpenAI-compatible /v1/chat/completions for cloud providers.
+    """
+    if _is_ollama():
+        # native Ollama API — think:false disables chain-of-thought on reasoning models
+        url = f"{_ollama_base()}/api/chat"
+        payload = {
+            "model": LLM_MODEL,
+            "stream": False,
+            "think": False,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        result = subprocess.run(
+            ["curl", "-s", "--max-time", "60", "-X", "POST", url,
+             "-H", "Content-Type: application/json",
+             "--data-raw", json.dumps(payload)],
+            capture_output=True, text=True, timeout=65
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"curl failed ({result.returncode}): {result.stderr[:80]}")
+        data = json.loads(result.stdout)
+        content = (data.get("message", {}).get("content") or "").strip()
+    else:
+        # OpenAI-compatible endpoint (OpenAI, Groq, OpenRouter, Together, etc.)
+        url = f"{LLM_BASE_URL}/chat/completions"
+        payload = {
+            "model": LLM_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+        result = subprocess.run(
+            ["curl", "-s", "--max-time", "30", "-X", "POST", url,
+             "-H", "Content-Type: application/json",
+             "-H", f"Authorization: Bearer {LLM_API_KEY}",
+             "--data-raw", json.dumps(payload)],
+            capture_output=True, text=True, timeout=35
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"curl failed ({result.returncode}): {result.stderr[:80]}")
+        data = json.loads(result.stdout)
+        content = (data["choices"][0]["message"].get("content") or "").strip()
+
+    if not content:
+        raise RuntimeError("LLM returned empty content")
+    return content
+
+
+def llm_analyze(market_summaries: list, require: bool = False) -> str | None:
+    """
+    generate LLM-powered market analysis.
+    returns text or None if LLM is unavailable (or raises if require=True).
     """
     prompt_lines = [
-        "You are a sharp prediction market analyst for baozi.bet.",
-        "Write exactly 3 sentences covering the most interesting of these active markets.",
+        "Analyze these active prediction markets in 3 sentences.",
         "Be specific about odds. Flag anything that looks mispriced vs common knowledge.",
         "Lowercase, plain language. No emojis. No hype. No hedging. Max 200 words.",
         "",
@@ -221,26 +285,15 @@ def llm_analyze(market_summaries: list) -> str | None:
             f"- {s['question']} | YES {s['yes_pct']:.0f}% NO {s['no_pct']:.0f}% | "
             f"pool {s['pool']:.2f} SOL | {s['timing']}"
         )
-
-    payload = {
-        "model": LLM_MODEL,
-        "messages": [{"role": "user", "content": "\n".join(prompt_lines)}],
-        "max_tokens": 280,
-        "temperature": 0.7,
-    }
-    url = f"{LLM_BASE_URL}/chat/completions"
     try:
-        result = subprocess.run(
-            ["curl", "-s", "-X", "POST", url,
-             "-H", "Content-Type: application/json",
-             "-H", f"Authorization: Bearer {LLM_API_KEY}",
-             "--data-raw", json.dumps(payload)],
-            capture_output=True, text=True, timeout=20
-        )
-        data = json.loads(result.stdout)
-        return data["choices"][0]["message"]["content"].strip()
+        content = _call_llm("\n".join(prompt_lines))
+        print(f"[llm] ✓ {LLM_MODEL} ({len(content)} chars)", file=sys.stderr)
+        return content
     except Exception as e:
-        print(f"[llm] unavailable ({e}) — using rule-based analysis", file=sys.stderr)
+        msg = f"[llm] unavailable ({e}) — falling back to rule-based analysis"
+        print(msg, file=sys.stderr)
+        if require:
+            raise RuntimeError(msg) from e
         return None
 
 
@@ -287,13 +340,15 @@ def morning_roundup(markets):
             f"    market says {dominant_pct:.0f}% {dominant}{note}"
         )
 
-    # attempt LLM analysis for a richer take
+    # LLM analysis — always attempted; result shown prominently when available
     summaries = [analyze_market(m) for m in active[:6]]
-    llm_take = llm_analyze(summaries)
+    llm_take = llm_analyze(summaries, require=REQUIRE_LLM)
+    lines.append("")
     if llm_take:
-        lines.append("")
         lines.append("🤖 analyst take:")
         lines.append(llm_take)
+    else:
+        lines.append("📊 (LLM unavailable — rule-based summary above)")
 
     lines.append("")
     lines.append("baozi.bet — small bets, real odds.")
@@ -329,25 +384,47 @@ def evening_alerts(markets):
 
     # LLM closing take
     summaries = [analyze_market(m) for m in closing[:3]]
-    llm_take = llm_analyze(summaries)
+    llm_take = llm_analyze(summaries, require=REQUIRE_LLM)
     if llm_take:
         lines.append("🤖 analyst:")
         lines.append(llm_take)
+        lines.append("")
+    else:
+        lines.append("📊 (LLM unavailable — showing rule-based alerts)")
         lines.append("")
 
     lines.append("last call. baozi.bet")
     return "\n".join(lines)
 
 
-def market_comment(m):
-    """generate a short signed comment for a specific market (10-500 chars)."""
+def market_comment(m, use_llm: bool = True):
+    """generate a short signed comment for a specific market (10-500 chars).
+    tries LLM first; falls back to rule-based if LLM unavailable.
+    """
     a = analyze_market(m)
-    q = a["question"][:55]
-    hl = a["hours_left"]
     y = a["yes_pct"]
     no = a["no_pct"]
     pool = a["pool"]
+    hl = a["hours_left"]
 
+    # --- attempt LLM comment ---
+    if use_llm:
+        prompt = (
+            f"Write a single crisp sentence (max 120 words) analyzing this prediction market: "
+            f"'{a['question']}' "
+            f"YES {y:.0f}% NO {no:.0f}%, pool {pool:.2f} SOL, "
+            f"{'closes in ' + str(int(hl)) + 'h' if hl < 24 else 'long-dated'}. "
+            f"Be specific and direct. No emojis. Lowercase."
+        )
+        try:
+            content = _call_llm(prompt, max_tokens=200, temperature=0.6)
+            if 10 <= len(content) <= 490:
+                print(f"[llm] ✓ comment via {LLM_MODEL}", file=sys.stderr)
+                return content[:490]
+        except Exception as e:
+            print(f"[llm] comment fallback to rule-based ({e})", file=sys.stderr)
+
+    # --- rule-based fallback ---
     if a["edge_side"]:
         lead = f"{a['edge_side']} looks underpriced at {min(y,no):.0f}% — market may be overcorrecting."
     elif abs(y - 50) < 3:
@@ -431,19 +508,52 @@ def post_market_comment(market_pda, content):
 
 def main():
     parser = argparse.ArgumentParser(description="agentbook pundit — baozi market analyst")
-    parser.add_argument("--morning",  action="store_true", help="post morning roundup")
-    parser.add_argument("--evening",  action="store_true", help="post closing-soon alerts")
-    parser.add_argument("--comment",  action="store_true", help="comment on top 3 markets")
-    parser.add_argument("--all",      action="store_true", help="run all modes")
-    parser.add_argument("--dry-run",  action="store_true", help="print output, don't post")
+    parser.add_argument("--morning",     action="store_true", help="post morning roundup")
+    parser.add_argument("--evening",     action="store_true", help="post closing-soon alerts")
+    parser.add_argument("--comment",     action="store_true", help="comment on top 3 markets")
+    parser.add_argument("--all",         action="store_true", help="run all modes")
+    parser.add_argument("--dry-run",     action="store_true", help="print output, don't post")
+    parser.add_argument("--test-llm",    action="store_true",
+                        help="smoke-test LLM connection and print a sample analysis, then exit")
+    parser.add_argument("--require-llm", action="store_true",
+                        help="abort instead of falling back to rule-based if LLM unavailable")
     args = parser.parse_args()
 
-    if not any([args.morning, args.evening, args.comment, args.all]):
+    if not any([args.morning, args.evening, args.comment, args.all, args.test_llm]):
         # default: morning mode
         args.morning = True
 
+    global REQUIRE_LLM
+    if args.require_llm:
+        REQUIRE_LLM = True
+
     provider = LLM_BASE_URL.split("/")[2] if LLM_BASE_URL else "none"
     print(f"[pundit] LLM: {provider} / {LLM_MODEL}", file=sys.stderr)
+
+    # --test-llm: smoke-test the LLM connection and exit
+    if args.test_llm:
+        print(f"[pundit] testing LLM at {LLM_BASE_URL} with model {LLM_MODEL}...", file=sys.stderr)
+        sample = [
+            {"question": "Will BTC close above $100k on Feb 28?",
+             "yes_pct": 63.0, "no_pct": 37.0, "pool": 0.12,
+             "timing": "closing this week", "skew_label": "YES heavy",
+             "edge_side": None, "hours_left": 72, "pda": ""},
+            {"question": "Will the SEC approve a prediction market ETF before Jun 30?",
+             "yes_pct": 33.0, "no_pct": 67.0, "pool": 0.03,
+             "timing": "long-dated", "skew_label": "NO heavy",
+             "edge_side": "YES", "hours_left": 2400, "pda": ""},
+        ]
+        try:
+            take = llm_analyze(sample, require=True)
+            print("\n=== LLM TEST OUTPUT ===")
+            print(take)
+            print("======================")
+            print(f"\n✅ LLM working: {LLM_MODEL} @ {LLM_BASE_URL}")
+        except RuntimeError as e:
+            print(f"\n❌ LLM test FAILED: {e}", file=sys.stderr)
+            sys.exit(1)
+        sys.exit(0)
+
     print("[pundit] fetching live markets...", file=sys.stderr)
     markets = fetch_markets()
     active = active_markets(markets)
