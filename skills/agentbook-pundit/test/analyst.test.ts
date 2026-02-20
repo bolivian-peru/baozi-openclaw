@@ -5,13 +5,15 @@ const mockGetHotMarkets = vi.fn();
 const mockGetClosingSoon = vi.fn();
 const mockGetActiveMarkets = vi.fn();
 
-vi.mock('../src/baozi-api', () => ({
-  BaoziAPI: vi.fn().mockImplementation(() => ({
-    getHotMarkets: mockGetHotMarkets,
-    getClosingSoon: mockGetClosingSoon,
-    getActiveMarkets: mockGetActiveMarkets,
-  })),
-}));
+vi.mock('../src/baozi-api', () => {
+  return {
+    BaoziAPI: class MockBaoziAPI {
+      getHotMarkets = mockGetHotMarkets;
+      getClosingSoon = mockGetClosingSoon;
+      getActiveMarkets = mockGetActiveMarkets;
+    },
+  };
+});
 
 // Mock fetch for OpenAI
 const mockFetch = vi.fn();
