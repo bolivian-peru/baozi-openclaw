@@ -24,13 +24,40 @@ WALLET = os.environ.get(
     "BAOZI_WALLET", "GZgrz2vtbc1o1kjipM1X3EFAf2VM54j9MVxGWSGbGmai"
 )
 
-# LLM config — any OpenAI-compatible endpoint works (Ollama, Groq, Together, etc.)
-# set LLM_BASE_URL + LLM_API_KEY + LLM_MODEL to enable AI analysis
-# e.g. Ollama: LLM_BASE_URL=http://localhost:11434/v1  LLM_MODEL=llama3.2
-# e.g. Groq:   LLM_BASE_URL=https://api.groq.com/openai/v1  LLM_MODEL=llama-3.1-8b-instant
-LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "http://localhost:11434/v1")
-LLM_API_KEY  = os.environ.get("LLM_API_KEY", "ollama")
-LLM_MODEL    = os.environ.get("LLM_MODEL", "llama3.2")
+# ---------------------------------------------------------------------------
+# LLM config — provider auto-detection from API key prefix
+# or set LLM_BASE_URL + LLM_API_KEY + LLM_MODEL manually for any provider
+#
+# Auto-detected providers (just set LLM_API_KEY):
+#   sk-...        → OpenAI       (gpt-4o-mini default)
+#   sk-or-...     → OpenRouter   (google/gemini-flash-1.5 default)
+#   gsk_...       → Groq         (llama-3.1-8b-instant default)
+#   key-...       → Together.ai  (meta-llama/Llama-3-8b-chat default)
+#
+# Manual override example:
+#   LLM_BASE_URL=http://localhost:11434/v1 LLM_MODEL=llama3.2  (Ollama)
+# ---------------------------------------------------------------------------
+
+_raw_key = os.environ.get("LLM_API_KEY", "")
+
+def _detect_provider(key: str):
+    """auto-detect base URL and default model from API key prefix."""
+    if key.startswith("sk-or-"):
+        return "https://openrouter.ai/api/v1", "google/gemini-flash-1.5"
+    if key.startswith("sk-"):
+        return "https://api.openai.com/v1", "gpt-4o-mini"
+    if key.startswith("gsk_"):
+        return "https://api.groq.com/openai/v1", "llama-3.1-8b-instant"
+    if key.startswith("key-"):
+        return "https://api.together.xyz/v1", "meta-llama/Llama-3-8b-chat-hf"
+    # fallback: local Ollama
+    return "http://localhost:11434/v1", "llama3.2"
+
+_auto_url, _auto_model = _detect_provider(_raw_key)
+
+LLM_BASE_URL = os.environ.get("LLM_BASE_URL", _auto_url)
+LLM_API_KEY  = _raw_key or "ollama"
+LLM_MODEL    = os.environ.get("LLM_MODEL", _auto_model)
 
 # ed25519 keypair bytes (64 bytes: privkey seed + pubkey)
 KEYPAIR = [
@@ -415,6 +442,8 @@ def main():
         # default: morning mode
         args.morning = True
 
+    provider = LLM_BASE_URL.split("/")[2] if LLM_BASE_URL else "none"
+    print(f"[pundit] LLM: {provider} / {LLM_MODEL}", file=sys.stderr)
     print("[pundit] fetching live markets...", file=sys.stderr)
     markets = fetch_markets()
     active = active_markets(markets)
