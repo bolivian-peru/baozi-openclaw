@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  baozi-telegram-feed:
+    build: .
+    container_name: baozi-telegram-feed
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
