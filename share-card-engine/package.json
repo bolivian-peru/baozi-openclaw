@@ -1,0 +1,35 @@
+{
+  "name": "@baozi/share-card-engine",
+  "version": "1.0.0",
+  "description": "Automatically generates and distributes share cards for Baozi prediction markets — every bet becomes a billboard",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --experimental-vm-modules node_modules/.bin/vitest run",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/vitest",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^4.0.11",
+    "@solana/web3.js": "^1.98.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.0.0"
+  },
+  "keywords": [
+    "baozi",
+    "prediction-markets",
+    "share-cards",
+    "solana",
+    "viral-engine"
+  ],
+  "author": "manas-io-ai",
+  "license": "MIT"
+}

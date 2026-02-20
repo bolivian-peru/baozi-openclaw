@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  share-card-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      - HELIUS_RPC_URL=${HELIUS_RPC_URL:-}
+    restart: unless-stopped
+    volumes:
+      - card-output:/app/output
+
+volumes:
+  card-output:
