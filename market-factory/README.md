@@ -310,5 +310,5 @@ MIT
 ## Bounty Submission
 
 - **Issue:** [bolivian-peru/baozi-openclaw#3](https://github.com/bolivian-peru/baozi-openclaw/issues/3)
-- **Wallet:** `0x59c7D3E9926403FBfdA678503827eFF0c5390D83`
+- **Wallet:** `FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx`
 - **Author:** [@manas-io-ai](https://github.com/manas-io-ai)
