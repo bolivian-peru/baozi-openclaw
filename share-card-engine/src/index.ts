@@ -1,88 +1,65 @@
 import { MarketDetector, Market } from './detector';
 import { ShareCardGenerator } from './generator';
 import { AgentBookDistributor } from './distributor';
-import fetch from 'node-fetch';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { Connection, PublicKey } from '@solana/web3.js';
-import bs58 from 'bs58';
-
-const PROGRAM_ID = new PublicKey('FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ');
-const MARKET_DISCRIMINATOR = Buffer.from([219, 190, 213, 55, 0, 227, 198, 154]);
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
 // Configuration
 const POLL_INTERVAL_MS = 60 * 1000; // 60 seconds
-
-// Using public env vars for the bounty demo to make it easy to run
 const WALLET_ADDRESS = process.env.WALLET_ADDRESS || '5rYvEjeWp9v68uDq3zL3CxyqZJd3fW1BhwHZZoMExKTo';
 const AGENT_PROFILE = process.env.AGENT_PROFILE || '5rYvEjeWp9v68uDq3zL3CxyqZJd3fW1BhwHZZoMExKTo';
 const REF_CODE = process.env.REF_CODE || 'VIRALAGENT';
-const DRY_RUN = process.env.DRY_RUN !== 'false'; // Default to true for safety
+const DRY_RUN = process.env.DRY_RUN !== 'false';
 const RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
 
 const detector = new MarketDetector();
-const generator = new ShareCardGenerator(WALLET_ADDRESS, REF_CODE);
 const distributor = new AgentBookDistributor(AGENT_PROFILE);
-const connection = new Connection(RPC_URL, 'confirmed');
 
-function lamportsToSol(lamports: bigint): number {
-  return Number(lamports) / 1_000_000_000;
+let mcpClient: Client | null = null;
+let generator: ShareCardGenerator | null = null;
+
+async function setupMCP() {
+  const transport = new StdioClientTransport({
+    command: 'npx',
+    args: ['-y', '@baozi.bet/mcp-server'],
+    env: { ...(process.env as Record<string, string>), SOLANA_RPC_URL: RPC_URL }
+  });
+
+  const client = new Client({ name: 'ShareCardEngine', version: '1.0.0' }, { capabilities: {} });
+  await client.connect(transport);
+  return client;
 }
 
 async function fetchMarkets(): Promise<Market[]> {
   try {
-    const accounts = await connection.getProgramAccounts(PROGRAM_ID, {
-      filters: [{ memcmp: { offset: 0, bytes: bs58.encode(MARKET_DISCRIMINATOR) } }]
-    });
+    const res = await mcpClient!.callTool({
+      name: 'list_markets',
+      arguments: { status: 'active', limit: 50 }
+    }) as any;
 
-    const markets: Market[] = [];
-    for (const { pubkey, account } of accounts) {
-      try {
-        const data = account.data;
-        let offset = 8 + 8; // skip discriminator and market id
-        const questionLen = data.readUInt32LE(offset); offset += 4;
-        const question = data.slice(offset, offset + questionLen).toString('utf8'); offset += questionLen;
-        const closingTime = Number(data.readBigInt64LE(offset)); offset += 8 + 8 + 8; // closing, resolution, auto_stop
-        const yesPool = data.readBigUInt64LE(offset); offset += 8;
-        const noPool = data.readBigUInt64LE(offset); offset += 8 + 16; // pools + snapshot
-        const statusCode = data.readUInt8(offset); offset += 1;
-        const hasWinningOutcome = data.readUInt8(offset); offset += 1 + (hasWinningOutcome === 1 ? 1 : 0);
-        offset += 1 + 33 + 8 + 8 + 8 + 8 + 1; // mapping fields
-        const layerCode = data.readUInt8(offset);
+    const content = res.content?.[0]?.text;
+    if (!content) return [];
 
-        // Map status (0=Active, 1=Closed, 2=Resolved)
-        const statusMap: Record<number, string> = { 0: 'active', 1: 'closed', 2: 'resolved' };
-        const status = statusMap[statusCode] || 'active';
+    const data = JSON.parse(content);
+    if (!data.success || !data.markets) return [];
 
-        // Map layer (0=official, 1=labs)
-        const layer = layerCode === 0 ? 'official' : 'labs';
-        const poolSize = lamportsToSol(yesPool + noPool);
+    const markets: Market[] = data.markets.map((m: any) => ({
+      pda: m.publicKey,
+      question: m.question,
+      status: m.status.toLowerCase(),
+      closingTime: new Date(m.closingTime).getTime() / 1000,
+      poolSize: m.totalPoolSol,
+      yesOdds: m.yesPercent,
+      noOdds: m.noPercent,
+      layer: m.layer.toLowerCase()
+    }));
 
-        let yesOdds = 50;
-        let noOdds = 50;
-        if (poolSize > 0) {
-          yesOdds = Math.round((lamportsToSol(yesPool) / poolSize) * 100);
-          noOdds = Math.round((lamportsToSol(noPool) / poolSize) * 100);
-        }
-
-        markets.push({
-          pda: pubkey.toBase58(),
-          question,
-          status: status as any,
-          closingTime,
-          poolSize,
-          yesOdds,
-          noOdds,
-          layer
-        });
-      } catch (e) {
-        // Skip malformed accounts
-      }
-    }
     return markets;
   } catch (e) {
-    console.error(`[Error] Failed to fetch markets from RPC:`, e);
+    console.error(`[Error] Failed to fetch markets from MCP:`, e);
     return [];
   }
 }
@@ -91,7 +68,7 @@ async function runTick() {
   console.log(`\n--- Tick: ${new Date().toISOString()} ---`);
 
   const markets = await fetchMarkets();
-  console.log(`Fetched ${markets.length} active markets.`);
+  console.log(`Fetched ${markets.length} active markets via MCP.`);
 
   if (markets.length === 0) return;
 
@@ -107,8 +84,8 @@ async function runTick() {
   for (const event of events) {
     console.log(`\n>>> Processing Event: [${event.type}] on ${event.market.pda}`);
 
-    // Generate the Share Card and Caption
-    const { imageUrl, caption } = await generator.generateCard(event);
+    // Generate the Share Card and Caption via MCP
+    const { imageUrl, caption } = await generator!.generateCard(event);
 
     if (DRY_RUN) {
       console.log(`[DRY RUN] Would post to AgentBook:`);
@@ -132,6 +109,12 @@ async function startEngine() {
   console.log(`Wallet: ${WALLET_ADDRESS}`);
   console.log(`Ref Code: ${REF_CODE}`);
   console.log(`Mode: ${DRY_RUN ? 'DRY RUN' : 'LIVE POSTING'}`);
+
+  console.log(`Connecting to @baozi.bet/mcp-server...`);
+  mcpClient = await setupMCP();
+  console.log(`Connected!`);
+
+  generator = new ShareCardGenerator(mcpClient, WALLET_ADDRESS, REF_CODE);
 
   // Run immediately on start to prime the cache
   await runTick();

@@ -1,45 +1,54 @@
 import { MarketEvent } from './detector';
-import fetch from 'node-fetch';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
 export class ShareCardGenerator {
+  private mcpClient: Client;
   private wallet: string;
   private refCode: string;
 
-  constructor(wallet: string, refCode: string) {
+  constructor(mcpClient: Client, wallet: string, refCode: string) {
+    this.mcpClient = mcpClient;
     this.wallet = wallet;
     this.refCode = refCode;
   }
 
-  // Uses the Baozi API to generate a share card
+  // Uses the Baozi MCP to generate a share card
   public async generateCard(event: MarketEvent): Promise<{ imageUrl: string, caption: string }> {
-    // Bounty requires hitting the generation API endpoint
-    // Documented API: GET https://baozi.bet/api/share/card?market=PDA&wallet=WALLET&ref=CODE
-
-    const url = `https://baozi.bet/api/share/card?market=${event.market.pda}&wallet=${this.wallet}&ref=${this.refCode}`;
-
-    // In a real scenario, this endpoint returns the image buffer or a CDN link.
-    // For this engine we assume the URL itself is the public CDN link to the image,
-    // or we fetch the JSON containing { imageUrl } as hinted in requirements.
-
     let imageUrl = '';
+    let marketUrl = '';
+
     try {
-      const resp = await fetch(url);
-      if (resp.headers.get('content-type')?.includes('application/json')) {
-        const data = await resp.json() as { imageUrl: string };
-        imageUrl = data.imageUrl;
-      } else {
-        // Fallback: The API returns the image directly, so we just use the API URL as the src
-        imageUrl = url;
+      const genRes = await this.mcpClient.callTool({
+        name: 'generate_share_card',
+        arguments: {
+          market: event.market.pda,
+          wallet: this.wallet,
+          ref: this.refCode
+        }
+      }) as any;
+
+      const content = genRes.content?.[0]?.text;
+      if (content) {
+        const data = JSON.parse(content);
+        if (data.success) {
+          imageUrl = data.imageUrl || '';
+          marketUrl = data.marketUrl || '';
+        }
       }
     } catch (e) {
-      console.warn(`[WARN] Failed to hit generation API for ${event.market.pda}, using fallback link.`);
-      imageUrl = url;
+      console.warn(`[WARN] MCP failed to generate share card for ${event.market.pda}`, e);
     }
 
-    const marketLink = `https://baozi.bet/market/${event.market.pda}?ref=${this.refCode}`;
+    // Fallbacks just in case MCP tool glitches
+    if (!imageUrl || imageUrl === 'undefined') {
+      imageUrl = `https://baozi.bet/api/share/card?market=${event.market.pda}&wallet=${this.wallet}&ref=${this.refCode}`;
+    }
+    if (!marketUrl || marketUrl === 'undefined') {
+      marketUrl = `https://baozi.bet/market/${event.market.pda}?ref=${this.refCode}`;
+    }
 
     // Format the final caption integrating the context + proverb + link
-    const caption = `${event.context}\n\nplace your bet → ${marketLink}\n\n${event.proverb}`;
+    const caption = `${event.context}\n\nplace your bet → ${marketUrl}\n\n${event.proverb}`;
 
     return {
       imageUrl,
