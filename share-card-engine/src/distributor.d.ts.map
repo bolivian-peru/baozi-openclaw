@@ -1,0 +1,1 @@
+{"version":3,"file":"distributor.d.ts","sourceRoot":"","sources":["distributor.ts"],"names":[],"mappings":"AAEA,qBAAa,oBAAoB;IAC/B,OAAO,CAAC,mBAAmB,CAAS;gBAExB,mBAAmB,EAAE,MAAM;IAK1B,eAAe,CAAC,QAAQ,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,GAAG,OAAO,CAAC,OAAO,CAAC;CAuClF"}
