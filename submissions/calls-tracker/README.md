@@ -43,7 +43,7 @@ The agent auto-detects your LLM provider from the API key prefix:
 ### Create a call
 
 ```bash
-python agent.py --create "BTC will hit $110k by March 1"
+python3 agent.py --create "BTC will hit $110k by March 1"
 ```
 
 This will:
@@ -58,13 +58,13 @@ This will:
 ### List all calls
 
 ```bash
-python agent.py --list
+python3 agent.py --list
 ```
 
 ### Reputation dashboard
 
 ```bash
-python agent.py --reputation
+python3 agent.py --reputation
 ```
 
 Shows hit rate, total calls, SOL wagered, P&L, win streak, and recent calls.
@@ -72,7 +72,7 @@ Shows hit rate, total calls, SOL wagered, P&L, win streak, and recent calls.
 ### Demo mode
 
 ```bash
-python agent.py --demo
+python3 agent.py --demo
 ```
 
 Runs 3 simulated calls showing the full flow without real MCP/wallet interaction.
@@ -80,7 +80,7 @@ Runs 3 simulated calls showing the full flow without real MCP/wallet interaction
 ### Resolve pending calls
 
 ```bash
-python agent.py --resolve
+python3 agent.py --resolve
 ```
 
 Checks market resolution status for all pending calls and updates the database.
@@ -88,7 +88,7 @@ Checks market resolution status for all pending calls and updates the database.
 ### Dry run (parse + validate only)
 
 ```bash
-python agent.py --create "ETH will flip BNB by April" --dry-run
+python3 agent.py --create "ETH will flip BNB by April" --dry-run
 ```
 
 ### Options
@@ -109,7 +109,7 @@ python agent.py --create "ETH will flip BNB by April" --dry-run
 ### Example 1: Crypto price prediction
 
 ```bash
-$ python agent.py --create "BTC will hit $110k by March 1"
+$ python3 agent.py --create "BTC will hit $110k by March 1"
 
 [1/7] Parsing prediction...
   question:    Will BTC hit $110,000 by March 1, 2026?
@@ -139,7 +139,7 @@ $ python agent.py --create "BTC will hit $110k by March 1"
 ### Example 2: Event-based prediction
 
 ```bash
-$ python agent.py --create "SEC will approve a spot Solana ETF by June 2026"
+$ python3 agent.py --create "SEC will approve a spot Solana ETF by June 2026"
 
 [1/7] Parsing prediction...
   question:    Will the SEC approve a spot Solana ETF by June 30, 2026?
@@ -156,7 +156,7 @@ $ python agent.py --create "SEC will approve a spot Solana ETF by June 2026"
 ### Example 3: Reputation dashboard
 
 ```bash
-$ python agent.py --reputation
+$ python3 agent.py --reputation
 
 ============================================================
   CALLS TRACKER — REPUTATION DASHBOARD
@@ -197,9 +197,62 @@ calls-tracker/
 └── calls.db          # SQLite database (created at runtime)
 ```
 
-## Screenshots
+## Demo Output
 
-<!-- Add screenshots here -->
+Running `python3 agent.py --demo` shows the full 7-step flow for 3 example calls:
+
+```
+============================================================
+  CALLS TRACKER — DEMO MODE
+  (simulated flow — no real transactions)
+============================================================
+
+────────────────────────────────────────────────────────────
+  DEMO CALL #1
+────────────────────────────────────────────────────────────
+  Input: "BTC will hit $110k by March 1"
+
+  [1/7] Parsing prediction...
+    question:    Will BTC hit $110,000 by March 1, 2026?
+    side:        YES
+    type:        B (measurement)
+    event_time:  2026-03-01T00:00:00+00:00
+    close_time:  2026-02-27T00:00:00+00:00
+    data_source: CoinGecko BTC/USD price
+
+  [2/7] Validating question...
+    result: PASS — objective, binary, resolvable
+
+  [3/7] Validating timing (v6.3)...
+    result: PASS — timing valid
+
+  [4/7] Creating Lab market via MCP...
+    [demo] unsigned transaction: build_create_lab_market_transaction
+    market PDA: DEMO_1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+  [5/7] Auto-betting on caller's side...
+    [demo] unsigned bet: 0.01 SOL on YES
+
+  [6/7] Share card:
+    Share URL: https://baozi.bet/api/share/card?market=DEMO_1...&wallet=GZgr...&ref=openclaw
+
+  [7/7] Stored as call #1  (resolution: correct, P&L: +0.0180 SOL)
+
+...
+
+────────────────────────────────────────────────────────────
+  REPUTATION DASHBOARD (after 3 demo calls)
+────────────────────────────────────────────────────────────
+  Total calls:      3       Hit rate:   100.0%
+  Resolved:         2       SOL wagered: 0.0300 SOL
+  Correct:          2       Total P&L:   +0.0330 SOL
+  Pending:          1       Win streak:  2
+
+  RECENT CALLS:
+  [+] Will BTC hit $110,000 by March 1, 2026?        YES | P&L: +0.0180
+  [+] Will ETH market cap exceed SOL market cap?      YES | P&L: +0.0150
+  [?] Will the SEC approve a spot Solana ETF by Jun?  YES | pending
+```
 
 ## Architecture
 
