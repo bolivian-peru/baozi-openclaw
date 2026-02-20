@@ -1,18 +1,19 @@
-import { existsSync, unlinkSync, mkdirSync, rmSync } from 'fs';
+import { jest } from '@jest/globals';
+import { existsSync, rmSync } from 'fs';
 import { join } from 'path';
-import { GroupStore } from '../src/services/group-store';
 
-// Mock config
-jest.mock('../src/config', () => ({
+jest.unstable_mockModule('../src/config', () => ({
   config: {
     defaultRoundupCron: '0 9 * * *',
     defaultTimezone: 'UTC',
     dataDir: './test-data',
+    baoziProgramId: 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ',
   },
 }));
 
+const { GroupStore } = await import('../src/services/group-store');
+
 const TEST_DIR = './test-data';
-const TEST_FILE = join(TEST_DIR, 'groups.json');
 
 describe('GroupStore', () => {
   afterEach(() => {

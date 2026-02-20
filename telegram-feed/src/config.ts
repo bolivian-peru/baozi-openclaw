@@ -8,8 +8,8 @@ export const config = {
   /** Solana RPC endpoint */
   solanaRpcUrl: process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
 
-  /** Baozi program ID */
-  baoziProgramId: process.env.BAOZI_PROGRAM_ID || 'BAoZirE2cAXqyjRap2GiGdAFkSB2nQJrPMBb6KMFj2gn',
+  /** Baozi program ID (V4.7.6 mainnet) */
+  baoziProgramId: process.env.BAOZI_PROGRAM_ID || 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ',
 
   /** Baozi website base URL */
   baoziBaseUrl: process.env.BAOZI_BASE_URL || 'https://baozi.bet',

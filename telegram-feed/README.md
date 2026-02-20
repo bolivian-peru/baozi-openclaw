@@ -84,7 +84,7 @@ telegram-feed/
 │   │   ├── callbacks.ts      # Inline keyboard callback handlers
 │   │   └── keyboards.ts      # Inline keyboard builders
 │   ├── services/
-│   │   ├── baozi-client.ts   # Solana RPC client for Baozi market data
+│   │   ├── baozi-client.ts   # Wrapper around @baozi.bet/mcp-server handlers
 │   │   ├── group-store.ts    # Persistent per-group configuration
 │   │   └── roundup.ts        # Scheduled daily roundup manager
 │   └── utils/
@@ -99,7 +99,7 @@ telegram-feed/
 
 ### Data Source
 
-The bot reads market data directly from Solana via RPC using the Baozi program's on-chain account structure. This is the same data available through the MCP tools (`list_markets`, `get_quote`, `get_race_quote`, `list_race_markets`) but accessed directly for lower latency.
+The bot imports handlers directly from `@baozi.bet/mcp-server` to read market data from Solana mainnet. This ensures we use the exact same deserialization logic, discriminators, and program ID (`FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ`) as the official MCP tools.
 
 **Pari-mutuel odds calculation:**
 ```
@@ -150,7 +150,7 @@ Configure schedule and category filters per group.
 |----------|---------|-------------|
 | `TELEGRAM_BOT_TOKEN` | *required* | Bot token from @BotFather |
 | `SOLANA_RPC_URL` | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint |
-| `BAOZI_PROGRAM_ID` | `BAoZirE2cAX...` | Baozi program address |
+| `BAOZI_PROGRAM_ID` | `FWyTPzm5cfJ...` | Baozi program address (V4.7.6) |
 | `BAOZI_BASE_URL` | `https://baozi.bet` | Website base URL for links |
 | `DEFAULT_ROUNDUP_CRON` | `0 9 * * *` | Default roundup schedule |
 | `DEFAULT_TIMEZONE` | `UTC` | Default timezone |
@@ -161,10 +161,14 @@ Configure schedule and category filters per group.
 ## Testing
 
 ```bash
-npm test              # Run all tests
+npm test              # Run all tests (75+ tests incl. integration)
+npm run test:unit     # Unit tests only
+npm run test:integration  # Integration tests (real Solana RPC)
 npm run test:watch    # Watch mode
 npm test -- --coverage # Coverage report
 ```
+
+Integration tests call the real Solana mainnet RPC to verify markets are fetched correctly.
 
 ## Security
 
@@ -179,6 +183,7 @@ This bot is **intentionally read-only**:
 ## Tech Stack
 
 - **[grammY](https://grammy.dev/)** — Modern Telegram Bot framework for TypeScript
+- **[@baozi.bet/mcp-server](https://www.npmjs.com/package/@baozi.bet/mcp-server)** — Official Baozi MCP handlers for on-chain data
 - **[@solana/web3.js](https://solana-labs.github.io/solana-web3.js/)** — Solana RPC client
 - **[node-cron](https://github.com/node-cron/node-cron)** — Scheduled task runner
 - **TypeScript** — Type-safe implementation

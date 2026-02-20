@@ -1,12 +1,14 @@
-import { marketKeyboard, marketListKeyboard, helpKeyboard } from '../src/commands/keyboards';
-import { Market } from '../src/types';
+import { jest } from '@jest/globals';
+import type { Market } from '../src/types/market';
 
-// Mock config
-jest.mock('../src/config', () => ({
+jest.unstable_mockModule('../src/config', () => ({
   config: {
     baoziBaseUrl: 'https://baozi.bet',
+    baoziProgramId: 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ',
   },
 }));
+
+const { marketKeyboard, marketListKeyboard, helpKeyboard } = await import('../src/commands/keyboards');
 
 const sampleMarket: Market = {
   id: 'ABCDEF123456',

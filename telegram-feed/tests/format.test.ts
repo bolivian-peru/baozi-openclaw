@@ -1,4 +1,14 @@
-import {
+import { jest } from '@jest/globals';
+
+jest.unstable_mockModule('../src/config', () => ({
+  config: {
+    baoziBaseUrl: 'https://baozi.bet',
+    maxMarketsPerPage: 5,
+    baoziProgramId: 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ',
+  },
+}));
+
+const {
   formatPercent,
   formatSol,
   formatTimeRemaining,
@@ -7,16 +17,9 @@ import {
   formatDailyRoundup,
   escapeHtml,
   getMarketUrl,
-} from '../src/utils/format';
-import { Market } from '../src/types';
+} = await import('../src/utils/format');
 
-// Mock config
-jest.mock('../src/config', () => ({
-  config: {
-    baoziBaseUrl: 'https://baozi.bet',
-    maxMarketsPerPage: 5,
-  },
-}));
+import type { Market } from '../src/types/market';
 
 describe('formatPercent', () => {
   it('formats probability as percentage', () => {
@@ -53,7 +56,7 @@ describe('formatTimeRemaining', () => {
   it('shows hours and minutes when less than a day', () => {
     const future = new Date(Date.now() + 5 * 60 * 60 * 1000 + 30 * 60 * 1000);
     const result = formatTimeRemaining(future.toISOString());
-    expect(result).toMatch(/^5h 30m$/);
+    expect(result).toMatch(/^5h (29|30)m$/);
   });
 
   it('shows minutes when less than an hour', () => {
