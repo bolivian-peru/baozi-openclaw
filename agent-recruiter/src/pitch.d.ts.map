@@ -1,0 +1,1 @@
+{"version":3,"file":"pitch.d.ts","sourceRoot":"","sources":["pitch.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAa,MAAM,aAAa,CAAC;AAErD,qBAAa,cAAc;IACzB,OAAO,CAAC,aAAa,CAAS;gBAElB,aAAa,EAAE,MAAM;IAI1B,aAAa,CAAC,MAAM,EAAE,WAAW,GAAG,MAAM;CAgClD"}
