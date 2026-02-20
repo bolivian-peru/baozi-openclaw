@@ -67,9 +67,18 @@ def main() -> None:
     response = fetch_proofs()
 
     if args.stats and not args.compare:
-        render_header(response)
+        # Apply any active filters before computing stats
+        filtered_for_stats = filter_proofs(
+            response.proofs,
+            tier=args.tier,
+            category=args.category,
+            layer=args.layer,
+            search=args.search,
+            date=args.date,
+        )
+        render_header(response, filtered_count=len(filtered_for_stats))
         console.print()
-        stats = compute_stats(response.proofs)
+        stats = compute_stats(filtered_for_stats)
         render_stats(stats, oracle_tiers=response.oracle.tiers)
         console.print()
         return
