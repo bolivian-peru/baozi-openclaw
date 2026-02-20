@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-500: #e2ccaa;
+  --color-brand-600: #ccb088;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-bg-base: #0a0a0acc;
+  --color-bg-card: #151515;
+}
+
+@layer base {
+  body {
+    @apply bg-[#0a0a0a] text-gray-200 antialiased min-h-screen font-sans;
+  }
+}
