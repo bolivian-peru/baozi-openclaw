@@ -1,0 +1,21 @@
+{
+  "name": "trust-proof-explorer",
+  "version": "2.0.0",
+  "description": "Baozi Trust Proof Explorer with on-chain verification",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit",
+    "test:unit": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=unit --forceExit",
+    "test:integration": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=integration --forceExit",
+    "verify": "node verify.mjs",
+    "serve": "npx serve ."
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "*",
+    "@solana/web3.js": "^1.98.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@jest/globals": "^29.7.0"
+  }
+}

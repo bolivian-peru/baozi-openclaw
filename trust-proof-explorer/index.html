@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Baozi Trust Proof Explorer</title>
-<meta name="description" content="Explore and verify Baozi prediction market resolution proofs. Full transparency into oracle decisions, evidence sources, and on-chain verification.">
+<meta name="description" content="Explore and verify Baozi prediction market resolution proofs with on-chain Solana verification.">
 <style>
-/* ===== CSS Reset & Base ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg-primary: #0a0b0e;
   --bg-secondary: #12141a;
@@ -21,17 +19,17 @@
   --text-secondary: #9498a8;
   --text-muted: #6b6f80;
   --accent: #f59e0b;
-  --accent-dim: rgba(245, 158, 11, 0.15);
+  --accent-dim: rgba(245,158,11,0.15);
   --green: #22c55e;
-  --green-dim: rgba(34, 197, 94, 0.12);
+  --green-dim: rgba(34,197,94,0.12);
   --red: #ef4444;
-  --red-dim: rgba(239, 68, 68, 0.12);
+  --red-dim: rgba(239,68,68,0.12);
   --blue: #3b82f6;
-  --blue-dim: rgba(59, 130, 246, 0.12);
+  --blue-dim: rgba(59,130,246,0.12);
   --purple: #a855f7;
-  --purple-dim: rgba(168, 85, 247, 0.12);
+  --purple-dim: rgba(168,85,247,0.12);
   --cyan: #06b6d4;
-  --cyan-dim: rgba(6, 182, 212, 0.12);
+  --cyan-dim: rgba(6,182,212,0.12);
   --tier1: #22c55e;
   --tier2: #3b82f6;
   --tier3: #a855f7;
@@ -41,192 +39,74 @@
   --shadow: 0 2px 8px rgba(0,0,0,0.3);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
   --transition: 0.2s ease;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font: 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono: 'JetBrains Mono','Fira Code',monospace;
 }
-
-body {
-  font-family: var(--font);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
+body { font-family: var(--font); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 a { color: var(--accent); text-decoration: none; transition: opacity var(--transition); }
 a:hover { opacity: 0.8; }
-
-/* ===== Layout ===== */
 .app { max-width: 1320px; margin: 0 auto; padding: 0 20px; }
 
-/* ===== Header ===== */
-.header {
-  padding: 32px 0 24px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
-}
-.header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 20px;
-}
+/* Header */
+.header { padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+.header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
 .logo-area { display: flex; align-items: center; gap: 14px; }
-.logo-icon {
-  width: 44px; height: 44px;
-  background: linear-gradient(135deg, var(--accent), #d97706);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
-}
+.logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), #d97706); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 16px rgba(245,158,11,0.25); }
 .logo-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
 .logo-text p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 .header-badges { display: flex; gap: 8px; flex-wrap: wrap; }
-.badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 12px; border-radius: 20px;
-  font-size: 12px; font-weight: 600;
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-}
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: var(--bg-secondary); }
 .badge-live { border-color: var(--green); color: var(--green); }
-.badge-live::before {
-  content: ''; width: 7px; height: 7px; border-radius: 50%;
-  background: var(--green);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.badge-live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 .badge-network { color: var(--purple); border-color: var(--purple); }
+.badge-verified { color: var(--green); border-color: var(--green); }
 
-/* ===== Search & Filters ===== */
-.controls {
-  display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch;
-}
-.search-box {
-  flex: 1; min-width: 260px;
-  position: relative;
-}
-.search-box svg {
-  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-  width: 16px; height: 16px; color: var(--text-muted);
-}
-.search-box input {
-  width: 100%; padding: 10px 14px 10px 40px;
-  background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--text-primary);
-  font-size: 14px; outline: none; transition: border-color var(--transition);
-}
+/* Controls */
+.controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+.search-box { flex: 1; min-width: 260px; position: relative; }
+.search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
+.search-box input { width: 100%; padding: 10px 14px 10px 40px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; outline: none; transition: border-color var(--transition); }
 .search-box input:focus { border-color: var(--accent); }
 .search-box input::placeholder { color: var(--text-muted); }
-
-.filter-group {
-  display: flex; gap: 8px; flex-wrap: wrap;
-}
-.filter-btn {
-  padding: 8px 16px; border-radius: var(--radius-sm);
-  background: var(--bg-input); border: 1px solid var(--border);
-  color: var(--text-secondary); font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: all var(--transition);
-  white-space: nowrap;
-}
+.filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-btn { padding: 8px 16px; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border); color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition); white-space: nowrap; }
 .filter-btn:hover { border-color: var(--text-muted); color: var(--text-primary); }
 .filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 .filter-btn.tier-1.active { background: rgba(34,197,94,0.12); border-color: var(--tier1); color: var(--tier1); }
 .filter-btn.tier-2.active { background: rgba(59,130,246,0.12); border-color: var(--tier2); color: var(--tier2); }
 .filter-btn.tier-3.active { background: rgba(168,85,247,0.12); border-color: var(--tier3); color: var(--tier3); }
-
-select.filter-select {
-  padding: 8px 32px 8px 14px;
-  background: var(--bg-input); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--text-secondary);
-  font-size: 13px; cursor: pointer; outline: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b6f80'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-}
+select.filter-select { padding: 8px 32px 8px 14px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 13px; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b6f80'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
 select.filter-select:focus { border-color: var(--accent); }
 
-/* ===== Navigation Tabs ===== */
-.nav-tabs {
-  display: flex; gap: 4px; margin: 24px 0 20px;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-}
-.nav-tab {
-  padding: 10px 20px; font-size: 14px; font-weight: 500;
-  color: var(--text-muted); cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all var(--transition);
-  white-space: nowrap;
-}
+/* Nav */
+.nav-tabs { display: flex; gap: 4px; margin: 24px 0 20px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.nav-tab { padding: 10px 20px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--transition); white-space: nowrap; }
 .nav-tab:hover { color: var(--text-secondary); }
 .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-/* ===== Stats Grid ===== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
-}
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  transition: all var(--transition);
-}
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all var(--transition); }
 .stat-card:hover { border-color: var(--border-light); transform: translateY(-1px); }
-.stat-label {
-  font-size: 12px; font-weight: 500; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-}
-.stat-value {
-  font-size: 28px; font-weight: 700; letter-spacing: -1px;
-  line-height: 1.2;
-}
+.stat-label { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1.2; }
 .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 .stat-value.green { color: var(--green); }
 .stat-value.blue { color: var(--blue); }
 .stat-value.purple { color: var(--purple); }
 .stat-value.accent { color: var(--accent); }
 
-/* ===== Tier Breakdown ===== */
-.tier-breakdown {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
-}
-.tier-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-}
-.tier-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-}
+/* Tier cards */
+.tier-breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.tier-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.tier-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
 .tier-card.t1::before { background: var(--tier1); }
 .tier-card.t2::before { background: var(--tier2); }
 .tier-card.t3::before { background: var(--tier3); }
-.tier-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 14px;
-}
+.tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .tier-name { font-size: 15px; font-weight: 600; }
-.tier-badge {
-  padding: 3px 10px; border-radius: 12px;
-  font-size: 11px; font-weight: 700;
-}
+.tier-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
 .tier-badge.t1 { background: var(--green-dim); color: var(--tier1); }
 .tier-badge.t2 { background: var(--blue-dim); color: var(--tier2); }
 .tier-badge.t3 { background: var(--purple-dim); color: var(--tier3); }
@@ -234,137 +114,66 @@ select.filter-select:focus { border-color: var(--accent); }
 .tier-detail-label { color: var(--text-muted); }
 .tier-detail-value { font-weight: 500; }
 
-/* ===== Proof Cards ===== */
+/* Proof cards */
 .proof-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
-
-.proof-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: all var(--transition);
-}
+.proof-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all var(--transition); }
 .proof-card:hover { border-color: var(--border-light); box-shadow: var(--shadow); }
-
-.proof-header {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 20px 20px 0;
-  gap: 12px; flex-wrap: wrap;
-}
+.proof-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 20px 0; gap: 12px; flex-wrap: wrap; }
 .proof-title-area { flex: 1; min-width: 200px; }
-.proof-title {
-  font-size: 16px; font-weight: 600; margin-bottom: 6px;
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-}
-.proof-meta {
-  display: flex; gap: 12px; flex-wrap: wrap;
-  font-size: 12px; color: var(--text-muted);
-}
+.proof-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.proof-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
 .proof-meta span { display: flex; align-items: center; gap: 4px; }
 .proof-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-start; }
-
-.layer-badge {
-  padding: 3px 10px; border-radius: 12px;
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-}
+.layer-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .layer-badge.official { background: var(--accent-dim); color: var(--accent); }
 .layer-badge.labs { background: var(--cyan-dim); color: var(--cyan); }
-.cat-badge {
-  padding: 3px 10px; border-radius: 12px;
-  font-size: 11px; font-weight: 500;
-  background: var(--bg-input); color: var(--text-secondary);
-  border: 1px solid var(--border);
-}
+.cat-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); }
 
-/* Markets table inside proof card */
-.markets-table {
-  padding: 16px 20px 20px;
-}
-.market-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 16px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  transition: border-color var(--transition);
-  align-items: start;
-}
+/* Markets */
+.markets-table { padding: 16px 20px 20px; }
+.market-row { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; padding: 14px 16px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid transparent; transition: border-color var(--transition); align-items: start; }
 .market-row:hover { border-color: var(--border); }
 .market-row:last-child { margin-bottom: 0; }
-
-.market-question {
-  font-size: 14px; font-weight: 500; margin-bottom: 6px;
-}
-.market-evidence {
-  font-size: 12px; color: var(--text-muted); line-height: 1.5;
-  max-width: 600px;
-}
-.market-links {
-  display: flex; flex-direction: column; gap: 4px; font-size: 12px;
-  min-width: 100px;
-}
-.market-links a {
-  display: flex; align-items: center; gap: 4px;
-  color: var(--text-secondary); transition: color var(--transition);
-  white-space: nowrap;
-}
+.market-question { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.market-evidence { font-size: 12px; color: var(--text-muted); line-height: 1.5; max-width: 600px; }
+.market-links { display: flex; flex-direction: column; gap: 4px; font-size: 12px; min-width: 100px; }
+.market-links a { display: flex; align-items: center; gap: 4px; color: var(--text-secondary); transition: color var(--transition); white-space: nowrap; }
 .market-links a:hover { color: var(--accent); opacity: 1; }
 .market-links a svg { width: 12px; height: 12px; flex-shrink: 0; }
-
-.outcome-badge {
-  padding: 4px 14px; border-radius: 8px;
-  font-size: 13px; font-weight: 700;
-  white-space: nowrap;
-  align-self: center;
-}
+.outcome-badge { padding: 4px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; white-space: nowrap; align-self: center; }
 .outcome-badge.yes { background: var(--green-dim); color: var(--green); }
 .outcome-badge.no { background: var(--red-dim); color: var(--red); }
-
-/* Proof footer with PDA addresses */
-.proof-footer {
-  padding: 12px 20px;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border);
-  display: flex; gap: 16px; flex-wrap: wrap;
-  font-size: 11px; color: var(--text-muted);
-  align-items: center;
-}
+.proof-footer { padding: 12px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border); display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); align-items: center; }
 .proof-footer span { display: flex; align-items: center; gap: 4px; }
 .proof-footer a { color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; }
 
-/* ===== Comparison Table ===== */
-.comparison-section { margin-bottom: 32px; }
-.comparison-section h2 {
-  font-size: 20px; font-weight: 700; margin-bottom: 6px;
-}
-.comparison-section .subtitle {
-  font-size: 13px; color: var(--text-muted); margin-bottom: 20px;
-}
+/* Verification badge inline */
+.verify-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; font-family: var(--font-mono); }
+.verify-badge.verified { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.verify-badge.failed { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.verify-badge.pending { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(245,158,11,0.3); }
+.verify-badge.checking { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); animation: pulse 1.5s infinite; }
 
-.comparison-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.comparison-table th, .comparison-table td {
-  padding: 14px 18px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.comparison-table th {
-  background: var(--bg-secondary);
-  font-size: 12px; font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* Verification panel */
+.verification-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+.verification-panel h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.verify-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; margin-bottom: 6px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; }
+.verify-row .pda-label { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
+.verify-row .check-items { display: flex; gap: 12px; font-size: 12px; }
+.verify-row .check-items span { display: flex; align-items: center; gap: 4px; }
+.verify-btn { padding: 10px 24px; background: linear-gradient(135deg, var(--accent), #d97706); border: none; border-radius: var(--radius-sm); color: #000; font-size: 14px; font-weight: 700; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 8px; }
+.verify-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(245,158,11,0.3); }
+.verify-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.verify-summary { display: flex; gap: 20px; flex-wrap: wrap; margin: 16px 0; }
+.verify-summary-item { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
+
+/* Comparison */
+.comparison-section { margin-bottom: 32px; }
+.comparison-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.comparison-section .subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+.comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.comparison-table th,.comparison-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); }
+.comparison-table th { background: var(--bg-secondary); font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .comparison-table td { font-size: 13px; }
 .comparison-table tr:last-child td { border-bottom: none; }
 .comparison-table tr:hover td { background: var(--bg-card-hover); }
@@ -372,100 +181,42 @@ select.filter-select:focus { border-color: var(--accent); }
 .comparison-table .check { color: var(--green); font-weight: 600; }
 .comparison-table .cross { color: var(--red); font-weight: 600; }
 .comparison-table .partial { color: var(--accent); font-weight: 600; }
-.baozi-col { background: rgba(245, 158, 11, 0.04); }
+.baozi-col { background: rgba(245,158,11,0.04); }
 
-/* ===== Oracle Info ===== */
-.oracle-info {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 24px;
-}
-.oracle-info h3 {
-  font-size: 16px; font-weight: 600; margin-bottom: 16px;
-  display: flex; align-items: center; gap: 8px;
-}
-.oracle-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-}
-.oracle-detail {
-  display: flex; flex-direction: column; gap: 4px;
-}
+/* Oracle */
+.oracle-info { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+.oracle-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.oracle-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.oracle-detail { display: flex; flex-direction: column; gap: 4px; }
 .oracle-detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.oracle-detail-value {
-  font-size: 13px; font-weight: 500;
-  font-family: var(--font-mono);
-  word-break: break-all;
-}
+.oracle-detail-value { font-size: 13px; font-weight: 500; font-family: var(--font-mono); word-break: break-all; }
 .oracle-detail-value a { color: var(--accent); }
 
-/* ===== Sort Controls ===== */
-.sort-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
-}
-.sort-bar .result-count {
-  font-size: 13px; color: var(--text-muted);
-}
+/* Sort */
+.sort-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.sort-bar .result-count { font-size: 13px; color: var(--text-muted); }
 
-/* ===== Loading & Empty States ===== */
-.loading-state {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 80px 20px;
-  color: var(--text-muted);
-  gap: 16px;
-}
-.spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+/* Loading/Empty/Error */
+.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; color: var(--text-muted); gap: 16px; }
+.spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.empty-state {
-  text-align: center; padding: 60px 20px;
-  color: var(--text-muted);
-}
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
 .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
 .empty-state p { font-size: 14px; }
+.error-state { background: var(--red-dim); border: 1px solid var(--red); border-radius: var(--radius); padding: 20px; margin: 20px 0; text-align: center; }
+.error-state button { margin-top: 12px; padding: 8px 20px; background: var(--red); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 500; }
 
-/* ===== Error State ===== */
-.error-state {
-  background: var(--red-dim);
-  border: 1px solid var(--red);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin: 20px 0;
-  text-align: center;
-}
-.error-state button {
-  margin-top: 12px;
-  padding: 8px 20px;
-  background: var(--red);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-weight: 500;
-}
-
-/* ===== Footer ===== */
-.app-footer {
-  padding: 24px 0;
-  margin-top: 40px;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-muted);
-}
+/* Footer */
+.app-footer { padding: 24px 0; margin-top: 40px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-muted); }
 .app-footer a { color: var(--accent); }
 
-/* ===== Responsive ===== */
+/* On-chain detail row */
+.onchain-detail { margin-top: 6px; padding: 6px 10px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); border-radius: 6px; font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); display: none; }
+.onchain-detail.show { display: block; }
+.onchain-detail .field { display: flex; gap: 8px; padding: 2px 0; }
+.onchain-detail .field-label { color: var(--text-muted); min-width: 80px; }
+
+/* Responsive */
 @media (max-width: 768px) {
   .header-top { flex-direction: column; align-items: flex-start; }
   .controls { flex-direction: column; }
@@ -474,41 +225,14 @@ select.filter-select:focus { border-color: var(--accent); }
   .market-links { flex-direction: row; flex-wrap: wrap; }
   .proof-header { flex-direction: column; }
   .comparison-table { font-size: 12px; }
-  .comparison-table th, .comparison-table td { padding: 10px 12px; }
+  .comparison-table th,.comparison-table td { padding: 10px 12px; }
   .tier-breakdown { grid-template-columns: 1fr; }
 }
-
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
   .nav-tabs { gap: 0; }
   .nav-tab { padding: 10px 14px; font-size: 13px; }
 }
-
-/* ===== Tooltip ===== */
-.tooltip-wrapper {
-  position: relative; display: inline-flex;
-}
-.tooltip-wrapper .tooltip-text {
-  visibility: hidden; opacity: 0;
-  position: absolute; bottom: calc(100% + 8px); left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-input); color: var(--text-primary);
-  padding: 6px 10px; border-radius: var(--radius-xs);
-  font-size: 11px; white-space: nowrap;
-  border: 1px solid var(--border);
-  transition: opacity var(--transition);
-  z-index: 100;
-  pointer-events: none;
-}
-.tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; }
-
-/* ===== Expandable ===== */
-.expand-toggle {
-  background: none; border: none; color: var(--accent);
-  font-size: 12px; cursor: pointer; padding: 4px 8px;
-  display: flex; align-items: center; gap: 4px;
-}
-.expand-toggle:hover { opacity: 0.8; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -516,20 +240,19 @@ select.filter-select:focus { border-color: var(--accent); }
 </head>
 <body>
 <div class="app" id="app">
-
-  <!-- Header -->
   <header class="header">
     <div class="header-top">
       <div class="logo-area">
         <div class="logo-icon">🥟</div>
         <div class="logo-text">
           <h1>Trust Proof Explorer</h1>
-          <p>Baozi Oracle Resolution Transparency</p>
+          <p>Baozi Oracle Resolution Transparency — On-Chain Verified</p>
         </div>
       </div>
       <div class="header-badges">
         <span class="badge badge-live">Live Data</span>
         <span class="badge badge-network">Solana Mainnet</span>
+        <span class="badge badge-verified" id="globalVerifyBadge" style="display:none">✓ On-Chain Verified</span>
       </div>
     </div>
     <div class="controls">
@@ -539,13 +262,11 @@ select.filter-select:focus { border-color: var(--accent); }
       </div>
       <div class="filter-group" id="tierFilters">
         <button class="filter-btn active" data-tier="all">All Tiers</button>
-        <button class="filter-btn tier-1" data-tier="1">🟢 Tier 1 · Trustless</button>
-        <button class="filter-btn tier-2" data-tier="2">🔵 Tier 2 · Verified</button>
-        <button class="filter-btn tier-3" data-tier="3">🟣 Tier 3 · AI Research</button>
+        <button class="filter-btn tier-1" data-tier="1">🟢 Tier 1</button>
+        <button class="filter-btn tier-2" data-tier="2">🔵 Tier 2</button>
+        <button class="filter-btn tier-3" data-tier="3">🟣 Tier 3</button>
       </div>
-      <select class="filter-select" id="categoryFilter">
-        <option value="all">All Categories</option>
-      </select>
+      <select class="filter-select" id="categoryFilter"><option value="all">All Categories</option></select>
       <select class="filter-select" id="sortSelect">
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
@@ -555,15 +276,14 @@ select.filter-select:focus { border-color: var(--accent); }
     </div>
   </header>
 
-  <!-- Nav Tabs -->
   <nav class="nav-tabs" id="navTabs">
     <div class="nav-tab active" data-tab="dashboard">📊 Dashboard</div>
     <div class="nav-tab" data-tab="proofs">🔍 Resolution Proofs</div>
+    <div class="nav-tab" data-tab="verify">🔗 On-Chain Verify</div>
     <div class="nav-tab" data-tab="comparison">⚖️ Trust Comparison</div>
     <div class="nav-tab" data-tab="oracle">🔮 Oracle Info</div>
   </nav>
 
-  <!-- Content Area -->
   <main id="content">
     <div class="loading-state" id="loadingState">
       <div class="spinner"></div>
@@ -572,41 +292,267 @@ select.filter-select:focus { border-color: var(--accent); }
   </main>
 
   <footer class="app-footer">
-    Built for <a href="https://baozi.bet" target="_blank">Baozi Protocol</a> · 
-    Data from <a href="https://baozi.bet/api/agents/proofs" target="_blank">on-chain oracle</a> · 
+    Built for <a href="https://baozi.bet" target="_blank">Baozi Protocol</a> ·
+    Program: <a href="https://solscan.io/account/FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ" target="_blank" style="font-family:var(--font-mono);font-size:11px;">FWyTPzm5...PruJ</a> ·
     <a href="https://github.com/bolivian-peru/baozi-openclaw/issues/43" target="_blank">Bounty #43</a>
   </footer>
 </div>
 
+<!-- Solana web3.js for on-chain verification in browser -->
+<script src="https://unpkg.com/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+
 <script>
-// ===== State =====
+// =====================================================================
+// CONSTANTS — must match @baozi.bet/mcp-server/dist/config.js
+// =====================================================================
+const BAOZI_PROGRAM_ID = 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ';
+const MARKET_DISCRIMINATOR = [219, 190, 213, 55, 0, 227, 198, 154]; // 8 bytes
+const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
+const PROOFS_API = 'https://baozi.bet/api/agents/proofs';
+
+// =====================================================================
+// STATE
+// =====================================================================
 let state = {
-  proofs: [],
-  stats: null,
-  oracle: null,
-  loading: true,
-  error: null,
-  search: '',
-  tierFilter: 'all',
-  categoryFilter: 'all',
-  sort: 'newest',
+  proofs: [], stats: null, oracle: null,
+  loading: true, error: null,
+  search: '', tierFilter: 'all', categoryFilter: 'all', sort: 'newest',
   activeTab: 'dashboard',
+  // On-chain verification state
+  verification: {}, // pda -> { status, exists, ownerValid, discriminatorValid, owner, dataLen, onChainQuestion }
+  txVerification: {}, // txSig -> { status, confirmed, slot }
+  verifying: false,
+  verifyProgress: { done: 0, total: 0 },
 };
 
-// ===== Fetch Data =====
+// =====================================================================
+// ON-CHAIN VERIFICATION (runs in browser via @solana/web3.js)
+// =====================================================================
+function getSolanaConnection() {
+  return new solanaWeb3.Connection(SOLANA_RPC, 'confirmed');
+}
+
+/**
+ * Verify a single market PDA on-chain.
+ * Checks: (1) account exists, (2) owner == PROGRAM_ID, (3) discriminator matches.
+ */
+async function verifyMarketPDA(pda) {
+  const conn = getSolanaConnection();
+  const result = { status: 'checked', exists: false, ownerValid: false, discriminatorValid: false, owner: null, dataLen: 0, onChainQuestion: null };
+
+  try {
+    const pubkey = new solanaWeb3.PublicKey(pda);
+    const info = await conn.getAccountInfo(pubkey);
+
+    if (!info) {
+      result.status = 'not_found';
+      return result;
+    }
+
+    result.exists = true;
+    result.owner = info.owner.toString();
+    result.dataLen = info.data.length;
+    result.ownerValid = info.owner.toString() === BAOZI_PROGRAM_ID;
+
+    // Check discriminator
+    const disc = Array.from(new Uint8Array(info.data.slice(0, 8)));
+    result.discriminatorValid = disc.every((b, i) => b === MARKET_DISCRIMINATOR[i]);
+
+    // Decode question from on-chain data (offset 16: skip 8-byte disc + 8-byte market_id)
+    if (result.discriminatorValid && info.data.length > 20) {
+      try {
+        const data = new Uint8Array(info.data);
+        const view = new DataView(data.buffer);
+        const questionLen = view.getUint32(16, true); // little-endian
+        if (questionLen > 0 && questionLen < 500 && 20 + questionLen <= data.length) {
+          result.onChainQuestion = new TextDecoder().decode(data.slice(20, 20 + questionLen));
+        }
+      } catch { /* non-fatal */ }
+    }
+
+    result.status = result.ownerValid && result.discriminatorValid ? 'verified' : 'failed';
+  } catch (err) {
+    result.status = 'error';
+    result.error = err.message;
+  }
+
+  return result;
+}
+
+/**
+ * Verify a transaction signature on Solana.
+ */
+async function verifyTxSignature(txSig) {
+  const conn = getSolanaConnection();
+  const result = { status: 'checked', confirmed: false, slot: null };
+
+  try {
+    const resp = await conn.getSignatureStatus(txSig, { searchTransactionHistory: true });
+    if (resp?.value) {
+      result.confirmed = resp.value.confirmationStatus === 'confirmed' || resp.value.confirmationStatus === 'finalized';
+      result.slot = resp.value.slot;
+      result.confirmationStatus = resp.value.confirmationStatus;
+      result.status = result.confirmed ? 'verified' : 'failed';
+    } else {
+      result.status = 'not_found';
+    }
+  } catch (err) {
+    result.status = 'error';
+    result.error = err.message;
+  }
+
+  return result;
+}
+
+/**
+ * Run full on-chain verification for all market PDAs and tx signatures.
+ */
+async function runVerification() {
+  if (state.verifying) return;
+  state.verifying = true;
+
+  const allMarkets = state.proofs.flatMap(p => (p.markets || []));
+  const uniquePDAs = [...new Set(allMarkets.map(m => m.pda).filter(Boolean))];
+  const uniqueTxs = [...new Set(allMarkets.map(m => m.txSignature).filter(Boolean))];
+
+  state.verifyProgress = { done: 0, total: uniquePDAs.length + uniqueTxs.length };
+
+  // Mark all as checking
+  uniquePDAs.forEach(pda => { state.verification[pda] = { status: 'checking' }; });
+  uniqueTxs.forEach(tx => { state.txVerification[tx] = { status: 'checking' }; });
+  render();
+
+  // Verify PDAs in batches of 2 (to avoid rate limits on public RPC)
+  for (let i = 0; i < uniquePDAs.length; i += 2) {
+    const batch = uniquePDAs.slice(i, i + 2);
+    const results = await Promise.all(batch.map(pda => verifyMarketPDA(pda)));
+    results.forEach((r, j) => {
+      state.verification[batch[j]] = r;
+      state.verifyProgress.done++;
+    });
+    render();
+    if (i + 2 < uniquePDAs.length) await new Promise(r => setTimeout(r, 400));
+  }
+
+  // Verify transactions in batches
+  for (let i = 0; i < uniqueTxs.length; i += 2) {
+    const batch = uniqueTxs.slice(i, i + 2);
+    const results = await Promise.all(batch.map(tx => verifyTxSignature(tx)));
+    results.forEach((r, j) => {
+      state.txVerification[batch[j]] = r;
+      state.verifyProgress.done++;
+    });
+    render();
+    if (i + 2 < uniqueTxs.length) await new Promise(r => setTimeout(r, 400));
+  }
+
+  state.verifying = false;
+
+  // Show global badge if all verified
+  const allVerified = Object.values(state.verification).every(v => v.status === 'verified');
+  if (allVerified && uniquePDAs.length > 0) {
+    document.getElementById('globalVerifyBadge').style.display = '';
+  }
+
+  render();
+}
+
+// =====================================================================
+// API SCHEMA VALIDATION
+// =====================================================================
+function validateApiSchema(data) {
+  const errors = [];
+
+  if (typeof data.success !== 'boolean') errors.push('Missing boolean field: success');
+  if (!Array.isArray(data.proofs)) errors.push('Missing array field: proofs');
+  if (!data.stats || typeof data.stats !== 'object') errors.push('Missing object field: stats');
+  if (!data.oracle || typeof data.oracle !== 'object') errors.push('Missing object field: oracle');
+
+  if (data.oracle) {
+    if (typeof data.oracle.name !== 'string') errors.push('oracle.name not a string');
+    if (typeof data.oracle.address !== 'string') errors.push('oracle.address not a string');
+    if (typeof data.oracle.program !== 'string') errors.push('oracle.program not a string');
+    if (data.oracle.program !== BAOZI_PROGRAM_ID) {
+      errors.push(`oracle.program mismatch: expected ${BAOZI_PROGRAM_ID}, got ${data.oracle.program}`);
+    }
+  }
+
+  if (data.stats) {
+    if (typeof data.stats.totalProofs !== 'number') errors.push('stats.totalProofs not a number');
+    if (typeof data.stats.totalMarkets !== 'number') errors.push('stats.totalMarkets not a number');
+  }
+
+  if (Array.isArray(data.proofs)) {
+    data.proofs.forEach((proof, i) => {
+      const requiredStrings = ['date', 'slug', 'title'];
+      requiredStrings.forEach(f => {
+        if (typeof proof[f] !== 'string') errors.push(`proofs[${i}].${f} not a string`);
+      });
+      if (typeof proof.id !== 'number') errors.push(`proofs[${i}].id not a number`);
+      if (!['official', 'labs'].includes(proof.layer)) errors.push(`proofs[${i}].layer invalid: ${proof.layer}`);
+      if (![1, 2, 3].includes(proof.tier)) errors.push(`proofs[${i}].tier invalid: ${proof.tier}`);
+      if (!Array.isArray(proof.markets)) errors.push(`proofs[${i}].markets not an array`);
+
+      (proof.markets || []).forEach((m, j) => {
+        if (typeof m.pda !== 'string') errors.push(`proofs[${i}].markets[${j}].pda not a string`);
+        if (typeof m.question !== 'string') errors.push(`proofs[${i}].markets[${j}].question not a string`);
+        if (typeof m.outcome !== 'string') errors.push(`proofs[${i}].markets[${j}].outcome not a string`);
+        if (!['YES', 'NO'].includes(m.outcome)) errors.push(`proofs[${i}].markets[${j}].outcome invalid`);
+        if (typeof m.evidence !== 'string') errors.push(`proofs[${i}].markets[${j}].evidence not a string`);
+      });
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function tierName(t) { return { 1: 'Trustless', 2: 'Verified', 3: 'AI Research' }[t] || `Tier ${t}`; }
+function tierSource(t) { return { 1: 'Pyth on-chain', 2: 'ESPN, BLS, BBC, NFL', 3: 'Claude + web' }[t] || 'Unknown'; }
+function tierSpeed(t) { return { 1: '< 5 min', 2: '1-6 hours', 3: '1-24 hours' }[t] || 'Unknown'; }
+function tierClass(t) { return `t${t}`; }
+
+function formatDate(s) { return new Date(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+function timeAgo(s) {
+  const d = Math.floor((Date.now() - new Date(s)) / 1000);
+  if (d < 3600) return `${Math.floor(d / 60)}m ago`;
+  if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
+  return `${Math.floor(d / 86400)}d ago`;
+}
+function truncAddr(a, n = 6) { return a ? a.slice(0, n) + '…' + a.slice(-4) : ''; }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// =====================================================================
+// FETCH
+// =====================================================================
 async function fetchProofs() {
   try {
-    const res = await fetch('https://baozi.bet/api/agents/proofs');
+    const res = await fetch(PROOFS_API);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+
+    // Validate schema before rendering
+    const { valid, errors } = validateApiSchema(data);
+    if (!valid) {
+      console.warn('API schema validation warnings:', errors);
+    }
+    state.schemaValidation = { valid, errors };
+
     if (!data.success) throw new Error('API returned unsuccessful');
-    
+
+    // Verify program ID matches
+    if (data.oracle?.program && data.oracle.program !== BAOZI_PROGRAM_ID) {
+      console.error(`Program ID mismatch! API: ${data.oracle.program}, Expected: ${BAOZI_PROGRAM_ID}`);
+    }
+
     state.proofs = data.proofs || [];
     state.stats = data.stats || {};
     state.oracle = data.oracle || {};
     state.loading = false;
     state.error = null;
-    
+
     populateCategories();
     render();
   } catch (err) {
@@ -616,86 +562,22 @@ async function fetchProofs() {
   }
 }
 
-// ===== Helpers =====
-function tierName(tier) {
-  const names = { 1: 'Trustless', 2: 'Verified', 3: 'AI Research' };
-  return names[tier] || `Tier ${tier}`;
-}
-function tierSource(tier) {
-  const sources = { 1: 'Pyth on-chain', 2: 'ESPN, BLS, BBC, NFL', 3: 'Claude + web' };
-  return sources[tier] || 'Unknown';
-}
-function tierSpeed(tier) {
-  const speeds = { 1: '< 5 min', 2: '1-6 hours', 3: '1-24 hours' };
-  return speeds[tier] || 'Unknown';
-}
-function tierColor(tier) {
-  return tier === 1 ? 'var(--tier1)' : tier === 2 ? 'var(--tier2)' : 'var(--tier3)';
-}
-function tierClass(tier) {
-  return `t${tier}`;
-}
-
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatDateTime(dateStr) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-function timeAgo(dateStr) {
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diff = now - d;
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  return 'Just now';
-}
-
-function truncAddr(addr, len = 6) {
-  if (!addr) return '';
-  return addr.slice(0, len) + '...' + addr.slice(-4);
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// ===== Filtering & Sorting =====
+// =====================================================================
+// FILTERING
+// =====================================================================
 function getFilteredProofs() {
-  let filtered = [...state.proofs];
-  
-  // Tier filter
-  if (state.tierFilter !== 'all') {
-    filtered = filtered.filter(p => p.tier === parseInt(state.tierFilter));
-  }
-  
-  // Category filter
-  if (state.categoryFilter !== 'all') {
-    filtered = filtered.filter(p => p.category && p.category.toLowerCase() === state.categoryFilter.toLowerCase());
-  }
-  
-  // Search
+  let f = [...state.proofs];
+  if (state.tierFilter !== 'all') f = f.filter(p => p.tier === parseInt(state.tierFilter));
+  if (state.categoryFilter !== 'all') f = f.filter(p => p.category?.toLowerCase() === state.categoryFilter.toLowerCase());
   if (state.search.trim()) {
     const q = state.search.toLowerCase();
-    filtered = filtered.filter(p => {
-      const titleMatch = p.title && p.title.toLowerCase().includes(q);
-      const catMatch = p.category && p.category.toLowerCase().includes(q);
-      const marketMatch = p.markets && p.markets.some(m =>
-        (m.question && m.question.toLowerCase().includes(q)) ||
-        (m.evidence && m.evidence.toLowerCase().includes(q))
-      );
-      return titleMatch || catMatch || marketMatch;
-    });
+    f = f.filter(p =>
+      p.title?.toLowerCase().includes(q) ||
+      p.category?.toLowerCase().includes(q) ||
+      (p.markets || []).some(m => m.question?.toLowerCase().includes(q) || m.evidence?.toLowerCase().includes(q))
+    );
   }
-  
-  // Sort
-  filtered.sort((a, b) => {
+  f.sort((a, b) => {
     switch (state.sort) {
       case 'oldest': return new Date(a.createdAt) - new Date(b.createdAt);
       case 'markets-desc': return (b.markets?.length || 0) - (a.markets?.length || 0);
@@ -703,8 +585,7 @@ function getFilteredProofs() {
       default: return new Date(b.createdAt) - new Date(a.createdAt);
     }
   });
-  
-  return filtered;
+  return f;
 }
 
 function populateCategories() {
@@ -712,98 +593,90 @@ function populateCategories() {
   state.proofs.forEach(p => { if (p.category) cats.add(p.category); });
   const sel = document.getElementById('categoryFilter');
   sel.innerHTML = '<option value="all">All Categories</option>';
-  [...cats].sort().forEach(c => {
-    sel.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
-  });
+  [...cats].sort().forEach(c => { sel.innerHTML += `<option value="${esc(c)}">${esc(c)}</option>`; });
 }
 
-// ===== Computed Stats =====
+// =====================================================================
+// COMPUTED STATS
+// =====================================================================
 function computeStats() {
   const proofs = state.proofs;
   const totalMarkets = proofs.reduce((s, p) => s + (p.markets?.length || 0), 0);
-  const totalProofs = proofs.length;
-  
-  // By tier
   const byTier = {};
   proofs.forEach(p => {
     if (!byTier[p.tier]) byTier[p.tier] = { count: 0, markets: 0 };
     byTier[p.tier].count++;
     byTier[p.tier].markets += (p.markets?.length || 0);
   });
-  
-  // Outcomes
-  let yesCount = 0, noCount = 0;
-  proofs.forEach(p => {
-    (p.markets || []).forEach(m => {
-      if (m.outcome === 'YES') yesCount++;
-      if (m.outcome === 'NO') noCount++;
-    });
-  });
-  
-  // Unique sources
+  let yesCount = 0, noCount = 0, onChainCount = 0;
   const sources = new Set();
-  proofs.forEach(p => {
-    (p.markets || []).forEach(m => {
-      if (m.source) sources.add(m.source);
-    });
-  });
-  
-  // Markets with tx signatures
-  let onChainCount = 0;
-  proofs.forEach(p => {
-    (p.markets || []).forEach(m => {
-      if (m.txSignature) onChainCount++;
-    });
-  });
-  
-  // Categories
+  proofs.forEach(p => (p.markets || []).forEach(m => {
+    if (m.outcome === 'YES') yesCount++;
+    if (m.outcome === 'NO') noCount++;
+    if (m.txSignature) onChainCount++;
+    if (m.source) sources.add(m.source);
+  }));
   const categories = new Set();
   proofs.forEach(p => { if (p.category) categories.add(p.category); });
-  
-  // By layer
   const byLayer = {};
-  proofs.forEach(p => {
-    if (!byLayer[p.layer]) byLayer[p.layer] = 0;
-    byLayer[p.layer]++;
-  });
-  
+  proofs.forEach(p => { byLayer[p.layer] = (byLayer[p.layer] || 0) + 1; });
+
+  // Verification stats
+  const vCounts = Object.values(state.verification);
+  const verified = vCounts.filter(v => v.status === 'verified').length;
+  const checked = vCounts.filter(v => v.status !== 'checking').length;
+
   return {
-    totalProofs, totalMarkets, byTier, yesCount, noCount,
+    totalProofs: proofs.length, totalMarkets, byTier, yesCount, noCount,
     uniqueSources: sources.size, onChainCount, categories: categories.size,
-    byLayer, disputeRate: 0, trustScore: 98.5
+    byLayer, trustScore: 98.5,
+    verified, checked, totalPDAs: vCounts.length,
   };
 }
 
-// ===== Render Functions =====
+// =====================================================================
+// RENDER
+// =====================================================================
 function render() {
   const content = document.getElementById('content');
-  
   if (state.loading) {
-    content.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Fetching resolution proofs from Baozi oracle...</p></div>`;
+    content.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Fetching resolution proofs from Baozi oracle…</p></div>`;
     return;
   }
-  
   if (state.error) {
-    content.innerHTML = `
-      <div class="error-state">
-        <p>⚠️ Failed to load proofs: ${escapeHtml(state.error)}</p>
-        <button onclick="state.loading=true;state.error=null;render();fetchProofs();">Retry</button>
-      </div>`;
+    content.innerHTML = `<div class="error-state"><p>⚠️ Failed to load proofs: ${esc(state.error)}</p><button onclick="state.loading=true;state.error=null;render();fetchProofs();">Retry</button></div>`;
     return;
   }
-  
   switch (state.activeTab) {
     case 'dashboard': content.innerHTML = renderDashboard(); break;
     case 'proofs': content.innerHTML = renderProofs(); break;
+    case 'verify': content.innerHTML = renderVerifyTab(); break;
     case 'comparison': content.innerHTML = renderComparison(); break;
     case 'oracle': content.innerHTML = renderOracle(); break;
   }
 }
 
+function verifyBadgeHTML(pda) {
+  const v = state.verification[pda];
+  if (!v) return '<span class="verify-badge pending">⏳ Not checked</span>';
+  if (v.status === 'checking') return '<span class="verify-badge checking">⟳ Checking…</span>';
+  if (v.status === 'verified') return '<span class="verify-badge verified">✓ On-Chain</span>';
+  if (v.status === 'not_found') return '<span class="verify-badge failed">✗ Not Found</span>';
+  return '<span class="verify-badge failed">✗ Failed</span>';
+}
+
+function txBadgeHTML(txSig) {
+  if (!txSig) return '';
+  const v = state.txVerification[txSig];
+  if (!v) return '';
+  if (v.status === 'checking') return '<span class="verify-badge checking">⟳ Tx…</span>';
+  if (v.status === 'verified') return '<span class="verify-badge verified">✓ Tx Confirmed</span>';
+  return '<span class="verify-badge failed">✗ Tx Not Confirmed</span>';
+}
+
 function renderDashboard() {
   const stats = computeStats();
   const filtered = getFilteredProofs();
-  
   return `
     <div class="stats-grid">
       <div class="stat-card">
@@ -814,7 +687,7 @@ function renderDashboard() {
       <div class="stat-card">
         <div class="stat-label">Markets Verified</div>
         <div class="stat-value green">${stats.totalMarkets}</div>
-        <div class="stat-sub">${stats.yesCount} YES · ${stats.noCount} NO outcomes</div>
+        <div class="stat-sub">${stats.yesCount} YES · ${stats.noCount} NO</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">On-Chain Proofs</div>
@@ -822,9 +695,9 @@ function renderDashboard() {
         <div class="stat-sub">With tx signatures on Solana</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Trust Score</div>
-        <div class="stat-value green">${stats.trustScore}%</div>
-        <div class="stat-sub">${stats.disputeRate}% dispute rate</div>
+        <div class="stat-label">On-Chain Verified</div>
+        <div class="stat-value ${stats.verified > 0 ? 'green' : 'accent'}">${stats.verified > 0 ? stats.verified + '/' + stats.totalPDAs : '—'}</div>
+        <div class="stat-sub">${stats.verified > 0 ? 'PDAs verified against Solana' : '<a href="#" onclick="switchTab(\'verify\');return false;">Run verification →</a>'}</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Evidence Sources</div>
@@ -832,45 +705,28 @@ function renderDashboard() {
         <div class="stat-sub">Unique verified sources</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Categories</div>
-        <div class="stat-value accent">${stats.categories}</div>
-        <div class="stat-sub">${Object.keys(stats.byLayer).map(l => `${l}: ${stats.byLayer[l]}`).join(' · ')}</div>
+        <div class="stat-label">Program ID</div>
+        <div class="stat-value" style="font-size:12px;font-family:var(--font-mono);word-break:break-all;color:var(--text-secondary);margin-top:4px;">
+          <a href="https://solscan.io/account/${BAOZI_PROGRAM_ID}" target="_blank">${BAOZI_PROGRAM_ID}</a>
+        </div>
+        <div class="stat-sub">Baozi on-chain program</div>
       </div>
     </div>
-    
     <div class="tier-breakdown">
-      ${[1, 2, 3].map(tier => {
+      ${[1,2,3].map(tier => {
         const td = stats.byTier[tier] || { count: 0, markets: 0 };
-        return `
-          <div class="tier-card ${tierClass(tier)}">
-            <div class="tier-header">
-              <span class="tier-name">${tierName(tier)}</span>
-              <span class="tier-badge ${tierClass(tier)}">Tier ${tier}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Resolutions</span>
-              <span class="tier-detail-value">${td.count}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Markets Resolved</span>
-              <span class="tier-detail-value">${td.markets}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Data Source</span>
-              <span class="tier-detail-value">${tierSource(tier)}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Avg Speed</span>
-              <span class="tier-detail-value">${tierSpeed(tier)}</span>
-            </div>
-          </div>`;
+        return `<div class="tier-card ${tierClass(tier)}">
+          <div class="tier-header"><span class="tier-name">${tierName(tier)}</span><span class="tier-badge ${tierClass(tier)}">Tier ${tier}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Resolutions</span><span class="tier-detail-value">${td.count}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Markets</span><span class="tier-detail-value">${td.markets}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Source</span><span class="tier-detail-value">${tierSource(tier)}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Speed</span><span class="tier-detail-value">${tierSpeed(tier)}</span></div>
+        </div>`;
       }).join('')}
     </div>
-    
     <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">Recent Resolutions</h2>
     ${renderProofList(filtered.slice(0, 3))}
-    ${filtered.length > 3 ? `<p style="text-align:center;margin:16px 0;"><button class="filter-btn" onclick="switchTab('proofs')" style="cursor:pointer;">View All ${filtered.length} Resolutions →</button></p>` : ''}
-  `;
+    ${filtered.length > 3 ? `<p style="text-align:center;margin:16px 0;"><button class="filter-btn" onclick="switchTab('proofs')" style="cursor:pointer;">View All ${filtered.length} Resolutions →</button></p>` : ''}`;
 }
 
 function renderProofs() {
@@ -878,74 +734,184 @@ function renderProofs() {
   return `
     <div class="sort-bar">
       <span class="result-count">${filtered.length} resolution${filtered.length !== 1 ? 's' : ''} found</span>
+      <button class="verify-btn" onclick="runVerification()" ${state.verifying ? 'disabled' : ''}>
+        ${state.verifying ? '⟳ Verifying…' : '🔗 Verify All On-Chain'}
+      </button>
     </div>
-    ${filtered.length === 0 
+    ${filtered.length === 0
       ? `<div class="empty-state"><div class="icon">🔍</div><p>No resolutions match your filters.</p></div>`
-      : renderProofList(filtered)
-    }
-  `;
+      : renderProofList(filtered)}`;
 }
 
 function renderProofList(proofs) {
-  if (!proofs || proofs.length === 0) {
-    return `<div class="empty-state"><div class="icon">📭</div><p>No resolution proofs available.</p></div>`;
-  }
-  
-  return `<div class="proof-list">
-    ${proofs.map(proof => `
-      <div class="proof-card">
-        <div class="proof-header">
-          <div class="proof-title-area">
-            <div class="proof-title">
-              ${escapeHtml(proof.title || proof.slug)}
-            </div>
-            <div class="proof-meta">
-              <span>📅 ${formatDate(proof.date)}</span>
-              <span>🕐 ${timeAgo(proof.createdAt)}</span>
-              <span>👤 ${escapeHtml(proof.resolvedBy || 'Unknown')}</span>
-              <span>📊 ${proof.markets?.length || 0} market${(proof.markets?.length || 0) !== 1 ? 's' : ''}</span>
-            </div>
-          </div>
-          <div class="proof-badges">
-            <span class="tier-badge ${tierClass(proof.tier)}">Tier ${proof.tier} · ${tierName(proof.tier)}</span>
-            <span class="layer-badge ${proof.layer}">${proof.layer}</span>
-            ${proof.category ? `<span class="cat-badge">${escapeHtml(proof.category)}</span>` : ''}
+  if (!proofs?.length) return `<div class="empty-state"><div class="icon">📭</div><p>No resolution proofs available.</p></div>`;
+  return `<div class="proof-list">${proofs.map(proof => `
+    <div class="proof-card">
+      <div class="proof-header">
+        <div class="proof-title-area">
+          <div class="proof-title">${esc(proof.title || proof.slug)}</div>
+          <div class="proof-meta">
+            <span>📅 ${formatDate(proof.date)}</span>
+            <span>🕐 ${timeAgo(proof.createdAt)}</span>
+            <span>👤 ${esc(proof.resolvedBy || 'Unknown')}</span>
+            <span>📊 ${proof.markets?.length || 0} market${(proof.markets?.length || 0) !== 1 ? 's' : ''}</span>
           </div>
         </div>
-        <div class="markets-table">
-          ${(proof.markets || []).map(m => `
-            <div class="market-row">
-              <div>
-                <div class="market-question">${escapeHtml(m.question || '')}</div>
-                <div class="market-evidence">${escapeHtml(m.evidence || '')}</div>
-              </div>
-              <div class="market-links">
-                ${m.sourceUrl ? `<a href="${escapeHtml(m.sourceUrl)}" target="_blank" rel="noopener">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  Source
-                </a>` : m.source ? `<span style="font-size:12px;color:var(--text-muted);">📰 ${escapeHtml(m.source)}</span>` : ''}
-                ${m.txSignature ? `<a href="https://solscan.io/tx/${escapeHtml(m.txSignature)}" target="_blank" rel="noopener">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                  Solscan Tx
-                </a>` : ''}
-                <a href="https://solscan.io/account/${escapeHtml(m.pda)}" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:11px;">
-                  ${truncAddr(m.pda)}
-                </a>
-              </div>
-              <span class="outcome-badge ${m.outcome === 'YES' ? 'yes' : 'no'}">${m.outcome}</span>
-            </div>
-          `).join('')}
-        </div>
-        <div class="proof-footer">
-          <span>🆔 Proof #${proof.id}</span>
-          <span>📁 ${escapeHtml(proof.slug)}</span>
-          ${proof.sourceUrls && proof.sourceUrls.length > 0 
-            ? `<span>🔗 ${proof.sourceUrls.length} source URL${proof.sourceUrls.length > 1 ? 's' : ''}</span>` 
-            : ''}
+        <div class="proof-badges">
+          <span class="tier-badge ${tierClass(proof.tier)}">Tier ${proof.tier} · ${tierName(proof.tier)}</span>
+          <span class="layer-badge ${proof.layer}">${proof.layer}</span>
+          ${proof.category ? `<span class="cat-badge">${esc(proof.category)}</span>` : ''}
         </div>
       </div>
-    `).join('')}
+      <div class="markets-table">
+        ${(proof.markets || []).map(m => `
+          <div class="market-row">
+            <div>
+              <div class="market-question">${esc(m.question || '')} ${verifyBadgeHTML(m.pda)} ${txBadgeHTML(m.txSignature)}</div>
+              <div class="market-evidence">${esc(m.evidence || '')}</div>
+              ${renderOnChainDetail(m.pda)}
+            </div>
+            <div class="market-links">
+              ${m.sourceUrl ? `<a href="${esc(m.sourceUrl)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Source</a>` : m.source ? `<span style="font-size:12px;color:var(--text-muted);">📰 ${esc(m.source)}</span>` : ''}
+              ${m.txSignature ? `<a href="https://solscan.io/tx/${esc(m.txSignature)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Solscan Tx</a>` : ''}
+              <a href="https://solscan.io/account/${esc(m.pda)}" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:11px;">${truncAddr(m.pda)}</a>
+            </div>
+            <span class="outcome-badge ${m.outcome === 'YES' ? 'yes' : 'no'}">${m.outcome}</span>
+          </div>`).join('')}
+      </div>
+      <div class="proof-footer">
+        <span>🆔 Proof #${proof.id}</span>
+        <span>📁 ${esc(proof.slug)}</span>
+        ${proof.sourceUrls?.length ? `<span>🔗 ${proof.sourceUrls.length} source URL${proof.sourceUrls.length > 1 ? 's' : ''}</span>` : ''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function renderOnChainDetail(pda) {
+  const v = state.verification[pda];
+  if (!v || v.status !== 'verified') return '';
+  return `<div class="onchain-detail show">
+    <div class="field"><span class="field-label">Owner:</span> <span>${esc(v.owner)}</span> ${v.ownerValid ? '✅' : '❌'}</div>
+    <div class="field"><span class="field-label">Data:</span> <span>${v.dataLen} bytes</span></div>
+    <div class="field"><span class="field-label">Discriminator:</span> <span>${v.discriminatorValid ? 'Valid (Market)' : 'Invalid'}</span> ${v.discriminatorValid ? '✅' : '❌'}</div>
+    ${v.onChainQuestion ? `<div class="field"><span class="field-label">On-chain Q:</span> <span>${esc(v.onChainQuestion.slice(0, 80))}${v.onChainQuestion.length > 80 ? '…' : ''}</span></div>` : ''}
   </div>`;
+}
+
+// ===== VERIFY TAB =====
+function renderVerifyTab() {
+  const allMarkets = state.proofs.flatMap(p => (p.markets || []).map(m => ({ ...m, proofTitle: p.title })));
+  const uniquePDAs = [...new Set(allMarkets.map(m => m.pda).filter(Boolean))];
+  const uniqueTxs = [...new Set(allMarkets.map(m => m.txSignature).filter(Boolean))];
+
+  const verified = Object.values(state.verification).filter(v => v.status === 'verified').length;
+  const failed = Object.values(state.verification).filter(v => v.status === 'failed' || v.status === 'not_found' || v.status === 'error').length;
+  const txVerified = Object.values(state.txVerification).filter(v => v.status === 'verified').length;
+
+  return `
+    <div class="verification-panel">
+      <h3>🔗 On-Chain Verification</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+        Verify that every market PDA from the proofs API exists on Solana mainnet, is owned by the correct
+        Baozi program (<code style="font-family:var(--font-mono);font-size:11px;color:var(--accent);">${BAOZI_PROGRAM_ID}</code>),
+        and has the correct account discriminator. This proves the API data matches real on-chain state.
+      </p>
+
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;">
+        <button class="verify-btn" onclick="runVerification()" ${state.verifying ? 'disabled' : ''}>
+          ${state.verifying
+            ? `⟳ Verifying… (${state.verifyProgress.done}/${state.verifyProgress.total})`
+            : '🔗 Verify All PDAs On-Chain'}
+        </button>
+        ${verified > 0 ? `<div class="verify-summary">
+          <div class="verify-summary-item" style="color:var(--green);">✅ ${verified} Verified</div>
+          ${failed > 0 ? `<div class="verify-summary-item" style="color:var(--red);">❌ ${failed} Failed</div>` : ''}
+          ${txVerified > 0 ? `<div class="verify-summary-item" style="color:var(--blue);">🔗 ${txVerified} Tx Confirmed</div>` : ''}
+        </div>` : ''}
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <h4 style="font-size:14px;font-weight:600;margin-bottom:10px;">Verification Checks Per Market:</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">
+          <div style="padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:12px;">
+            <strong style="color:var(--green);">1. Account Exists</strong><br>
+            <span style="color:var(--text-muted);">PDA exists on Solana mainnet</span>
+          </div>
+          <div style="padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:12px;">
+            <strong style="color:var(--green);">2. Owner = Program ID</strong><br>
+            <span style="color:var(--text-muted);">Account owned by Baozi program</span>
+          </div>
+          <div style="padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:12px;">
+            <strong style="color:var(--green);">3. Discriminator</strong><br>
+            <span style="color:var(--text-muted);">First 8 bytes = Market type</span>
+          </div>
+          <div style="padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:12px;">
+            <strong style="color:var(--green);">4. Question Match</strong><br>
+            <span style="color:var(--text-muted);">On-chain question readable</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Market PDAs (${uniquePDAs.length})</h3>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
+      ${uniquePDAs.map(pda => {
+        const v = state.verification[pda] || {};
+        const market = allMarkets.find(m => m.pda === pda);
+        return `<div class="verify-row">
+          <div>
+            <span class="pda-label">${pda}</span>
+            ${market ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${esc(market.question?.slice(0, 60) || '')}…</div>` : ''}
+            ${v.onChainQuestion ? `<div style="font-size:11px;color:var(--green);margin-top:2px;">On-chain: "${esc(v.onChainQuestion.slice(0, 60))}…"</div>` : ''}
+          </div>
+          <div class="check-items">
+            ${v.status === 'verified' ? `
+              <span style="color:var(--green);">✅ Exists</span>
+              <span style="color:var(--green);">✅ Owner</span>
+              <span style="color:var(--green);">✅ Disc</span>
+            ` : v.status === 'checking' ? '<span style="color:var(--blue);">⟳ Checking…</span>'
+              : v.status === 'failed' ? `
+              <span>${v.exists ? '✅' : '❌'} Exists</span>
+              <span>${v.ownerValid ? '✅' : '❌'} Owner</span>
+              <span>${v.discriminatorValid ? '✅' : '❌'} Disc</span>
+            ` : v.status === 'not_found' ? '<span style="color:var(--red);">❌ Not Found</span>'
+              : '<span style="color:var(--text-muted);">⏳ Pending</span>'}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${uniqueTxs.length > 0 ? `
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Transaction Signatures (${uniqueTxs.length})</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
+        ${uniqueTxs.map(tx => {
+          const v = state.txVerification[tx] || {};
+          return `<div class="verify-row">
+            <span class="pda-label"><a href="https://solscan.io/tx/${esc(tx)}" target="_blank">${truncAddr(tx, 16)}</a></span>
+            <div class="check-items">
+              ${v.status === 'verified' ? `<span style="color:var(--green);">✅ Confirmed (slot ${v.slot})</span>`
+                : v.status === 'checking' ? '<span style="color:var(--blue);">⟳ Checking…</span>'
+                : v.status === 'not_found' ? '<span style="color:var(--red);">❌ Not Found</span>'
+                : '<span style="color:var(--text-muted);">⏳ Pending</span>'}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    ` : ''}
+
+    ${state.schemaValidation ? `
+      <div class="verification-panel" style="margin-top:16px;">
+        <h3>${state.schemaValidation.valid ? '✅' : '⚠️'} API Schema Validation</h3>
+        <p style="font-size:13px;color:var(--text-secondary);">
+          ${state.schemaValidation.valid
+            ? 'API response matches expected schema. All required fields present with correct types.'
+            : `${state.schemaValidation.errors.length} issue(s) found:`}
+        </p>
+        ${!state.schemaValidation.valid ? `<ul style="margin-top:8px;padding-left:20px;font-size:12px;color:var(--red);">
+          ${state.schemaValidation.errors.map(e => `<li>${esc(e)}</li>`).join('')}
+        </ul>` : ''}
+      </div>
+    ` : ''}`;
 }
 
 function renderComparison() {
@@ -953,200 +919,95 @@ function renderComparison() {
   return `
     <div class="comparison-section">
       <h2>⚖️ Oracle Transparency Comparison</h2>
-      <p class="subtitle">How Baozi's oracle compares to traditional prediction market platforms on transparency and verifiability.</p>
-      
+      <p class="subtitle">How Baozi's oracle compares to other platforms on transparency and verifiability.</p>
       <table class="comparison-table">
-        <thead>
-          <tr>
-            <th>Feature</th>
-            <th class="baozi-col">Baozi 🥟</th>
-            <th>Polymarket</th>
-            <th>Traditional Bookmakers</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>Feature</th><th class="baozi-col">Baozi 🥟</th><th>Polymarket</th><th>Traditional</th>
+        </tr></thead>
         <tbody>
-          <tr>
-            <td class="feature">Resolution Proofs Published</td>
-            <td class="baozi-col"><span class="check">✓ Yes — full evidence chain</span></td>
-            <td><span class="partial">◐ Partial — UMA disputes only</span></td>
-            <td><span class="cross">✗ No</span></td>
-          </tr>
-          <tr>
-            <td class="feature">On-Chain Settlement</td>
-            <td class="baozi-col"><span class="check">✓ Solana — verifiable tx</span></td>
-            <td><span class="check">✓ Polygon</span></td>
-            <td><span class="cross">✗ Centralized</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Evidence Sources Linked</td>
-            <td class="baozi-col"><span class="check">✓ ${stats.uniqueSources}+ sources per batch</span></td>
-            <td><span class="cross">✗ Not published</span></td>
-            <td><span class="cross">✗ Not published</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Multi-Tier Oracle System</td>
-            <td class="baozi-col"><span class="check">✓ 3 tiers — Trustless/Verified/AI</span></td>
-            <td><span class="partial">◐ UMA oracle only</span></td>
-            <td><span class="cross">✗ Single authority</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Resolution Time Transparency</td>
-            <td class="baozi-col"><span class="check">✓ Timestamped on-chain</span></td>
-            <td><span class="partial">◐ After dispute period</span></td>
-            <td><span class="cross">✗ Opaque</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Dispute Mechanism</td>
-            <td class="baozi-col"><span class="check">✓ On-chain dispute window</span></td>
-            <td><span class="check">✓ UMA DVM</span></td>
-            <td><span class="partial">◐ Customer support</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Oracle Identity Known</td>
-            <td class="baozi-col"><span class="check">✓ Grandma Mei — public address</span></td>
-            <td><span class="partial">◐ UMA voters anonymous</span></td>
-            <td><span class="cross">✗ Unknown</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Market PDA / Account Viewable</td>
-            <td class="baozi-col"><span class="check">✓ Every market has a PDA</span></td>
-            <td><span class="check">✓ Contract addresses</span></td>
-            <td><span class="cross">✗ No</span></td>
-          </tr>
-          <tr>
-            <td class="feature">API for Proof Verification</td>
-            <td class="baozi-col"><span class="check">✓ Public REST API</span></td>
-            <td><span class="cross">✗ No dedicated endpoint</span></td>
-            <td><span class="cross">✗ No</span></td>
-          </tr>
-          <tr>
-            <td class="feature">Resolution Categories</td>
-            <td class="baozi-col"><span class="check">✓ ${stats.categories} categories tracked</span></td>
-            <td><span class="partial">◐ Limited metadata</span></td>
-            <td><span class="cross">✗ Minimal</span></td>
-          </tr>
+          <tr><td class="feature">Resolution Proofs</td><td class="baozi-col"><span class="check">✓ Full evidence chain</span></td><td><span class="partial">◐ UMA disputes only</span></td><td><span class="cross">✗ No</span></td></tr>
+          <tr><td class="feature">On-Chain Settlement</td><td class="baozi-col"><span class="check">✓ Solana — verifiable tx</span></td><td><span class="check">✓ Polygon</span></td><td><span class="cross">✗ Centralized</span></td></tr>
+          <tr><td class="feature">Evidence Sources</td><td class="baozi-col"><span class="check">✓ ${stats.uniqueSources}+ per batch</span></td><td><span class="cross">✗ Not published</span></td><td><span class="cross">✗ No</span></td></tr>
+          <tr><td class="feature">Multi-Tier Oracle</td><td class="baozi-col"><span class="check">✓ 3-tier system</span></td><td><span class="partial">◐ UMA only</span></td><td><span class="cross">✗ Single</span></td></tr>
+          <tr><td class="feature">On-Chain Verification</td><td class="baozi-col"><span class="check">✓ PDA + owner + discriminator</span></td><td><span class="partial">◐ Contract only</span></td><td><span class="cross">✗ No</span></td></tr>
+          <tr><td class="feature">Dispute Mechanism</td><td class="baozi-col"><span class="check">✓ On-chain dispute</span></td><td><span class="check">✓ UMA DVM</span></td><td><span class="partial">◐ Support</span></td></tr>
+          <tr><td class="feature">Oracle Identity</td><td class="baozi-col"><span class="check">✓ Grandma Mei — public</span></td><td><span class="partial">◐ Anonymous</span></td><td><span class="cross">✗ Unknown</span></td></tr>
+          <tr><td class="feature">Market Accounts</td><td class="baozi-col"><span class="check">✓ Every market has PDA</span></td><td><span class="check">✓ Contracts</span></td><td><span class="cross">✗ No</span></td></tr>
+          <tr><td class="feature">Proof API</td><td class="baozi-col"><span class="check">✓ Public REST</span></td><td><span class="cross">✗ None</span></td><td><span class="cross">✗ No</span></td></tr>
+          <tr><td class="feature">Schema Validation</td><td class="baozi-col"><span class="check">✓ Typed + validated</span></td><td><span class="partial">◐ Limited</span></td><td><span class="cross">✗ No</span></td></tr>
         </tbody>
       </table>
-      
-      <div style="margin-top:24px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">🔑 Key Takeaway</h3>
-        <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;">
-          Baozi is the only prediction market platform that publishes <strong style="color:var(--accent);">complete resolution proofs</strong> for every market — including the evidence used, data sources consulted, on-chain transaction signatures, and oracle reasoning. This level of transparency allows anyone to independently verify how each market was resolved, making it the most auditable prediction market protocol available.
-        </p>
-      </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function renderOracle() {
   const o = state.oracle || {};
-  const tiers = o.tiers || [];
   const stats = computeStats();
-  
   return `
     <div class="oracle-info">
-      <h3>🔮 Oracle: ${escapeHtml(o.name || 'Unknown')}</h3>
+      <h3>🔮 Oracle: ${esc(o.name || 'Unknown')}</h3>
       <div class="oracle-details">
         <div class="oracle-detail">
           <span class="oracle-detail-label">Oracle Address</span>
-          <span class="oracle-detail-value">
-            <a href="https://solscan.io/account/${escapeHtml(o.address || '')}" target="_blank" rel="noopener">${escapeHtml(o.address || 'N/A')}</a>
-          </span>
+          <span class="oracle-detail-value"><a href="https://solscan.io/account/${esc(o.address || '')}" target="_blank">${esc(o.address || 'N/A')}</a></span>
         </div>
         <div class="oracle-detail">
           <span class="oracle-detail-label">Program ID</span>
-          <span class="oracle-detail-value">
-            <a href="https://solscan.io/account/${escapeHtml(o.program || '')}" target="_blank" rel="noopener">${escapeHtml(o.program || 'N/A')}</a>
+          <span class="oracle-detail-value"><a href="https://solscan.io/account/${esc(o.program || '')}" target="_blank">${esc(o.program || 'N/A')}</a></span>
+        </div>
+        <div class="oracle-detail">
+          <span class="oracle-detail-label">Expected Program ID</span>
+          <span class="oracle-detail-value" style="color: ${o.program === BAOZI_PROGRAM_ID ? 'var(--green)' : 'var(--red)'};">
+            ${BAOZI_PROGRAM_ID} ${o.program === BAOZI_PROGRAM_ID ? '✅ Match' : '❌ Mismatch!'}
           </span>
         </div>
         <div class="oracle-detail">
           <span class="oracle-detail-label">Network</span>
-          <span class="oracle-detail-value">${escapeHtml(o.network || 'Unknown')}</span>
-        </div>
-        <div class="oracle-detail">
-          <span class="oracle-detail-label">Total Resolutions</span>
-          <span class="oracle-detail-value">${stats.totalProofs}</span>
+          <span class="oracle-detail-value">${esc(o.network || 'Unknown')}</span>
         </div>
       </div>
     </div>
-    
     <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">Resolution Tier Architecture</h2>
     <div class="tier-breakdown">
-      ${[1, 2, 3].map(tier => {
+      ${[1,2,3].map(tier => {
         const td = stats.byTier[tier] || { count: 0, markets: 0 };
-        const tierInfo = tiers.find(t => t.tier === tier) || {};
-        return `
-          <div class="tier-card ${tierClass(tier)}">
-            <div class="tier-header">
-              <span class="tier-name">Tier ${tier}: ${tierName(tier)}</span>
-              <span class="tier-badge ${tierClass(tier)}">${td.count} resolutions</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Data Source</span>
-              <span class="tier-detail-value">${escapeHtml(tierInfo.source || tierSource(tier))}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Speed</span>
-              <span class="tier-detail-value">${escapeHtml(tierInfo.speed || tierSpeed(tier))}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">Markets Resolved</span>
-              <span class="tier-detail-value">${td.markets}</span>
-            </div>
-            <div class="tier-detail">
-              <span class="tier-detail-label">How It Works</span>
-              <span class="tier-detail-value" style="font-family:var(--font);font-size:12px;color:var(--text-secondary);">
-                ${tier === 1 ? 'Automated price feeds from Pyth Network. No human intervention needed — fully trustless resolution.' :
-                  tier === 2 ? 'Oracle verifies outcomes against authoritative sources (ESPN, BLS, BBC). Evidence is linked and auditable.' :
-                  'AI agent researches outcomes using multiple web sources. Results reviewed and posted with full evidence chain.'}
-              </span>
-            </div>
-          </div>`;
+        const ti = (o.tiers || []).find(t => t.tier === tier) || {};
+        return `<div class="tier-card ${tierClass(tier)}">
+          <div class="tier-header"><span class="tier-name">Tier ${tier}: ${tierName(tier)}</span><span class="tier-badge ${tierClass(tier)}">${td.count} resolutions</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Source</span><span class="tier-detail-value">${esc(ti.source || tierSource(tier))}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Speed</span><span class="tier-detail-value">${esc(ti.speed || tierSpeed(tier))}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">Markets</span><span class="tier-detail-value">${td.markets}</span></div>
+          <div class="tier-detail"><span class="tier-detail-label">How</span><span class="tier-detail-value" style="font-family:var(--font);font-size:12px;color:var(--text-secondary);">
+            ${tier === 1 ? 'Automated Pyth feeds — fully trustless.' : tier === 2 ? 'Oracle verifies against authoritative sources.' : 'AI researches via multiple web sources.'}
+          </span></div>
+        </div>`;
       }).join('')}
     </div>
-    
     <div style="margin-top:24px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
       <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">📡 API Endpoints</h3>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="display:flex;gap:12px;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);">
           <span style="background:var(--green-dim);color:var(--green);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--font-mono);">GET</span>
-          <code style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);">
-            <a href="https://baozi.bet/api/agents/proofs" target="_blank">https://baozi.bet/api/agents/proofs</a>
-          </code>
+          <code style="font-family:var(--font-mono);font-size:13px;"><a href="${PROOFS_API}" target="_blank">${PROOFS_API}</a></code>
           <span style="font-size:12px;color:var(--text-muted);margin-left:auto;">All resolution proofs</span>
         </div>
-        <div style="display:flex;gap:12px;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:var(--radius-sm);">
-          <span style="background:var(--green-dim);color:var(--green);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--font-mono);">GET</span>
-          <code style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);">
-            <a href="https://baozi.bet/api/oracle/status" target="_blank">https://baozi.bet/api/oracle/status</a>
-          </code>
-          <span style="font-size:12px;color:var(--text-muted);margin-left:auto;">Oracle status page</span>
-        </div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-// ===== Tab Switching =====
+// ===== TAB SWITCHING =====
 function switchTab(tab) {
   state.activeTab = tab;
-  document.querySelectorAll('.nav-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.tab === tab);
-  });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   render();
 }
 
-// ===== Event Listeners =====
+// ===== EVENT LISTENERS =====
 document.getElementById('navTabs').addEventListener('click', e => {
   const tab = e.target.closest('.nav-tab');
   if (tab) switchTab(tab.dataset.tab);
 });
-
-document.getElementById('searchInput').addEventListener('input', e => {
-  state.search = e.target.value;
-  render();
-});
-
+document.getElementById('searchInput').addEventListener('input', e => { state.search = e.target.value; render(); });
 document.getElementById('tierFilters').addEventListener('click', e => {
   const btn = e.target.closest('.filter-btn');
   if (!btn) return;
@@ -1155,18 +1016,10 @@ document.getElementById('tierFilters').addEventListener('click', e => {
   state.tierFilter = btn.dataset.tier;
   render();
 });
+document.getElementById('categoryFilter').addEventListener('change', e => { state.categoryFilter = e.target.value; render(); });
+document.getElementById('sortSelect').addEventListener('change', e => { state.sort = e.target.value; render(); });
 
-document.getElementById('categoryFilter').addEventListener('change', e => {
-  state.categoryFilter = e.target.value;
-  render();
-});
-
-document.getElementById('sortSelect').addEventListener('change', e => {
-  state.sort = e.target.value;
-  render();
-});
-
-// ===== Init =====
+// ===== INIT =====
 fetchProofs();
 </script>
 </body>

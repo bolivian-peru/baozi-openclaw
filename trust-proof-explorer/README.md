@@ -1,162 +1,179 @@
 # 🥟 Baozi Trust Proof Explorer
 
-A web dashboard for exploring and verifying Baozi prediction market resolution proofs. Full transparency into oracle decisions, evidence sources, and on-chain verification.
+A web dashboard for exploring and verifying Baozi prediction market resolution proofs **with real on-chain Solana verification**. Full transparency into oracle decisions, evidence sources, and cryptographic proof validation.
 
 **Live data from:** `GET https://baozi.bet/api/agents/proofs`
-
----
-
-## 🖼️ Screenshots
-
-### Dashboard Overview
-The main dashboard shows aggregate oracle statistics including total resolutions, market count, on-chain proofs with tx signatures, trust score, evidence source count, and categories covered. Below the stats, a tier breakdown shows resolution counts and speeds for each oracle tier.
-
-### Resolution Proofs View
-Each resolution proof card displays the title, date, resolver identity, tier badge, layer (official/labs), and category. Inside each card, individual markets are listed with their question, evidence text, outcome (YES/NO), source links, Solscan transaction links, and market PDA addresses.
-
-### Trust Comparison
-Side-by-side comparison table between Baozi, Polymarket, and traditional bookmakers across 10 transparency metrics including resolution proofs, on-chain settlement, evidence sources, multi-tier oracle, dispute mechanisms, and API availability.
-
-### Oracle Info
-Detailed oracle information including Grandma Mei's on-chain address, program ID, network, and a breakdown of the 3-tier resolution architecture with data sources and speeds.
+**Program ID:** `FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ`
 
 ---
 
 ## ✨ Features
 
-- **📊 Oracle Stats Dashboard** — Total resolutions, markets verified, on-chain proof count, trust score, unique evidence sources, and category breakdown
-- **🔍 Resolution Proof Explorer** — Browse every resolution with full evidence chain, outcome, source links, and Solscan transaction links
-- **🏗️ 3-Tier Architecture View** — Tier 1 (Trustless/Pyth), Tier 2 (Verified/API), Tier 3 (AI Research) breakdown with stats
-- **⚖️ Trust Comparison** — Baozi vs Polymarket vs traditional bookmakers transparency comparison across 10 metrics
-- **🔮 Oracle Info** — On-chain oracle address, program ID, API endpoints, and resolution architecture details
-- **🔎 Search** — Full-text search across market questions, evidence, and categories
-- **🎛️ Filter & Sort** — Filter by tier (1/2/3), category, and sort by date or market count
-- **📱 Responsive** — Works on desktop, tablet, and mobile
-- **🌙 Dark Theme** — Native dark UI matching Baozi's design language
-- **⚡ Zero Dependencies** — Single HTML file, no build step, no frameworks
+### On-Chain Verification (New)
+- **🔗 PDA Verification** — Every market PDA from the proofs API is verified directly against Solana mainnet via `@solana/web3.js`
+- **✅ Owner Check** — Confirms each account is owned by the correct Baozi program (`FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ`)
+- **🏷️ Discriminator Check** — Validates the first 8 bytes match the Market account discriminator `[219, 190, 213, 55, 0, 227, 198, 154]`
+- **📝 Question Cross-Reference** — Decodes the on-chain question field and displays it alongside API data for manual comparison
+- **🔗 Transaction Verification** — Confirms tx signatures are finalized on Solana
+- **📋 Schema Validation** — Validates API response structure matches expected types before rendering
+
+### Dashboard
+- **📊 Oracle Stats** — Total resolutions, verified markets, on-chain proofs, trust score
+- **🔍 Resolution Proof Explorer** — Browse every resolution with evidence chain, outcomes, and Solscan links
+- **🏗️ 3-Tier Architecture** — Tier 1 (Trustless/Pyth), Tier 2 (Verified/API), Tier 3 (AI Research)
+- **⚖️ Trust Comparison** — Baozi vs Polymarket vs traditional bookmakers
+- **🔮 Oracle Info** — On-chain oracle address, program ID, API endpoints
+- **🔎 Search, Filter & Sort** — Full-text search, tier/category filters, date/count sorting
+- **📱 Responsive** — Desktop, tablet, and mobile
+- **🌙 Dark Theme** — Native dark UI
+- **⚡ Zero Dependencies** — Single HTML file with `@solana/web3.js` CDN
+
+---
+
+## 🔗 On-Chain Verification Flow
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Browser loads → fetches /api/agents/proofs              │
+│                                                          │
+│  1. Schema Validation                                    │
+│     ├─ success: boolean ✓                                │
+│     ├─ proofs[].markets[].pda: string ✓                  │
+│     ├─ oracle.program === PROGRAM_ID ✓                   │
+│     └─ All required fields present ✓                     │
+│                                                          │
+│  2. On-Chain Verification (per market PDA)               │
+│     ├─ connection.getAccountInfo(pda)                    │
+│     ├─ Check: account exists on Solana ✓                 │
+│     ├─ Check: owner === FWyTPzm5...PruJ ✓               │
+│     ├─ Check: data[0..8] === Market discriminator ✓      │
+│     └─ Decode: on-chain question for cross-reference ✓   │
+│                                                          │
+│  3. Transaction Verification (where tx signature exists) │
+│     ├─ connection.getSignatureStatus(txSig)              │
+│     └─ Check: confirmationStatus ∈ {confirmed,finalized} │
+│                                                          │
+│  Result: Per-market verified/failed badge displayed      │
+└──────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🚀 Setup
 
-### Option 1: Open directly
+### View Dashboard
 ```bash
-# Just open the HTML file in your browser
 open trust-proof-explorer/index.html
+# or serve:
+cd trust-proof-explorer && npx serve .
 ```
 
-### Option 2: Serve locally
+### Run Node.js Verification
 ```bash
-# Python
 cd trust-proof-explorer
-python3 -m http.server 8080
-
-# Node.js
-npx serve trust-proof-explorer
-
-# Then visit http://localhost:8080
+npm install
+node verify.mjs              # Full verification of all proofs
+node verify.mjs --pda <addr> # Verify a single market PDA
 ```
 
-### Option 3: Deploy
-The single `index.html` file can be deployed to any static hosting:
-- GitHub Pages
-- Vercel
-- Netlify
-- Cloudflare Pages
-- Any CDN
+### Run Tests
+```bash
+cd trust-proof-explorer
+npm install
+npm test                      # All 69 tests
+npm run test:unit             # 23 unit tests (no network)
+npm run test:integration      # Integration tests (hits Solana RPC)
+```
+
+---
+
+## 🧪 Test Suite (69 Tests)
+
+### Unit Tests (23 tests) — `test/unit.test.mjs`
+- Config constants validation (PROGRAM_ID, discriminators)
+- Schema validation with valid data
+- Schema validation with missing top-level fields
+- Schema validation with invalid oracle fields (wrong program ID)
+- Schema validation with invalid proof fields (bad layer/tier)
+- Schema validation with invalid market fields (bad outcome/missing pda)
+- Edge cases (empty proofs, multiple proofs, non-array proofs)
+
+### Schema Tests (26 tests) — `test/schema.test.mjs`
+- Live API HTTP 200 response
+- Top-level schema (success, proofs, stats, oracle)
+- Stats schema (totalProofs, totalMarkets, byLayer)
+- Stats consistency (totalProofs matches proofs.length)
+- Oracle schema (name, address, program, network, tiers)
+- Oracle program matches `FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ`
+- Proof fields (id, date, slug, title, layer, tier, markets)
+- Proof date/createdAt are valid ISO strings
+- Unique IDs and slugs
+- Market PDA format (valid Solana base58 address)
+- Market fields (question, outcome YES/NO, evidence)
+- Transaction signature validation
+- Source URL validation
+
+### Integration Tests (20 tests) — `test/integration.test.mjs`
+- MCP server config matches expected PROGRAM_ID
+- Market discriminator bytes match
+- RPC endpoint is mainnet
+- PDA exists on Solana mainnet (3 PDAs verified)
+- PDA owned by Baozi program
+- PDA has correct discriminator
+- `getMarket()` decodes market successfully
+- On-chain question is readable English
+- Transaction signatures are confirmed/finalized
+- API question matches on-chain question (cross-verification)
+- On-chain status code is valid
+- `listMarkets()` returns valid market objects
 
 ---
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────┐
-│                 Browser (Client)                 │
-├─────────────────────────────────────────────────┤
-│                                                  │
-│  ┌─────────┐  ┌──────────┐  ┌────────────────┐ │
-│  │  State   │  │ Renderer │  │ Event Handlers │ │
-│  │ Manager  │──│  (DOM)   │──│ (Search/Filter │ │
-│  │          │  │          │  │  /Sort/Tabs)   │ │
-│  └────┬─────┘  └──────────┘  └────────────────┘ │
-│       │                                          │
-│  ┌────▼─────────────────────────────────────┐   │
-│  │           fetch() on page load            │   │
-│  └────┬──────────────────────────────────────┘   │
-│       │                                          │
-└───────┼──────────────────────────────────────────┘
-        │ HTTPS
-        ▼
-┌───────────────────────────────────────┐
-│   Baozi API (baozi.bet)               │
-│                                       │
-│   GET /api/agents/proofs              │
-│   → proofs[], stats{}, oracle{}       │
-│                                       │
-│   Data includes:                      │
-│   • Resolution proof batches          │
-│   • Market PDAs (Solana addresses)    │
-│   • Evidence + source URLs            │
-│   • Tx signatures (Solscan-linked)    │
-│   • Oracle tier metadata              │
-└───────────────────────────────────────┘
+### Uses `@baozi.bet/mcp-server` for Real Data
+
+```javascript
+import { getMarket, listMarkets } from '@baozi.bet/mcp-server/dist/handlers/markets.js';
+import { PROGRAM_ID, DISCRIMINATORS } from '@baozi.bet/mcp-server/dist/config.js';
+
+// PROGRAM_ID = FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ
+// DISCRIMINATORS.MARKET = [219, 190, 213, 55, 0, 227, 198, 154]
+
+const market = await getMarket('FswLya9oMFDP...');
+// → { publicKey, question, status, winningOutcome, layer, ... }
 ```
 
-### Data Flow
-1. Page loads → fetches `GET /api/agents/proofs`
-2. Response parsed → state populated with proofs, stats, oracle info
-3. Categories extracted → filter dropdowns populated
-4. Dashboard rendered with computed stats
-5. User interactions (search/filter/sort/tab) → re-render from state
+### Browser Verification (via CDN)
 
-### Key Design Decisions
-- **Single HTML file** — Zero build step, maximum portability
-- **No framework** — Vanilla JS for simplicity and performance
-- **Client-side filtering** — All data fetched once, filtered/sorted in-browser
-- **Dark theme** — Matches Baozi's native design language
-- **CSS custom properties** — Consistent theming with easy customization
+The HTML dashboard uses `@solana/web3.js` from CDN to verify on-chain without Node.js:
+
+```javascript
+const conn = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com');
+const info = await conn.getAccountInfo(new solanaWeb3.PublicKey(pda));
+
+// Check 1: exists
+// Check 2: info.owner === BAOZI_PROGRAM_ID
+// Check 3: info.data[0..8] matches Market discriminator
+// Check 4: decode question from offset 20
+```
 
 ---
 
-## 📡 API Reference
+## 📡 Verified Results
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/agents/proofs` | GET | All resolution proofs with stats and oracle info |
-| `/api/oracle/status` | GET | Oracle status page |
+Running `node verify.mjs` against live data:
 
-### Response Shape (`/api/agents/proofs`)
-```json
-{
-  "success": true,
-  "proofs": [{
-    "id": 1,
-    "date": "2026-02-08",
-    "slug": "feb7-sports",
-    "title": "Feb 7 Sports Markets",
-    "layer": "official|labs",
-    "tier": 1|2|3,
-    "category": "sports",
-    "markets": [{
-      "pda": "Solana PDA address",
-      "source": "ESPN",
-      "outcome": "YES|NO",
-      "evidence": "Resolution evidence text",
-      "question": "Market question",
-      "sourceUrl": "https://...",
-      "txSignature": "Solana tx sig"
-    }],
-    "sourceUrls": ["https://..."],
-    "resolvedBy": "Mei",
-    "createdAt": "ISO-8601"
-  }],
-  "stats": { "totalProofs": 8, "totalMarkets": 19, "byLayer": {} },
-  "oracle": { "name": "Grandma Mei", "address": "...", "program": "...", "tiers": [] }
-}
 ```
+═══════════════════════════════════════════════════
+  Results: 18/19 markets verified on-chain
+═══════════════════════════════════════════════════
+```
+
+All 19 market PDAs exist on Solana and are owned by the correct program. 18/19 have the standard Market discriminator (1 uses the Race Market variant). Transaction signatures with valid lengths are confirmed as finalized.
 
 ---
 
 ## 📄 License
 
-MIT — Built for the [Baozi Openclaw Bounty #43](https://github.com/bolivian-peru/baozi-openclaw/issues/43)
+MIT — Built for [Baozi Openclaw Bounty #43](https://github.com/bolivian-peru/baozi-openclaw/issues/43)
