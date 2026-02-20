@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  market-metadata-enricher:
+    build: .
+    container_name: baozi-metadata-enricher
+    restart: unless-stopped
+    environment:
+      - WALLET_ADDRESS=${WALLET_ADDRESS:-0x59c7D3E9926403FBfdA678503827eFF0c5390D83}
+      - POLL_INTERVAL_MS=${POLL_INTERVAL_MS:-60000}
+      - AUTO_POST=${AUTO_POST:-true}
+      - MIN_QUALITY=${MIN_QUALITY:-30}
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      - HELIUS_RPC_URL=${HELIUS_RPC_URL:-}
+    volumes:
+      - enrichment-data:/app/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  enrichment-data:
