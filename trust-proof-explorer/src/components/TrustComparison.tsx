@@ -1,7 +1,7 @@
 import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 
 const COMPARISON_DATA = [
-  { feature: 'Evidence stored', baozi: 'IPFS + On-chain', polymarket: 'None', kalshi: 'None' },
+  { feature: 'Evidence stored', baozi: 'On-chain', polymarket: 'None', kalshi: 'None' },
   { feature: 'Proof public', baozi: 'Yes (Full trail)', polymarket: 'No', kalshi: 'No' },
   { feature: 'Multisig verified', baozi: '2-of-2', polymarket: 'UMA vote', kalshi: 'Internal' },
   { feature: 'On-chain TX', baozi: 'Visible', polymarket: 'Visible', kalshi: 'No' },
