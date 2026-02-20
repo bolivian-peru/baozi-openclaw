@@ -23,6 +23,15 @@ from datetime import datetime, timezone
 WALLET = os.environ.get(
     "BAOZI_WALLET", "GZgrz2vtbc1o1kjipM1X3EFAf2VM54j9MVxGWSGbGmai"
 )
+
+# LLM config — any OpenAI-compatible endpoint works (Ollama, Groq, Together, etc.)
+# set LLM_BASE_URL + LLM_API_KEY + LLM_MODEL to enable AI analysis
+# e.g. Ollama: LLM_BASE_URL=http://localhost:11434/v1  LLM_MODEL=llama3.2
+# e.g. Groq:   LLM_BASE_URL=https://api.groq.com/openai/v1  LLM_MODEL=llama-3.1-8b-instant
+LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "http://localhost:11434/v1")
+LLM_API_KEY  = os.environ.get("LLM_API_KEY", "ollama")
+LLM_MODEL    = os.environ.get("LLM_MODEL", "llama3.2")
+
 # ed25519 keypair bytes (64 bytes: privkey seed + pubkey)
 KEYPAIR = [
     42, 139, 58, 26, 145, 249, 170, 104, 50, 221, 151, 34, 163, 30, 134, 44,
@@ -163,6 +172,56 @@ def analyze_market(m):
 
 
 # ---------------------------------------------------------------------------
+# LLM analysis (optional — falls back to rule-based if unavailable)
+# ---------------------------------------------------------------------------
+
+def llm_analyze(market_summaries: list[dict]) -> str | None:
+    """
+    call any OpenAI-compatible LLM to generate a market take.
+    returns the generated text or None if LLM is unavailable.
+    """
+    import urllib.request, urllib.error
+
+    prompt_lines = [
+        "You are a sharp, concise prediction market analyst for baozi.bet.",
+        "Write a 3-4 sentence market take covering the most interesting of these active markets.",
+        "Be specific about odds, flag any that look mispriced vs common knowledge.",
+        "Write in lowercase, plain language. No emojis. No hype.",
+        "",
+        "Active markets:"
+    ]
+    for s in market_summaries[:6]:
+        prompt_lines.append(
+            f"- {s['question']} | YES {s['yes_pct']:.0f}% NO {s['no_pct']:.0f}% | "
+            f"pool {s['pool']:.2f} SOL | {s['timing']}"
+        )
+
+    payload = {
+        "model": LLM_MODEL,
+        "messages": [{"role": "user", "content": "\n".join(prompt_lines)}],
+        "max_tokens": 200,
+        "temperature": 0.7,
+    }
+    url = f"{LLM_BASE_URL}/chat/completions"
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {LLM_API_KEY}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            result = json.loads(resp.read())
+            return result["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        print(f"[llm] unavailable ({e}) — using rule-based analysis", file=sys.stderr)
+        return None
+
+
+# ---------------------------------------------------------------------------
 # post generators
 # ---------------------------------------------------------------------------
 
@@ -205,6 +264,14 @@ def morning_roundup(markets):
             f"    market says {dominant_pct:.0f}% {dominant}{note}"
         )
 
+    # attempt LLM analysis for a richer take
+    summaries = [analyze_market(m) for m in active[:6]]
+    llm_take = llm_analyze(summaries)
+    if llm_take:
+        lines.append("")
+        lines.append("🤖 analyst take:")
+        lines.append(llm_take)
+
     lines.append("")
     lines.append("baozi.bet — small bets, real odds.")
     return "\n".join(lines)
@@ -235,6 +302,14 @@ def evening_alerts(markets):
         )
         if a["pda"]:
             lines.append(f"   baozi.bet/market/{a['pda']}")
+        lines.append("")
+
+    # LLM closing take
+    summaries = [analyze_market(m) for m in closing[:3]]
+    llm_take = llm_analyze(summaries)
+    if llm_take:
+        lines.append("🤖 analyst:")
+        lines.append(llm_take)
         lines.append("")
 
     lines.append("last call. baozi.bet")
