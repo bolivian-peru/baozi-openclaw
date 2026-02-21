@@ -7,12 +7,14 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
 import { getMarket, listMarkets } from '@baozi.bet/mcp-server/dist/handlers/markets.js';
+import { getRaceMarket } from '@baozi.bet/mcp-server/dist/handlers/race-markets.js';
 import { PROGRAM_ID, DISCRIMINATORS, RPC_ENDPOINT } from '@baozi.bet/mcp-server/dist/config.js';
 
 const EXPECTED_PROGRAM_ID = 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ';
 const PROOFS_API = 'https://baozi.bet/api/agents/proofs';
 const RPC = RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com';
 const MARKET_DISC = Array.from(DISCRIMINATORS.MARKET);
+const RACE_MARKET_DISC = Array.from(DISCRIMINATORS.RACE_MARKET);
 
 let apiData = null;
 let connection = null;
@@ -68,10 +70,12 @@ describe('On-Chain Market PDA Verification', () => {
     expect(info.owner.toString()).toBe(EXPECTED_PROGRAM_ID);
   }, 15000);
 
-  test('first PDA has correct market discriminator', async () => {
+  test('first PDA has correct market or race market discriminator', async () => {
     const info = await connection.getAccountInfo(new PublicKey(pdas[0]));
     const disc = Array.from(info.data.slice(0, 8));
-    expect(disc).toEqual(MARKET_DISC);
+    const isMarket = JSON.stringify(disc) === JSON.stringify(MARKET_DISC);
+    const isRaceMarket = JSON.stringify(disc) === JSON.stringify(RACE_MARKET_DISC);
+    expect(isMarket || isRaceMarket).toBe(true);
   }, 15000);
 
   test('getMarket() decodes first PDA successfully', async () => {

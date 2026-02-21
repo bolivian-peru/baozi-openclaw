@@ -9,6 +9,7 @@ import { PROGRAM_ID, DISCRIMINATORS } from '@baozi.bet/mcp-server/dist/config.js
 
 const EXPECTED_PROGRAM_ID = 'FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ';
 const MARKET_DISC = Array.from(DISCRIMINATORS.MARKET);
+const RACE_MARKET_DISC = Array.from(DISCRIMINATORS.RACE_MARKET);
 
 // ── Schema validation function (mirrors what's in index.html and verify.mjs) ──
 function validateApiSchema(data) {
@@ -109,8 +110,16 @@ describe('Config Constants', () => {
     expect(DISCRIMINATORS.MARKET).toHaveLength(8);
   });
 
-  test('known discriminator bytes', () => {
+  test('known MARKET discriminator bytes', () => {
     expect(MARKET_DISC).toEqual([219, 190, 213, 55, 0, 227, 198, 154]);
+  });
+
+  test('RACE_MARKET discriminator is 8 bytes', () => {
+    expect(DISCRIMINATORS.RACE_MARKET).toHaveLength(8);
+  });
+
+  test('known RACE_MARKET discriminator bytes', () => {
+    expect(RACE_MARKET_DISC).toEqual([235, 196, 111, 75, 230, 113, 118, 238]);
   });
 });
 

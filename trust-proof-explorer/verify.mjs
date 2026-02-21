@@ -14,12 +14,16 @@
  */
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import { getMarket } from '@baozi.bet/mcp-server/dist/handlers/markets.js';
+import { getMarket, listMarkets } from '@baozi.bet/mcp-server/dist/handlers/markets.js';
+import { getRaceMarket } from '@baozi.bet/mcp-server/dist/handlers/race-markets.js';
+import { getQuote } from '@baozi.bet/mcp-server/dist/handlers/quote.js';
+import { handleTool } from '@baozi.bet/mcp-server/dist/tools.js';
 import { PROGRAM_ID, DISCRIMINATORS, RPC_ENDPOINT } from '@baozi.bet/mcp-server/dist/config.js';
 
 // ── Constants ───────────────────────────────────────────────────────
 export const BAOZI_PROGRAM_ID = PROGRAM_ID.toString();   // FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ
 export const MARKET_DISCRIMINATOR = Array.from(DISCRIMINATORS.MARKET); // first 8 bytes
+export const RACE_MARKET_DISCRIMINATOR = Array.from(DISCRIMINATORS.RACE_MARKET);
 export const PROOFS_API = 'https://baozi.bet/api/agents/proofs';
 const RPC = RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com';
 
@@ -59,17 +63,28 @@ export async function verifyMarketOnChain(pda, connection) {
     result.dataLength = info.data.length;
     result.ownerValid = info.owner.toString() === BAOZI_PROGRAM_ID;
 
-    // Check discriminator (first 8 bytes)
+    // Check discriminator (first 8 bytes) — supports both Market and RaceMarket
     const disc = Array.from(info.data.slice(0, 8));
-    result.discriminatorValid = disc.every((b, i) => b === MARKET_DISCRIMINATOR[i]);
+    const isMarket = disc.every((b, i) => b === MARKET_DISCRIMINATOR[i]);
+    const isRaceMarket = disc.every((b, i) => b === RACE_MARKET_DISCRIMINATOR[i]);
+    result.discriminatorValid = isMarket || isRaceMarket;
+    result.accountType = isMarket ? 'Market' : isRaceMarket ? 'RaceMarket' : 'Unknown';
 
     // Decode via MCP handler for question cross-check
     try {
-      const market = await getMarket(pda);
-      if (market) {
-        result.onChainQuestion = market.question;
-        result.onChainStatus = market.status;
-        result.onChainOutcome = market.winningOutcome;
+      if (isRaceMarket) {
+        const raceMarket = await getRaceMarket(pda);
+        if (raceMarket) {
+          result.onChainQuestion = raceMarket.question;
+          result.onChainStatus = raceMarket.status;
+        }
+      } else {
+        const market = await getMarket(pda);
+        if (market) {
+          result.onChainQuestion = market.question;
+          result.onChainStatus = market.status;
+          result.onChainOutcome = market.winningOutcome;
+        }
       }
     } catch { /* non-fatal */ }
 
@@ -245,12 +260,56 @@ export async function fullVerification(options = {}) {
     }
   }
 
+  // Step 3: Demonstrate MCP handler integration
+  log('\n🔧 MCP Handler Integration Check...');
+
+  // listMarkets via direct handler
+  try {
+    const activeMarkets = await listMarkets('active');
+    log(`   listMarkets('active'): ${activeMarkets?.length ?? 0} markets returned`);
+  } catch (err) {
+    log(`   listMarkets: ${err.message}`);
+  }
+
+  // getQuote via direct handler (use first PDA with a small amount)
+  if (allMarkets.length > 0) {
+    try {
+      const quote = await getQuote(allMarkets[0].pda, 'Yes', 0.01);
+      if (quote) {
+        log(`   getQuote(${allMarkets[0].pda.slice(0, 12)}..., Yes, 0.01 SOL): valid=${quote.valid}`);
+      } else {
+        log(`   getQuote: market may be resolved (null response)`);
+      }
+    } catch (err) {
+      log(`   getQuote: ${err.message} (market may be resolved)`);
+    }
+  }
+
+  // handleTool via MCP tools interface
+  try {
+    const toolResult = await handleTool('list_markets', { status: 'active' });
+    const text = toolResult?.content?.[0]?.text;
+    const parsed = text ? JSON.parse(text) : null;
+    log(`   handleTool('list_markets'): ${parsed?.length ?? 0} markets via MCP tool interface`);
+  } catch (err) {
+    log(`   handleTool: ${err.message}`);
+  }
+
+  // Wallet check
+  const WALLET = 'FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx';
+  try {
+    const balance = await connection.getBalance(new PublicKey(WALLET));
+    log(`\n💰 Wallet ${WALLET.slice(0, 12)}... balance: ${(balance / 1e9).toFixed(4)} SOL`);
+  } catch (err) {
+    log(`\n💰 Wallet check: ${err.message}`);
+  }
+
   // Summary
   const verified = results.filter(r =>
     r.verification.exists && r.verification.ownerValid && r.verification.discriminatorValid
   ).length;
 
-  log('═══════════════════════════════════════════════════');
+  log('\n═══════════════════════════════════════════════════');
   log(`  Results: ${verified}/${results.length} markets verified on-chain`);
   log('═══════════════════════════════════════════════════');
 
