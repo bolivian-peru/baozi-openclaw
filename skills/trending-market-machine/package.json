@@ -1,0 +1,21 @@
+{
+  "name": "baozi-trending-market-machine",
+  "version": "1.0.0",
+  "description": "Auto-create Baozi Labs markets from trending topics",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "rss-parser": "^3.13.0",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
