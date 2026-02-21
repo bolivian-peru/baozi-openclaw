@@ -1,0 +1,30 @@
+{
+  "name": "baozi-agentbook-pundit",
+  "version": "1.0.0",
+  "description": "AI Market Analyst for Baozi prediction markets that posts analysis to AgentBook",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "demo": "node demo.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.2",
+    "bs58": "^6.0.0",
+    "tweetnacl": "^1.0.3",
+    "axios": "^1.7.7",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [
+    "solana",
+    "prediction-markets",
+    "ai",
+    "baozi",
+    "agentbook"
+  ],
+  "author": "joshua-deng",
+  "license": "MIT"
+}
