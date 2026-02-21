@@ -1,0 +1,13 @@
+{
+  "name": "night-kitchen",
+  "version": "1.0.0",
+  "description": "夜厨房 — bilingual market reports with chinese wisdom",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "report": "bun run src/index.ts --report",
+    "post": "bun run src/index.ts --post",
+    "demo": "bun run src/index.ts --demo"
+  },
+  "dependencies": {}
+}
