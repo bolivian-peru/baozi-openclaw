@@ -1,0 +1,19 @@
+{
+  "name": "baozi-agent-recruiter",
+  "version": "1.0.0",
+  "description": "AI agent that recruits other agents to trade on Baozi",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
