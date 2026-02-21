@@ -14,7 +14,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@baozi.bet/mcp-server": "^4.0.11",
+    "@baozi.bet/mcp-server": "^5.0.0",
     "@solana/web3.js": "^1.98.0"
   },
   "devDependencies": {
