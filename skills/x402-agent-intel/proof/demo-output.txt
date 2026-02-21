@@ -1,0 +1,109 @@
+============================================================
+x402 AGENT INTEL MARKETPLACE — END-TO-END DEMO
+============================================================
+
+--- STEP 1: Health Check ---
+Status: 200
+Name: x402 Agent Intel Marketplace
+Treasury: F6LSaYFuwaJM1f6ZkRfHvd8ZpoW3S7p1Vab8wpy25tJt
+Network: solana
+
+--- STEP 2: Analyst Agent Registration ---
+Status: 201
+Analyst: {
+  "id": 1,
+  "wallet": "CryptoSageWallet111111111111111111111111111",
+  "name": "CryptoSage",
+  "affiliateCode": "SAGE",
+  "createdAt": "2026-02-21T18:05:18.912Z"
+}
+
+--- STEP 3: Publish Analysis (x402 paywall) ---
+Status: 201
+Analysis ID: 1
+Affiliate Code: SAGE
+
+--- STEP 4: Publish Second Analysis ---
+Status: 201
+Analysis ID: 2
+
+--- STEP 5: Buyer Discovers Analyses ---
+Available analyses: 2
+  [1] CryptoSage (apprentice) — YES @ 78% confidence — 10000000 lamports
+  [2] CryptoSage (apprentice) — NO @ 65% confidence — 5000000 lamports
+NOTE: thesis is hidden — buyer must pay via x402 to access
+
+--- STEP 6: Buyer Requests Analysis → HTTP 402 ---
+Status: 402 (Payment Required)
+x402 Response:
+{
+  "x402Version": 2,
+  "resource": {
+    "url": "http://localhost:3040/analyses/1",
+    "description": "Market analysis by CryptoSage (SAGE)",
+    "mimeType": "application/json"
+  },
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      "amount": "10000000",
+      "payTo": "F6LSaYFuwaJM1f6ZkRfHvd8ZpoW3S7p1Vab8wpy25tJt",
+      "maxTimeoutSeconds": 300,
+      "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "extra": {
+        "feePayer": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+        "description": "Market analysis by CryptoSage (SAGE)",
+        "mimeType": "application/json",
+        "resource": "http://localhost:3040/analyses/1"
+      }
+    }
+  ],
+  "error": "Payment required"
+}
+
+The 402 response contains x402 payment requirements:
+  - x402Version: 2
+  - Network: solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
+  - Asset: USDC on Solana
+  - Amount: specified
+
+In production, a buyer agent would:
+  1. Parse x402 requirements from 402 response
+  2. Create a signed Solana transaction paying the required USDC amount
+  3. Encode the transaction and re-request with X-PAYMENT header
+  4. Server verifies payment via facilitator and returns analysis
+
+--- STEP 7: Filter Analyses by Market ---
+Analyses for BTC market: 1
+
+--- STEP 8: Resolve Predictions ---
+Analysis #1: outcome=YES, correct=true
+Analysis #2: outcome=YES, correct=false
+
+--- STEP 9: Analyst Reputation ---
+Analyst: CryptoSage
+Stats: {
+  "analyst": "CryptoSage",
+  "wallet": "CryptoSageWallet111111111111111111111111111",
+  "totalPredictions": 2,
+  "resolvedPredictions": 2,
+  "correctPredictions": 1,
+  "accuracy": 50,
+  "tier": "apprentice"
+}
+
+--- STEP 10: Duplicate Resolution → 409 ---
+Status: 409 (already resolved)
+
+============================================================
+DEMO COMPLETE
+
+Key takeaways:
+  1. Real x402-solana library (not custom implementation)
+  2. Server returns proper HTTP 402 with x402Version 2 protocol
+  3. Payment flow: 402 requirements → signed tx → verify → settle → deliver
+  4. SQLite persistence for analysts, analyses, purchases
+  5. Reputation tracking with 5-tier system based on prediction accuracy
+  6. Affiliate codes embedded for lifetime commission on bets
+============================================================
