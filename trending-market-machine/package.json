@@ -11,13 +11,16 @@
     "create": "node dist/src/cli.js run-cycle",
     "run-cycle": "node dist/src/cli.js run-cycle",
     "test": "node --test dist/tests/*.test.js",
+    "test:live": "npx tsx src/tests/test-live-integration.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@baozi.bet/mcp-server": "^5.0.0",
     "google-trends-api": "^4.9.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   },
   "engines": {

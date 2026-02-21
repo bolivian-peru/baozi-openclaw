@@ -1,10 +1,10 @@
 /**
  * Market creation module
- * Creates Lab markets on Baozi via the MCP server tools or direct API
+ * Creates Lab markets on Baozi via direct @baozi.bet/mcp-server handler imports
  */
 
 import type { MarketProposal, CreatedMarket, MachineConfig } from "./types/index.js";
-import { execMcpTool } from "./mcp-client.js";
+import { execMcpTool, listMarkets, handleTool } from "./mcp-client.js";
 
 /**
  * Create a Lab market on Baozi from a validated proposal
@@ -210,23 +210,21 @@ function categoryEmoji(category: string): string {
 
 /**
  * Fetch existing market questions from Baozi for duplicate checking
+ * Uses direct listMarkets handler from @baozi.bet/mcp-server
  */
 export async function fetchExistingMarketQuestions(
   config: MachineConfig
 ): Promise<string[]> {
   try {
-    const result = await execMcpTool("list_markets", {
-      status: "active",
-      layer: "lab",
-      limit: 100,
-    });
+    // Direct handler call — no subprocess, no HTTP proxy
+    const markets = await listMarkets("active");
 
-    if (!result.success || !result.data?.markets) {
+    if (!markets || !Array.isArray(markets)) {
       console.warn("[creator] Could not fetch existing markets for dedup");
       return [];
     }
 
-    return result.data.markets.map((m: any) => m.question || m.title || "");
+    return markets.map((m: any) => m.question || m.title || "");
   } catch (err) {
     console.warn(`[creator] Error fetching existing markets: ${err}`);
     return [];
