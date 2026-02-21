@@ -1,0 +1,17 @@
+{
+  "name": "calls-tracker",
+  "version": "1.0.0",
+  "description": "Influencer prediction reputation system — track calls, create markets, build public scoreboard",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/server.ts",
+    "demo": "bun run src/demo.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "hono": "^4.7.4"
+  },
+  "devDependencies": {
+    "bun-types": "^1.2.4"
+  }
+}
