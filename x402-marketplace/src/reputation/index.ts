@@ -1,1 +1,1 @@
-export { ReputationTracker } from './reputation-tracker';
+export { ReputationTracker } from './reputation-tracker.js';

@@ -13,14 +13,14 @@
  * - Creator fees if they created the market (up to 2%)
  */
 
-import { AgentIntelMarketplace } from '../marketplace';
-import { BaoziMCPClient } from '../mcp';
-import { generateMockSignature } from '../x402';
+import { AgentIntelMarketplace } from '../marketplace/index.js';
+import { BaoziMCPClient } from '../mcp/index.js';
+import { generateMockSignature } from '../x402/index.js';
 import {
   AnalystProfile,
   MarketAnalysis,
   BaoziMarket,
-} from '../types';
+} from '../types/index.js';
 
 export interface AnalystAgentConfig {
   wallet: string;

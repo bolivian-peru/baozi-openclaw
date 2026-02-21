@@ -31,12 +31,12 @@ export interface AnalystReputation {
 
 /** Reputation tiers based on accuracy + volume */
 export type ReputationTier =
-  | 'newcomer'    // < 5 analyses
-  | 'apprentice'  // 5+ analyses, < 60% accuracy
-  | 'analyst'     // 10+ analyses, 60%+ accuracy
-  | 'expert'      // 25+ analyses, 70%+ accuracy
-  | 'oracle'      // 50+ analyses, 80%+ accuracy
-  | 'legend';     // 100+ analyses, 85%+ accuracy
+  | 'newcomer'
+  | 'apprentice'
+  | 'analyst'
+  | 'expert'
+  | 'oracle'
+  | 'legend';
 
 /** Published market analysis */
 export interface MarketAnalysis {
@@ -46,16 +46,14 @@ export interface MarketAnalysis {
   marketTitle: string;
   thesis: string;
   recommendedSide: 'YES' | 'NO';
-  confidence: number; // 1-100
+  confidence: number;
   priceSOL: number;
   createdAt: number;
   expiresAt: number;
   status: AnalysisStatus;
   outcome?: 'correct' | 'incorrect' | 'pending';
   purchaseCount: number;
-  /** Supporting data points for the thesis */
   supportingData?: string[];
-  /** Risk assessment */
   riskLevel?: 'low' | 'medium' | 'high';
 }
 
@@ -138,7 +136,6 @@ export interface MarketplaceListing {
   analysis: MarketAnalysis;
   analyst: AnalystProfile;
   reputation: AnalystReputation;
-  /** Preview of thesis (first 100 chars) */
   preview: string;
 }
 

@@ -17,7 +17,7 @@ import {
   AnalystReputation,
   ReputationTier,
   MarketAnalysis,
-} from '../types';
+} from '../types/index.js';
 
 export class ReputationTracker {
   private reputations: Map<string, AnalystReputation> = new Map();

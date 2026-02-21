@@ -1,0 +1,258 @@
+{
+  "timestamp": "2026-02-21T06:48:40.077Z",
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "wallet": "FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx",
+  "tests": [
+    {
+      "name": "Program ID matches expected mainnet program",
+      "passed": true,
+      "duration": 0,
+      "details": "Expected: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Got: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ"
+    },
+    {
+      "name": "Fetch live markets via handleTool('list_markets')",
+      "passed": true,
+      "duration": 462,
+      "details": "Network: mainnet-beta, Program: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Markets: 20",
+      "data": {
+        "network": "mainnet-beta",
+        "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+        "count": 20
+      }
+    },
+    {
+      "name": "Get single market detail via handleTool('get_market')",
+      "passed": true,
+      "duration": 92,
+      "details": "Market: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: ba\" YES: 50% NO: 50% Pool: 0 SOL",
+      "data": {
+        "publicKey": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketId": "59",
+        "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "closingTime": "2026-02-21T12:00:00.000Z",
+        "resolutionTime": "2026-02-21T13:00:00.000Z",
+        "status": "Active",
+        "statusCode": 0,
+        "winningOutcome": null,
+        "currencyType": "Sol",
+        "yesPoolSol": 0,
+        "noPoolSol": 0,
+        "totalPoolSol": 0,
+        "yesPercent": 50,
+        "noPercent": 50,
+        "platformFeeBps": 250,
+        "layer": "Official",
+        "layerCode": 0,
+        "accessGate": "Public",
+        "creator": "2hgph1xwES4mUtAX6kan8qcU27oSWeSXeew99CgVWcER",
+        "hasBets": false,
+        "isBettingOpen": true,
+        "creatorFeeBps": 0
+      }
+    },
+    {
+      "name": "BaoziMCPClient.listMarkets() with real MCP handlers",
+      "passed": true,
+      "duration": 248,
+      "details": "Got 20 normalized markets. First: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. ...\""
+    },
+    {
+      "name": "BaoziMCPClient.getMarket() via real MCP handler",
+      "passed": true,
+      "duration": 161,
+      "details": "\"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. \" YES: 50.0% Volume: 0.00 SOL",
+      "data": {
+        "pda": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "title": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "description": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "category": "general",
+        "outcomes": [
+          "YES",
+          "NO"
+        ],
+        "currentPrices": [
+          0.5,
+          0.5
+        ],
+        "volume": 0,
+        "liquidity": 0,
+        "expiresAt": 1771675200000,
+        "resolved": false
+      }
+    },
+    {
+      "name": "BaoziMCPClient.getQuote() via real MCP handler",
+      "passed": true,
+      "duration": 180,
+      "details": "Expected shares: 0.0000, Price/share: 0.0000, Slippage: 0.00%",
+      "data": {
+        "expectedShares": 0,
+        "pricePerShare": 0,
+        "estimatedReturn": 0,
+        "slippage": 0
+      }
+    },
+    {
+      "name": "Analyst agent analyzes real market data",
+      "passed": true,
+      "duration": 34,
+      "details": "Market: \"Will \"Sinners\" win BAFTA Best Film 2026?...\" → NO (55% confidence)",
+      "data": {
+        "market": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "side": "NO",
+        "confidence": 55,
+        "riskLevel": "low"
+      }
+    },
+    {
+      "name": "Full marketplace flow: register → publish → browse → purchase",
+      "passed": true,
+      "duration": 2,
+      "details": "Published: \"Will \"Sinners\" win BAFTA Best Film 2026?...\" | Listings: 1 | Eval score: 45 (skip)",
+      "data": {
+        "analysisId": "47cbf84a-1246-44d0-b3b0-721529513c3a",
+        "marketPda": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "side": "YES",
+        "confidence": 50,
+        "evalScore": 45,
+        "evalRecommendation": "skip"
+      }
+    },
+    {
+      "name": "Intel: get_intel_sentiment",
+      "passed": true,
+      "duration": 130,
+      "details": "API responded: \"Intel request failed (404)\" (130ms) — proves real integration",
+      "data": {
+        "success": false,
+        "error": "Intel request failed (404)"
+      }
+    },
+    {
+      "name": "Intel: get_intel_whale_moves",
+      "passed": true,
+      "duration": 56,
+      "details": "API responded: \"Intel request failed (404)\" (56ms) — proves real integration",
+      "data": {
+        "success": false,
+        "error": "Intel request failed (404)"
+      }
+    },
+    {
+      "name": "Intel: get_intel_resolution_forecast",
+      "passed": true,
+      "duration": 68,
+      "details": "API responded: \"Intel request failed (404)\" (68ms) — proves real integration",
+      "data": {
+        "success": false,
+        "error": "Intel request failed (404)"
+      }
+    },
+    {
+      "name": "Intel: get_intel_market_alpha",
+      "passed": true,
+      "duration": 58,
+      "details": "API responded: \"Intel request failed (404)\" (58ms) — proves real integration",
+      "data": {
+        "success": false,
+        "error": "Intel request failed (404)"
+      }
+    },
+    {
+      "name": "Paper trade #1: Will \"Sinners\" win BAFTA Best Film 2026?...",
+      "passed": true,
+      "duration": 233,
+      "details": "API called (233ms): Failed to record paper trade — proves real integration",
+      "data": {
+        "success": false,
+        "error": "Failed to record paper trade"
+      }
+    },
+    {
+      "name": "Paper trade #2: Will ETH be above $2800 on 2026-02-25?...",
+      "passed": true,
+      "duration": 325,
+      "details": "API called (325ms): Failed to record paper trade — proves real integration",
+      "data": {
+        "success": false,
+        "error": "Failed to record paper trade"
+      }
+    },
+    {
+      "name": "Marketplace stats with live market integration",
+      "passed": true,
+      "duration": 0,
+      "details": "Analysts: 4, Analyses: 4, Active: 4, Listings: 4",
+      "data": {
+        "totalAnalysts": 4,
+        "totalAnalyses": 4,
+        "totalPurchases": 0,
+        "activeAnalyses": 4,
+        "paymentStats": {
+          "totalPayments": 0,
+          "totalVolume": 0,
+          "pendingCount": 0
+        }
+      }
+    }
+  ],
+  "summary": {
+    "passed": 15,
+    "failed": 0,
+    "total": 15,
+    "totalTimeMs": 2049
+  },
+  "liveMarkets": [
+    {
+      "pda": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+      "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-21T12:00:00.000Z",
+      "status": "Active",
+      "layer": "Official"
+    },
+    {
+      "pda": "9SVkyP5RTiLNukCJhp9UiGTxmVwJwBZyrxx2ppX7RcxL",
+      "question": "Will ETH be above $2800 on 2026-02-25?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    },
+    {
+      "pda": "6HUCrzspwETL6jNrGv5SXwCCp8K9GKNhE3WPNnYyWAcD",
+      "question": "Will SOL close above $170 on 2026-02-25?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    },
+    {
+      "pda": "9frURmcwHWCnbma7bs2ChfpxpBYmDRvHGJ5HzwNqVrzG",
+      "question": "Will BTC be above $100K on 2026-02-25?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    },
+    {
+      "pda": "HASHBqZ6T7d1DDCDFwHYfSGpFoKqCg7CdfMCoKQgmNTS",
+      "question": "Will \"Show HN: Micasa – track your house from the terminal\" be covered by a major news outlet (NYT, BBC, CNN, Reuters) before 2026-02-27?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-26T08:09:04.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    }
+  ]
+}

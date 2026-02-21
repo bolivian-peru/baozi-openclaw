@@ -1,1 +1,1 @@
-export { AgentIntelMarketplace } from './marketplace';
+export { AgentIntelMarketplace } from './marketplace.js';

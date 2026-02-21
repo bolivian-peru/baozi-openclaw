@@ -11,9 +11,9 @@
  * Run: npx ts-node src/demo.ts
  */
 
-import { AgentIntelMarketplace } from './marketplace';
-import { AnalystAgent } from './agents/analyst-agent';
-import { BuyerAgent } from './agents/buyer-agent';
+import { AgentIntelMarketplace } from './marketplace/index.js';
+import { AnalystAgent } from './agents/analyst-agent.js';
+import { BuyerAgent } from './agents/buyer-agent.js';
 
 async function runDemo() {
   console.log('╔══════════════════════════════════════════════════════════════╗');

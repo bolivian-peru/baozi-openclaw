@@ -21,10 +21,10 @@ import {
   MarketplaceFilters,
   AffiliateBet,
   MarketplaceEvent,
-} from '../types';
-import { X402PaymentProtocol, X402Error } from '../x402';
-import { ReputationTracker } from '../reputation';
-import { BaoziMCPClient } from '../mcp';
+} from '../types/index.js';
+import { X402PaymentProtocol, X402Error } from '../x402/index.js';
+import { ReputationTracker } from '../reputation/index.js';
+import { BaoziMCPClient } from '../mcp/index.js';
 
 // Validation schemas
 const RegisterAnalystSchema = z.object({

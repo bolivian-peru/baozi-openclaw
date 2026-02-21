@@ -12,14 +12,14 @@
  * It seeks alpha by purchasing analysis from proven analysts.
  */
 
-import { AgentIntelMarketplace } from '../marketplace';
-import { generateMockSignature } from '../x402';
+import { AgentIntelMarketplace } from '../marketplace/index.js';
+import { generateMockSignature } from '../x402/index.js';
 import {
   MarketplaceListing,
   MarketAnalysis,
   AnalysisPurchase,
   AnalystReputation,
-} from '../types';
+} from '../types/index.js';
 
 export interface BuyerAgentConfig {
   wallet: string;

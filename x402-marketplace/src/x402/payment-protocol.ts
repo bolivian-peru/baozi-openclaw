@@ -17,7 +17,7 @@ import {
   X402PaymentReceipt,
   X402Headers,
   MarketAnalysis,
-} from '../types';
+} from '../types/index.js';
 
 /** x402 facilitator fee (1%) */
 const FACILITATOR_FEE_BPS = 100;

@@ -21,7 +21,7 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express';
-import { AgentIntelMarketplace } from '../marketplace';
+import { AgentIntelMarketplace } from '../marketplace/index.js';
 
 export function createServer(marketplace: AgentIntelMarketplace): express.Application {
   const app = express();
