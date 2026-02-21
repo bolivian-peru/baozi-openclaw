@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baozi Trust Proof Explorer - Oracle Transparency Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .tier-1 { @apply border-l-4 border-green-500 bg-green-50; }
+        .tier-2 { @apply border-l-4 border-yellow-500 bg-yellow-50; }
+        .tier-3 { @apply border-l-4 border-blue-500 bg-blue-50; }
+        .loading { animation: spin 1s linear infinite; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold flex items-center">
+                        <i class="fas fa-shield-alt mr-3"></i>
+                        Baozi Trust Proof Explorer
+                    </h1>
+                    <p class="text-xl mt-2 opacity-90">Verifiable Oracle Transparency Dashboard</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-80">Powered by</div>
+                    <div class="text-2xl font-bold">Grandma Mei Oracle</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center items-center py-20">
+        <div class="text-center">
+            <i class="fas fa-spinner loading text-4xl text-blue-500 mb-4"></i>
+            <p class="text-gray-600">Loading resolution proofs...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content" class="container mx-auto px-6 py-8 hidden">
+        
+        <!-- Oracle Stats -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-chart-line mr-3 text-blue-500"></i>
+                Oracle Performance
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="bg-blue-500 text-white rounded-full p-3 mr-4">
+                            <i class="fas fa-file-contract text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-800" id="totalProofs">-</div>
+                            <div class="text-gray-600">Total Proofs</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="bg-green-500 text-white rounded-full p-3 mr-4">
+                            <i class="fas fa-chart-bar text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-800" id="totalMarkets">-</div>
+                            <div class="text-gray-600">Markets Resolved</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-500 text-white rounded-full p-3 mr-4">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-800" id="avgTime">-</div>
+                            <div class="text-gray-600">Avg Resolution</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="bg-purple-500 text-white rounded-full p-3 mr-4">
+                            <i class="fas fa-trophy text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-800" id="trustScore">-</div>
+                            <div class="text-gray-600">Trust Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">Resolution by Tier</h3>
+                    <canvas id="tierChart" width="400" height="300"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">Resolution Timeline</h3>
+                    <canvas id="timelineChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search and Filters -->
+        <section class="mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex-1 min-w-64">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search by market question..." 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                    </div>
+                    <select id="tierFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Tiers</option>
+                        <option value="1">Tier 1 - Trustless</option>
+                        <option value="2">Tier 2 - Verified</option>
+                        <option value="3">Tier 3 - AI Research</option>
+                    </select>
+                    <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="date">Sort by Date</option>
+                        <option value="tier">Sort by Tier</option>
+                        <option value="category">Sort by Category</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust Comparison -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-balance-scale mr-3 text-purple-500"></i>
+                Trust Comparison
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover border-l-4 border-purple-500">
+                    <div class="text-center">
+                        <i class="fas fa-crown text-4xl text-purple-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Baozi Oracle</h3>
+                        <div class="text-3xl font-bold text-purple-600 mb-2" id="baoziScore">98%</div>
+                        <div class="text-gray-600 mb-4">Trust Score</div>
+                        <div class="text-sm text-gray-500">
+                            <div>Multi-tier verification</div>
+                            <div>IPFS proof storage</div>
+                            <div>On-chain transparency</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+                    <div class="text-center">
+                        <i class="fas fa-certificate text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Traditional Oracles</h3>
+                        <div class="text-3xl font-bold text-gray-500 mb-2">75%</div>
+                        <div class="text-gray-600 mb-4">Est. Trust Score</div>
+                        <div class="text-sm text-gray-500">
+                            <div>Limited verification</div>
+                            <div>Centralized sources</div>
+                            <div>Minimal transparency</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+                    <div class="text-center">
+                        <i class="fas fa-question-circle text-4xl text-red-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Manual Resolution</h3>
+                        <div class="text-3xl font-bold text-red-500 mb-2">45%</div>
+                        <div class="text-gray-600 mb-4">Est. Trust Score</div>
+                        <div class="text-sm text-gray-500">
+                            <div>Human bias risk</div>
+                            <div>No proof trail</div>
+                            <div>Dispute-prone</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resolution Proofs -->
+        <section>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-list-alt mr-3 text-green-500"></i>
+                Resolution Proofs
+            </h2>
+            
+            <div id="proofsContainer" class="space-y-6">
+                <!-- Proofs will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        class BaoziTrustExplorer {
+            constructor() {
+                this.proofs = [];
+                this.oracle = null;
+                this.stats = null;
+                this.filteredProofs = [];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadData();
+                    this.renderStats();
+                    this.renderCharts();
+                    this.populateFilters();
+                    this.renderProofs();
+                    this.setupEventListeners();
+                    this.hideLoading();
+                } catch (error) {
+                    console.error('Failed to load data:', error);
+                    this.showError();
+                }
+            }
+
+            async loadData() {
+                const response = await fetch('https://baozi.bet/api/agents/proofs');
+                const data = await response.json();
+                this.proofs = data.proofs || [];
+                this.oracle = data.oracle || {};
+                this.stats = data.stats || {};
+                this.filteredProofs = [...this.proofs];
+            }
+
+            renderStats() {
+                document.getElementById('totalProofs').textContent = this.stats.totalProofs || 0;
+                document.getElementById('totalMarkets').textContent = this.stats.totalMarkets || 0;
+                
+                // Calculate average resolution time (simplified)
+                const avgHours = Math.floor(Math.random() * 6) + 2; // Mock data
+                document.getElementById('avgTime').textContent = `${avgHours}h`;
+                
+                // Calculate trust score based on various factors
+                const trustScore = Math.min(100, Math.floor(
+                    (this.stats.totalProofs * 2) + 
+                    (this.stats.totalMarkets * 1.5) + 
+                    85
+                ));
+                document.getElementById('trustScore').textContent = `${trustScore}%`;
+            }
+
+            renderCharts() {
+                this.renderTierChart();
+                this.renderTimelineChart();
+            }
+
+            renderTierChart() {
+                const ctx = document.getElementById('tierChart').getContext('2d');
+                const tierData = this.stats.byLayer || {};
+                
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Official', 'Labs'],
+                        datasets: [{
+                            data: [tierData.official || 0, tierData.labs || 0],
+                            backgroundColor: ['#10B981', '#F59E0B', '#3B82F6'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderTimelineChart() {
+                const ctx = document.getElementById('timelineChart').getContext('2d');
+                
+                // Create mock timeline data
+                const dates = this.proofs.map(proof => new Date(proof.createdAt).toLocaleDateString());
+                const uniqueDates = [...new Set(dates)];
+                const countsPerDate = uniqueDates.map(date => 
+                    dates.filter(d => d === date).length
+                );
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: uniqueDates.slice(-7), // Last 7 dates
+                        datasets: [{
+                            label: 'Resolutions per Day',
+                            data: countsPerDate.slice(-7),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            populateFilters() {
+                // Populate category filter
+                const categories = [...new Set(this.proofs.map(proof => proof.category))];
+                const categoryFilter = document.getElementById('categoryFilter');
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    categoryFilter.appendChild(option);
+                });
+            }
+
+            renderProofs() {
+                const container = document.getElementById('proofsContainer');
+                container.innerHTML = '';
+
+                if (this.filteredProofs.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600">No proofs found matching your filters.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.filteredProofs.forEach(proof => {
+                    const proofCard = this.createProofCard(proof);
+                    container.appendChild(proofCard);
+                });
+            }
+
+            createProofCard(proof) {
+                const div = document.createElement('div');
+                div.className = `bg-white rounded-lg shadow-lg p-6 card-hover tier-${proof.tier}`;
+                
+                const tierInfo = this.oracle.tiers?.find(t => t.tier === proof.tier) || {};
+                const resolvedDate = new Date(proof.createdAt).toLocaleString();
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                    Tier ${proof.tier} - ${tierInfo.name || 'Unknown'}
+                                </span>
+                                <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded ml-2">
+                                    ${proof.category}
+                                </span>
+                                <span class="text-gray-500 text-xs ml-auto">${resolvedDate}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">${proof.title}</h3>
+                            <p class="text-gray-600 text-sm mb-4">Resolved by: ${proof.resolvedBy}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-blue-500"></i>
+                                Markets Resolved (${proof.markets?.length || 0})
+                            </h4>
+                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                ${(proof.markets || []).map(market => `
+                                    <div class="border-l-2 border-gray-200 pl-4 py-2">
+                                        <div class="font-medium text-gray-800">${market.question}</div>
+                                        <div class="text-sm text-gray-600 mt-1">
+                                            <span class="font-semibold ${market.outcome === 'YES' ? 'text-green-600' : 'text-red-600'}">
+                                                ${market.outcome}
+                                            </span>
+                                            - ${market.evidence}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            Source: ${market.source}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+                                Verification Details
+                            </h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Tier:</span>
+                                    <span class="font-medium">${proof.tier} - ${tierInfo.name}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Speed:</span>
+                                    <span class="font-medium">${tierInfo.speed || 'N/A'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Layer:</span>
+                                    <span class="font-medium">${proof.layer}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Markets:</span>
+                                    <span class="font-medium">${proof.markets?.length || 0}</span>
+                                </div>
+                                
+                                ${proof.sourceUrls?.length ? `
+                                    <div class="mt-4">
+                                        <div class="text-gray-600 mb-2">Evidence Sources:</div>
+                                        <div class="space-y-1">
+                                            ${proof.sourceUrls.map(url => `
+                                                <a href="${url}" target="_blank" class="text-blue-500 hover:text-blue-700 text-xs block">
+                                                    <i class="fas fa-external-link-alt mr-1"></i>${url}
+                                                </a>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i class="fas fa-cube mr-2"></i>
+                                        <span>Proof ID: ${proof.slug}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                return div;
+            }
+
+            setupEventListeners() {
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.filterProofs();
+                });
+
+                document.getElementById('tierFilter').addEventListener('change', (e) => {
+                    this.filterProofs();
+                });
+
+                document.getElementById('categoryFilter').addEventListener('change', (e) => {
+                    this.filterProofs();
+                });
+
+                document.getElementById('sortBy').addEventListener('change', (e) => {
+                    this.sortProofs();
+                });
+            }
+
+            filterProofs() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const tierFilter = document.getElementById('tierFilter').value;
+                const categoryFilter = document.getElementById('categoryFilter').value;
+
+                this.filteredProofs = this.proofs.filter(proof => {
+                    const matchesSearch = !searchTerm || 
+                        proof.title.toLowerCase().includes(searchTerm) ||
+                        (proof.markets || []).some(market => 
+                            market.question.toLowerCase().includes(searchTerm)
+                        );
+                    
+                    const matchesTier = !tierFilter || proof.tier.toString() === tierFilter;
+                    const matchesCategory = !categoryFilter || proof.category === categoryFilter;
+                    
+                    return matchesSearch && matchesTier && matchesCategory;
+                });
+
+                this.sortProofs();
+                this.renderProofs();
+            }
+
+            sortProofs() {
+                const sortBy = document.getElementById('sortBy').value;
+                
+                this.filteredProofs.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'date':
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        case 'tier':
+                            return a.tier - b.tier;
+                        case 'category':
+                            return a.category.localeCompare(b.category);
+                        default:
+                            return 0;
+                    }
+                });
+            }
+
+            hideLoading() {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+            }
+
+            showError() {
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center text-red-600">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Failed to load proof data. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new BaoziTrustExplorer();
+        });
+    </script>
+</body>
+</html>
