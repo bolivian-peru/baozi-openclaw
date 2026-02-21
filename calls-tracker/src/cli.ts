@@ -29,8 +29,6 @@ function getTracker(opts: any): CallsTracker {
   return new CallsTracker({
     dbPath: opts.db || process.env.CALLS_DB_PATH || "calls-tracker.db",
     dryRun: opts.dryRun || false,
-    useHttp: opts.http || false,
-    httpProxyUrl: opts.httpUrl,
     defaultBetAmount: opts.defaultBet ? parseFloat(opts.defaultBet) : 0.1,
     referralCode: opts.ref || "cristol",
   });
@@ -41,8 +39,6 @@ function getTracker(opts: any): CallsTracker {
 program
   .option("--db <path>", "Database file path", "calls-tracker.db")
   .option("--dry-run", "Don't create real markets", false)
-  .option("--http", "Use HTTP MCP proxy instead of stdio", false)
-  .option("--http-url <url>", "HTTP MCP proxy URL", "http://localhost:3000")
   .option("--default-bet <amount>", "Default bet amount in SOL", "0.1")
   .option("--ref <code>", "Referral code", "cristol");
 

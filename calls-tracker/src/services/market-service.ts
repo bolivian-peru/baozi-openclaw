@@ -1,14 +1,24 @@
 /**
  * Market Service
- * 
- * Handles the lifecycle of prediction markets:
+ *
+ * Handles the lifecycle of prediction markets using direct handler imports
+ * from @baozi.bet/mcp-server — no subprocess spawning, no stubs.
+ *
  * - Validates predictions against pari-mutuel rules
  * - Creates Lab markets via MCP
  * - Places bets on behalf of callers
  * - Generates share cards
  * - Checks market status and resolution
  */
-import { execMcpTool, execMcpToolHttp } from "./mcp-client.js";
+import {
+  execMcpTool,
+  listMarkets,
+  getMarket,
+  getQuote as mcpGetQuote,
+  handleTool,
+  PROGRAM_ID,
+  NETWORK,
+} from "./mcp-client.js";
 import type { ParsedPrediction, MarketCreateParams, McpResult, ShareCardData } from "../types/index.js";
 
 const BAOZI_SHARE_CARD_API = "https://baozi.bet/api/share/card";
@@ -16,10 +26,6 @@ const DEFAULT_RESOLUTION_BUFFER = 300; // 5 minutes
 const DEFAULT_CREATOR_FEE = 200; // 2% (200 basis points)
 
 export interface MarketServiceConfig {
-  /** Use HTTP proxy instead of stdio */
-  useHttp?: boolean;
-  /** HTTP proxy URL */
-  httpProxyUrl?: string;
   /** Default bet amount in SOL */
   defaultBetAmount?: number;
   /** Referral code */
@@ -40,10 +46,24 @@ export class MarketService {
     };
   }
 
+  /**
+   * Get the program ID from the MCP server config
+   */
+  getProgramId(): string {
+    return String(PROGRAM_ID);
+  }
+
+  /**
+   * Get the network from the MCP server config
+   */
+  getNetwork(): string {
+    return NETWORK;
+  }
+
+  /**
+   * Execute an MCP tool via direct handler imports
+   */
   private async callMcp(tool: string, params: Record<string, any>): Promise<McpResult> {
-    if (this.config.useHttp) {
-      return execMcpToolHttp(tool, params, this.config.httpProxyUrl);
-    }
     return execMcpTool(tool, params);
   }
 
@@ -59,15 +79,51 @@ export class MarketService {
   }
 
   /**
+   * Fetch active markets directly from Solana mainnet
+   */
+  async fetchActiveMarkets(status: string = "active"): Promise<any[]> {
+    try {
+      return await listMarkets(status);
+    } catch (err: any) {
+      console.error("Failed to fetch markets:", err.message);
+      return [];
+    }
+  }
+
+  /**
+   * Get market details by PDA directly from Solana mainnet
+   */
+  async fetchMarketDetails(marketPda: string): Promise<any | null> {
+    try {
+      return await getMarket(marketPda);
+    } catch (err: any) {
+      console.error("Failed to get market:", err.message);
+      return null;
+    }
+  }
+
+  /**
+   * Get quote directly from Solana mainnet
+   */
+  async fetchQuote(marketPda: string, side: string, amount: number): Promise<any | null> {
+    try {
+      return await mcpGetQuote(marketPda, side as "Yes" | "No", amount);
+    } catch (err: any) {
+      console.error("Failed to get quote:", err.message);
+      return null;
+    }
+  }
+
+  /**
    * Build market creation parameters from a parsed prediction
    */
   buildMarketParams(prediction: ParsedPrediction): MarketCreateParams {
     const deadline = new Date(prediction.deadline);
-    
+
     // Close time: 24 hours before deadline for event-based (Type A)
     // This follows pari-mutuel rules to prevent info advantage
     const closeTime = new Date(deadline.getTime() - 24 * 60 * 60 * 1000);
-    
+
     // If close time would be in the past, set it to 1 hour from now
     const now = new Date();
     const minCloseTime = new Date(now.getTime() + 60 * 60 * 1000);
@@ -160,7 +216,7 @@ export class MarketService {
   }
 
   /**
-   * Get market details
+   * Get market details (via MCP wrapper)
    */
   async getMarketDetails(marketPda: string): Promise<McpResult> {
     return this.callMcp("get_market", {
@@ -169,7 +225,7 @@ export class MarketService {
   }
 
   /**
-   * Get a quote for a potential bet
+   * Get a quote for a potential bet (via MCP wrapper)
    */
   async getQuote(marketPda: string, side: string, amount: number): Promise<McpResult> {
     return this.callMcp("get_quote", {

@@ -14,12 +14,15 @@ import { CallsDatabase } from "../db/database.js";
 import { MarketService, type MarketServiceConfig } from "./market-service.js";
 import { ReputationService } from "./reputation-service.js";
 import { parsePrediction, validatePrediction } from "../parsers/prediction-parser.js";
+import { PROGRAM_ID, NETWORK } from "./mcp-client.js";
 import type { Call, Caller, ReputationScore, ParsedPrediction } from "../types/index.js";
 
 export interface CallsTrackerConfig extends MarketServiceConfig {
   /** Database file path */
   dbPath?: string;
 }
+
+export { PROGRAM_ID, NETWORK };
 
 export class CallsTracker {
   private db: CallsDatabase;

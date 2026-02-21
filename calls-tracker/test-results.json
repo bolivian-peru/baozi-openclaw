@@ -1,0 +1,336 @@
+{
+  "timestamp": "2026-02-21T07:05:11.310Z",
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "wallet": "FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx",
+  "tests": [
+    {
+      "name": "1. Program ID matches expected",
+      "passed": true,
+      "duration": 0,
+      "details": "Expected: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Got: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ"
+    },
+    {
+      "name": "2. Network is mainnet-beta",
+      "passed": true,
+      "duration": 0,
+      "details": "Network: mainnet-beta"
+    },
+    {
+      "name": "3. Fetch live markets via direct listMarkets() handler",
+      "passed": true,
+      "duration": 301,
+      "details": "Fetched 20 active markets from Solana mainnet",
+      "data": {
+        "count": 20
+      }
+    },
+    {
+      "name": "4. Fetch markets via handleTool('list_markets')",
+      "passed": true,
+      "duration": 208,
+      "details": "Network: mainnet-beta, Program: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Markets: 20",
+      "data": {
+        "network": "mainnet-beta",
+        "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+        "count": 20
+      }
+    },
+    {
+      "name": "5. Get single market via direct getMarket() handler",
+      "passed": true,
+      "duration": 83,
+      "details": "Market: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: ba\" YES: 50% NO: 50% Pool: 0 SOL",
+      "data": {
+        "publicKey": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketId": "59",
+        "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "closingTime": "2026-02-21T12:00:00.000Z",
+        "resolutionTime": "2026-02-21T13:00:00.000Z",
+        "status": "Active",
+        "statusCode": 0,
+        "winningOutcome": null,
+        "currencyType": "Sol",
+        "yesPoolSol": 0,
+        "noPoolSol": 0,
+        "totalPoolSol": 0,
+        "yesPercent": 50,
+        "noPercent": 50,
+        "platformFeeBps": 250,
+        "layer": "Official",
+        "layerCode": 0,
+        "accessGate": "Public",
+        "creator": "2hgph1xwES4mUtAX6kan8qcU27oSWeSXeew99CgVWcER",
+        "hasBets": false,
+        "isBettingOpen": true,
+        "creatorFeeBps": 0
+      }
+    },
+    {
+      "name": "6. Get quote via direct getQuote() handler",
+      "passed": true,
+      "duration": 95,
+      "details": "Valid: true, Expected payout: 0.1000 SOL, Implied odds: 10000.0%",
+      "data": {
+        "valid": true,
+        "warnings": [],
+        "market": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketQuestion": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "side": "Yes",
+        "betAmountSol": 0.1,
+        "expectedPayoutSol": 0.1,
+        "potentialProfitSol": 0,
+        "impliedOdds": 100,
+        "decimalOdds": 1,
+        "feeSol": 0,
+        "feeBps": 250,
+        "newYesPoolSol": 0.1,
+        "newNoPoolSol": 0,
+        "currentYesPercent": 50,
+        "currentNoPercent": 50,
+        "newYesPercent": 100,
+        "newNoPercent": 0
+      }
+    },
+    {
+      "name": "7. execMcpTool('get_market') wrapper maps to direct handler",
+      "passed": true,
+      "duration": 102,
+      "details": "execMcpTool correctly routed to getMarket(). Market: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: ba\"",
+      "data": {
+        "publicKey": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketId": "59",
+        "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "closingTime": "2026-02-21T12:00:00.000Z",
+        "resolutionTime": "2026-02-21T13:00:00.000Z",
+        "status": "Active",
+        "statusCode": 0,
+        "winningOutcome": null,
+        "currencyType": "Sol",
+        "yesPoolSol": 0,
+        "noPoolSol": 0,
+        "totalPoolSol": 0,
+        "yesPercent": 50,
+        "noPercent": 50,
+        "platformFeeBps": 250,
+        "layer": "Official",
+        "layerCode": 0,
+        "accessGate": "Public",
+        "creator": "2hgph1xwES4mUtAX6kan8qcU27oSWeSXeew99CgVWcER",
+        "hasBets": false,
+        "isBettingOpen": true,
+        "creatorFeeBps": 0
+      }
+    },
+    {
+      "name": "8. execMcpTool('get_quote') wrapper works",
+      "passed": true,
+      "duration": 181,
+      "details": "Valid: true, Payout: 0.1000 SOL",
+      "data": {
+        "valid": true,
+        "warnings": [],
+        "market": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketQuestion": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "side": "Yes",
+        "betAmountSol": 0.1,
+        "expectedPayoutSol": 0.1,
+        "potentialProfitSol": 0,
+        "impliedOdds": 100,
+        "decimalOdds": 1,
+        "feeSol": 0,
+        "feeBps": 250,
+        "newYesPoolSol": 0.1,
+        "newNoPoolSol": 0,
+        "currentYesPercent": 50,
+        "currentNoPercent": 50,
+        "newYesPercent": 100,
+        "newNoPercent": 0
+      }
+    },
+    {
+      "name": "9. MarketService reads correct program ID and network",
+      "passed": true,
+      "duration": 0,
+      "details": "Program: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Network: mainnet-beta"
+    },
+    {
+      "name": "10. MarketService.fetchMarketDetails() for live market",
+      "passed": true,
+      "duration": 80,
+      "details": "Market: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: ba\"",
+      "data": {
+        "publicKey": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketId": "59",
+        "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "closingTime": "2026-02-21T12:00:00.000Z",
+        "resolutionTime": "2026-02-21T13:00:00.000Z",
+        "status": "Active",
+        "statusCode": 0,
+        "winningOutcome": null,
+        "currencyType": "Sol",
+        "yesPoolSol": 0,
+        "noPoolSol": 0,
+        "totalPoolSol": 0,
+        "yesPercent": 50,
+        "noPercent": 50,
+        "platformFeeBps": 250,
+        "layer": "Official",
+        "layerCode": 0,
+        "accessGate": "Public",
+        "creator": "2hgph1xwES4mUtAX6kan8qcU27oSWeSXeew99CgVWcER",
+        "hasBets": false,
+        "isBettingOpen": true,
+        "creatorFeeBps": 0
+      }
+    },
+    {
+      "name": "11. MarketService.fetchQuote() for live market",
+      "passed": true,
+      "duration": 83,
+      "details": "Valid: true, Payout: 0.1000 SOL",
+      "data": {
+        "valid": true,
+        "warnings": [],
+        "market": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "marketQuestion": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "side": "Yes",
+        "betAmountSol": 0.1,
+        "expectedPayoutSol": 0.1,
+        "potentialProfitSol": 0,
+        "impliedOdds": 100,
+        "decimalOdds": 1,
+        "feeSol": 0,
+        "feeBps": 250,
+        "newYesPoolSol": 0.1,
+        "newNoPoolSol": 0,
+        "currentYesPercent": 50,
+        "currentNoPercent": 50,
+        "newYesPercent": 100,
+        "newNoPercent": 0
+      }
+    },
+    {
+      "name": "12. Prediction parser produces valid market params",
+      "passed": true,
+      "duration": 32,
+      "details": "Question: \"Will BTC exceed $110k by March 1, 2027?\", Subject: BTC, Target: $110000, Direction: above",
+      "data": {
+        "rawText": "BTC will hit $110k by March 1, 2027",
+        "question": "Will BTC exceed $110k by March 1, 2027?",
+        "dataSource": "CoinGecko (bitcoin)",
+        "resolutionCriteria": "Check BTC price on CoinGecko (bitcoin) at the deadline. Resolves YES if price is at or above $110,000.",
+        "subject": "BTC",
+        "targetValue": 110000,
+        "direction": "above",
+        "deadline": "2027-03-02T07:59:59.000Z",
+        "marketType": "boolean"
+      }
+    },
+    {
+      "name": "13. MarketService.buildMarketParams() from parsed prediction",
+      "passed": true,
+      "duration": 1,
+      "details": "Question: \"Will SOL exceed $500 by March 31, 2027?\", Close: 2027-03-31T06:59:59.000Z, Fee: 200bps",
+      "data": {
+        "question": "Will SOL exceed $500 by March 31, 2027?",
+        "closingTime": 1806476399,
+        "resolutionBuffer": 300,
+        "creatorFee": 200,
+        "dataSource": "CoinGecko (solana)",
+        "resolutionCriteria": "Check SOL price on CoinGecko (solana) at the deadline. Resolves YES if price is at or above $500."
+      }
+    },
+    {
+      "name": "14. Full dry-run call flow (no real market creation)",
+      "passed": true,
+      "duration": 2,
+      "details": "Market PDA: DRY_RUN_1771657511309, Errors: 0",
+      "data": {
+        "marketPda": "DRY_RUN_1771657511309",
+        "betTx": "dry_run_bet_tx",
+        "shareCardUrl": "https://baozi.bet/api/share/card?market=DRY_RUN_1771657511309&wallet=FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx&ref=cristol",
+        "errors": []
+      }
+    },
+    {
+      "name": "15. Verify live market data structure",
+      "passed": true,
+      "duration": 0,
+      "details": "PDA: 7SWR3gkSQ5Qf..., Question: \"Will \"Sinners\" win BAFTA Best Film 2026?...\", YES: 50%, NO: 50%, Pool: 0 SOL",
+      "data": {
+        "pda": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+        "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+        "yesPercent": 50,
+        "noPercent": 50,
+        "totalPoolSol": 0,
+        "status": "Active",
+        "layer": "Official"
+      }
+    },
+    {
+      "name": "16. handleTool response has correct network metadata",
+      "passed": true,
+      "duration": 0,
+      "details": "network: mainnet-beta, programId: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, success: true"
+    }
+  ],
+  "summary": {
+    "passed": 16,
+    "failed": 0,
+    "total": 16,
+    "totalTimeMs": 1168
+  },
+  "liveMarkets": [
+    {
+      "pda": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+      "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-21T12:00:00.000Z",
+      "status": "Active",
+      "layer": "Official"
+    },
+    {
+      "pda": "9SVkyP5RTiLNukCJhp9UiGTxmVwJwBZyrxx2ppX7RcxL",
+      "question": "Will ETH be above $2800 on 2026-02-25?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    },
+    {
+      "pda": "6HUCrzspwETL6jNrGv5SXwCCp8K9GKNhE3WPNnYyWAcD",
+      "question": "Will SOL close above $170 on 2026-02-25?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    },
+    {
+      "pda": "9frURmcwHWCnbma7bs2ChfpxpBYmDRvHGJ5HzwNqVrzG",
+      "question": "Will BTC be above $100K on 2026-02-25?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    },
+    {
+      "pda": "HASHBqZ6T7d1DDCDFwHYfSGpFoKqCg7CdfMCoKQgmNTS",
+      "question": "Will \"Show HN: Micasa – track your house from the terminal\" be covered by a major news outlet (NYT, BBC, CNN, Reuters) before 2026-02-27?",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-26T08:09:04.000Z",
+      "status": "Active",
+      "layer": "Lab"
+    }
+  ]
+}
