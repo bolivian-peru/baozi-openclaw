@@ -1,10 +1,10 @@
 /**
  * Market Service
  *
- * Handles the lifecycle of prediction markets using direct handler imports
- * from @baozi.bet/mcp-server — no subprocess spawning, no stubs.
- *
+ * Handles the lifecycle of prediction markets using DIRECT imports
+ * from @baozi.bet/mcp-server handlers (no subprocess spawning):
  * - Validates predictions against pari-mutuel rules
+ * - Reads live market data from Solana mainnet
  * - Creates Lab markets via MCP
  * - Places bets on behalf of callers
  * - Generates share cards
@@ -14,8 +14,8 @@ import {
   execMcpTool,
   listMarkets,
   getMarket,
-  getQuote as mcpGetQuote,
-  handleTool,
+  getQuote as getQuoteDirect,
+  getPositions as getPositionsDirect,
   PROGRAM_ID,
   NETWORK,
 } from "./mcp-client.js";
@@ -47,70 +47,60 @@ export class MarketService {
   }
 
   /**
-   * Get the program ID from the MCP server config
+   * Get the on-chain program ID and network (for verification)
    */
-  getProgramId(): string {
-    return String(PROGRAM_ID);
+  getProtocolInfo(): { programId: string; network: string } {
+    return {
+      programId: PROGRAM_ID.toBase58(),
+      network: NETWORK,
+    };
   }
 
   /**
-   * Get the network from the MCP server config
+   * List live markets from Solana mainnet via direct handler import
    */
-  getNetwork(): string {
-    return NETWORK;
-  }
-
-  /**
-   * Execute an MCP tool via direct handler imports
-   */
-  private async callMcp(tool: string, params: Record<string, any>): Promise<McpResult> {
-    return execMcpTool(tool, params);
-  }
-
-  /**
-   * Validate a market question using the MCP validate tool
-   */
-  async validateMarketQuestion(question: string, dataSource: string): Promise<McpResult> {
-    console.log(`  ⟳ Validating market question...`);
-    return this.callMcp("validate_market_question", {
-      question,
-      data_source: dataSource,
-    });
-  }
-
-  /**
-   * Fetch active markets directly from Solana mainnet
-   */
-  async fetchActiveMarkets(status: string = "active"): Promise<any[]> {
+  async listLiveMarkets(status?: string): Promise<McpResult> {
     try {
-      return await listMarkets(status);
+      const markets = await listMarkets(status);
+      return { success: true, data: markets };
     } catch (err: any) {
-      console.error("Failed to fetch markets:", err.message);
-      return [];
+      return { success: false, error: `listMarkets error: ${err.message}` };
     }
   }
 
   /**
-   * Get market details by PDA directly from Solana mainnet
+   * Get a specific market's details from chain via direct handler
    */
-  async fetchMarketDetails(marketPda: string): Promise<any | null> {
+  async getMarketDetails(marketPda: string): Promise<McpResult> {
     try {
-      return await getMarket(marketPda);
+      const market = await getMarket(marketPda);
+      return { success: true, data: market };
     } catch (err: any) {
-      console.error("Failed to get market:", err.message);
-      return null;
+      return { success: false, error: `getMarket error: ${err.message}` };
     }
   }
 
   /**
-   * Get quote directly from Solana mainnet
+   * Get a quote for a potential bet via direct handler
    */
-  async fetchQuote(marketPda: string, side: string, amount: number): Promise<any | null> {
+  async getQuote(marketPda: string, side: string, amount: number): Promise<McpResult> {
     try {
-      return await mcpGetQuote(marketPda, side as "Yes" | "No", amount);
+      const quote = await getQuoteDirect(marketPda, side as "Yes" | "No", amount);
+      return { success: true, data: quote };
     } catch (err: any) {
-      console.error("Failed to get quote:", err.message);
-      return null;
+      return { success: false, error: `getQuote error: ${err.message}` };
+    }
+  }
+
+  /**
+   * Get positions for a wallet via direct handler
+   */
+  async getPositions(walletAddress: string): Promise<McpResult> {
+    try {
+      const positions = await getPositionsDirect(walletAddress);
+      return { success: true, data: positions };
+    } catch (err: any) {
+      return { success: false, error: `getPositions error: ${err.message}` };
     }
   }
 
@@ -141,7 +131,7 @@ export class MarketService {
   }
 
   /**
-   * Create a Lab market on Baozi
+   * Create a Lab market on Baozi via direct MCP handler
    */
   async createLabMarket(params: MarketCreateParams, walletAddress: string): Promise<McpResult> {
     console.log(`  ⟳ Creating Lab market: "${params.question}"`);
@@ -171,14 +161,14 @@ export class MarketService {
 
     if (params.outcomes && params.outcomes.length > 0) {
       toolParams.outcomes = params.outcomes;
-      return this.callMcp("build_create_race_market_transaction", toolParams);
+      return execMcpTool("build_create_race_market_transaction", toolParams);
     }
 
-    return this.callMcp("build_create_lab_market_transaction", toolParams);
+    return execMcpTool("build_create_lab_market_transaction", toolParams);
   }
 
   /**
-   * Place a bet on a market
+   * Place a bet on a market via direct MCP handler
    */
   async placeBet(
     marketPda: string,
@@ -196,42 +186,12 @@ export class MarketService {
       };
     }
 
-    return this.callMcp("build_bet_transaction", {
-      market_pda: marketPda,
-      wallet: walletAddress,
-      side: side.toLowerCase(),
-      amount,
-      referral: this.config.referralCode,
-    });
-  }
-
-  /**
-   * Get positions for a wallet on a market
-   */
-  async getPositions(marketPda: string, walletAddress: string): Promise<McpResult> {
-    return this.callMcp("get_positions", {
-      market_pda: marketPda,
-      wallet: walletAddress,
-    });
-  }
-
-  /**
-   * Get market details (via MCP wrapper)
-   */
-  async getMarketDetails(marketPda: string): Promise<McpResult> {
-    return this.callMcp("get_market", {
-      market_pda: marketPda,
-    });
-  }
-
-  /**
-   * Get a quote for a potential bet (via MCP wrapper)
-   */
-  async getQuote(marketPda: string, side: string, amount: number): Promise<McpResult> {
-    return this.callMcp("get_quote", {
-      market_pda: marketPda,
-      side,
-      amount,
+    return execMcpTool("build_bet_transaction", {
+      market: marketPda,
+      outcome: side.toLowerCase() === "yes" ? "Yes" : "No",
+      amount_sol: amount,
+      user_wallet: walletAddress,
+      affiliate_code: this.config.referralCode,
     });
   }
 
@@ -272,8 +232,8 @@ export class MarketService {
       };
     }
 
-    return this.callMcp("generate_share_card", {
-      market_pda: marketPda,
+    return execMcpTool("generate_share_link", {
+      market: marketPda,
       wallet: walletAddress,
       ref: this.config.referralCode,
     });

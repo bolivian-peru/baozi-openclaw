@@ -4,8 +4,8 @@
  * Turn tweets into trackable prediction markets on Baozi.
  * Every call builds or destroys reputation. No hiding from bad takes.
  *
- * Uses direct handler imports from @baozi.bet/mcp-server — no subprocess
- * spawning, no stubs, no simulated clients.
+ * Uses DIRECT imports from @baozi.bet/mcp-server handlers —
+ * no subprocess spawning, real Solana mainnet data.
  *
  * @module @baozi/calls-tracker
  */
@@ -25,9 +25,12 @@ export {
   getRaceMarket,
   getRaceQuote,
   getQuote,
-  handleTool,
+  getPositions,
+  getPositionsEnriched,
+  getPositionsSummary,
   PROGRAM_ID,
   NETWORK,
+  handleTool,
 } from "./services/mcp-client.js";
 export type {
   ParsedPrediction,
