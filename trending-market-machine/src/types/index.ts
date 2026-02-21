@@ -125,6 +125,13 @@ export interface MachineConfig {
   dryRun: boolean;
 }
 
+/** MCP tool execution result */
+export interface McpResult {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+}
+
 /** State persisted between runs for dedup and tracking */
 export interface MachineState {
   /** Previously created market topic IDs to avoid duplicates */

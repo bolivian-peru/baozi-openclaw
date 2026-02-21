@@ -4,6 +4,7 @@
  */
 
 import type { MarketProposal, ValidationResult, MachineConfig } from "./types/index.js";
+import { execMcpTool } from "./mcp-client.js";
 
 /**
  * Validate a market proposal locally before hitting the API
@@ -103,12 +104,41 @@ export function validateProposalLocally(
 }
 
 /**
- * Validate against Baozi pre-validation API
+ * Validate against Baozi using the real MCP validate_market_params handler,
+ * falling back to HTTP API if needed
  */
 export async function validateWithBaoziApi(
   proposal: MarketProposal,
   config: MachineConfig
 ): Promise<ValidationResult> {
+  // First try the real MCP handler
+  try {
+    const closingTime = proposal.closeTime;
+
+    const result = await execMcpTool("validate_market_params", {
+      question: proposal.question,
+      closing_time: closingTime,
+      market_type: proposal.marketType === "A" ? "event" : "measurement",
+      event_time: proposal.eventTime,
+      measurement_start: proposal.measurementStart,
+      measurement_end: proposal.closeTime,
+    });
+
+    if (result.success) {
+      const data = result.data as Record<string, unknown>;
+      const validation = (data?.validation || data) as Record<string, unknown>;
+      const valid = validation?.valid !== false;
+      const errors = (validation?.errors as string[]) || [];
+      const warnings = (validation?.warnings as string[]) || [];
+      return { valid: valid && errors.length === 0, errors, warnings };
+    }
+    // If MCP validation fails, fall through to HTTP
+    console.log(`[validator] MCP validate_market_params returned error: ${result.error}, trying HTTP API...`);
+  } catch (err) {
+    console.log(`[validator] MCP validation error: ${err}, trying HTTP API...`);
+  }
+
+  // Fallback: HTTP API
   try {
     const resp = await fetch(`${config.baoziBaseUrl}/api/markets/validate`, {
       method: "POST",

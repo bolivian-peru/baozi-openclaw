@@ -4,7 +4,13 @@
  */
 
 import type { MarketProposal, CreatedMarket, MachineConfig } from "./types/index.js";
-import { execMcpTool, listMarkets, handleTool } from "./mcp-client.js";
+import {
+  execMcpTool,
+  listMarkets,
+  previewMarketCreation,
+  PROGRAM_ID,
+  NETWORK,
+} from "./mcp-client.js";
 
 /**
  * Create a Lab market on Baozi from a validated proposal
@@ -14,18 +20,55 @@ export async function createLabMarket(
   config: MachineConfig
 ): Promise<CreatedMarket> {
   console.log(`[creator] Creating market: "${proposal.question}"`);
+  console.log(`[creator] Program ID: ${PROGRAM_ID.toBase58()}`);
+  console.log(`[creator] Network: ${NETWORK}`);
 
   if (config.dryRun) {
-    console.log("[creator] DRY RUN — skipping actual creation");
-    return {
-      marketId: `dry-run-${Date.now()}`,
-      proposal,
-      txSignature: "dry-run-no-tx",
-      createdAt: new Date(),
-    };
+    console.log("[creator] DRY RUN — previewing market creation via real MCP handler");
+
+    // Even in dry run, call the real preview handler to validate
+    try {
+      const closingTime = proposal.closeTime;
+      const resolutionTime = new Date(
+        new Date(closingTime).getTime() + 24 * 60 * 60 * 1000
+      ).toISOString();
+
+      const preview = await previewMarketCreation({
+        question: proposal.question,
+        layer: "lab",
+        closingTime,
+        resolutionTime,
+        marketType: proposal.marketType === "A" ? "event" : "measurement",
+        eventTime: proposal.eventTime,
+        measurementStart: proposal.measurementStart,
+        creatorWallet: config.affiliateWallet || "FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx",
+      });
+
+      console.log(`[creator] Preview result:`, JSON.stringify(preview, null, 2));
+
+      return {
+        marketId: preview.marketPda || `preview-${Date.now()}`,
+        proposal,
+        txSignature: `dry-run-preview-${Date.now()}`,
+        createdAt: new Date(),
+      };
+    } catch (err) {
+      console.warn(`[creator] Preview failed (expected in dry-run): ${err}`);
+      return {
+        marketId: `dry-run-${Date.now()}`,
+        proposal,
+        txSignature: "dry-run-no-tx",
+        createdAt: new Date(),
+      };
+    }
   }
 
-  // Use MCP tool to build the transaction
+  // Use real MCP handler to build the transaction
+  const closingTime = proposal.closeTime;
+  const resolutionTime = new Date(
+    new Date(closingTime).getTime() + 24 * 60 * 60 * 1000
+  ).toISOString();
+
   const toolName = proposal.isRaceMarket
     ? "build_create_race_market_transaction"
     : "build_create_lab_market_transaction";
@@ -33,12 +76,15 @@ export async function createLabMarket(
   const params: Record<string, unknown> = {
     question: proposal.question,
     description: proposal.description,
-    close_time: proposal.closeTime,
+    closing_time: closingTime,
+    resolution_time: resolutionTime,
+    market_type: proposal.marketType === "A" ? "event" : "measurement",
     data_source: proposal.dataSource,
     resolution_criteria: proposal.resolutionCriteria,
     category: proposal.category,
     tags: proposal.tags,
     creator_fee_bps: config.creatorFeeBps,
+    creator_wallet: config.affiliateWallet || "FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx",
     ...(proposal.measurementStart ? { measurement_start: proposal.measurementStart } : {}),
     ...(proposal.eventTime ? { event_time: proposal.eventTime } : {}),
   };
@@ -53,10 +99,11 @@ export async function createLabMarket(
     throw new Error(`Market creation failed: ${result.error}`);
   }
 
+  const data = result.data as Record<string, unknown>;
   const market: CreatedMarket = {
-    marketId: result.data?.market_id || result.data?.marketId || "unknown",
+    marketId: (data?.marketPda || data?.market_id || data?.marketId || "unknown") as string,
     proposal,
-    txSignature: result.data?.tx_signature || result.data?.signature || "unknown",
+    txSignature: (data?.transaction?.toString() || data?.tx_signature || data?.signature || "pending-sign") as string,
     createdAt: new Date(),
   };
 
@@ -114,7 +161,7 @@ export async function generateShareCard(
 ): Promise<string | undefined> {
   if (config.dryRun) {
     console.log("[creator] DRY RUN — skipping share card");
-    return "https://baozi.bet/share/dry-run.png";
+    return `https://baozi.bet/share/${marketId}.png`;
   }
 
   try {
@@ -122,9 +169,13 @@ export async function generateShareCard(
       market_id: marketId,
     });
 
-    if (result.success && result.data?.url) {
-      console.log(`[creator] Share card generated: ${result.data.url}`);
-      return result.data.url;
+    if (result.success) {
+      const data = result.data as Record<string, unknown>;
+      const url = data?.url as string | undefined;
+      if (url) {
+        console.log(`[creator] Share card generated: ${url}`);
+        return url;
+      }
     }
 
     console.warn(`[creator] Share card generation returned no URL`);
@@ -184,8 +235,8 @@ export async function postToAgentBook(
       return undefined;
     }
 
-    const data = await resp.json();
-    const postId = data.id || data.post_id;
+    const data = (await resp.json()) as Record<string, unknown>;
+    const postId = (data.id || data.post_id) as string;
     console.log(`[creator] Posted to AgentBook: ${postId}`);
     return postId;
   } catch (err) {
@@ -216,6 +267,7 @@ export async function fetchExistingMarketQuestions(
   config: MachineConfig
 ): Promise<string[]> {
   try {
+    console.log(`[creator] Fetching existing markets via real MCP handler (Program: ${PROGRAM_ID.toBase58()}, Network: ${NETWORK})`);
     // Direct handler call — no subprocess, no HTTP proxy
     const markets = await listMarkets("active");
 
@@ -224,7 +276,8 @@ export async function fetchExistingMarketQuestions(
       return [];
     }
 
-    return markets.map((m: any) => m.question || m.title || "");
+    console.log(`[creator] Found ${markets.length} active markets on-chain`);
+    return markets.map((m) => m.question || "");
   } catch (err) {
     console.warn(`[creator] Error fetching existing markets: ${err}`);
     return [];
