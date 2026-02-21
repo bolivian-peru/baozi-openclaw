@@ -1,0 +1,20 @@
+{
+  "name": "baozi-trust-proof-explorer",
+  "version": "1.0.0",
+  "description": "Trust Proof Explorer - Verifiable Oracle Transparency Dashboard for Baozi prediction markets",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
