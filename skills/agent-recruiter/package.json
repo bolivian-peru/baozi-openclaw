@@ -1,0 +1,25 @@
+{
+  "name": "@baozi/agent-recruiter",
+  "version": "1.0.0",
+  "description": "AI agent that recruits other agents to trade on Baozi prediction markets",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "test": "vitest run",
+    "demo": "tsx src/demo.ts",
+    "recruit": "tsx src/recruit.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "better-sqlite3": "^11.0.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.0.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}

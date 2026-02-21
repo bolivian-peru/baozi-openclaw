@@ -1,0 +1,95 @@
+============================================================
+BAOZI AGENT RECRUITER — END-TO-END DEMO
+============================================================
+
+--- STEP 1: Health Check ---
+Name: Baozi Agent Recruiter
+Recruiter Code: RECRUITER
+Referral Link: https://baozi.bet/?ref=RECRUITER
+
+--- STEP 2: Discover Agents from AgentNet ---
+Discovered 20 agents from AgentNet:
+  [1] Astro Light (agentnet) — pitch: general
+  [2] Pixie Bot (agentnet) — pitch: general
+  [3] Midjourney Bot (agentnet) — pitch: general
+  [4] ChatGPT Telegram (agentnet) — pitch: general
+  [5] Remove.bg Bot (agentnet) — pitch: general
+  ... and 15 more
+
+--- STEP 3: Available Pitch Templates ---
+  [crypto-analyst] Crypto Analyst Pitch — for: Crypto analysis / trading agents
+  [trading-bot] Trading Bot Pitch — for: Automated trading / DeFi bots
+  [social-agent] Social Agent Pitch — for: Social media / content creation agents
+  [general] General Purpose Pitch — for: Any AI agent
+  [framework-agent] Framework Agent Pitch — for: ElizaOS / LangChain / AutoGPT agents
+
+--- STEP 4: Personalized Pitch ---
+Recruit: Astro Light
+Template: general (Any AI agent)
+Subject: 69 MCP tools, no API keys, earn while you predict
+Body preview: Hey — you can now bet on prediction markets directly through MCP.
+
+Quick setup:
+1. npx @baozi.bet/mcp-server (69 tools, no API key needed)
+2. list_markets → see what's live
+3. get_quote → check the od...
+
+--- STEP 5: Contact Agent ---
+Status: contacted
+Agent: Astro Light
+
+--- STEP 6: Start Onboarding ---
+Status: onboarding
+Steps:
+  1. Install MCP Server — MCP: npx @baozi.bet/mcp-server
+  2. Create Creator Profile — MCP: build_create_creator_profile_transaction
+  3. Register Affiliate Code — MCP: build_register_affiliate_transaction
+  4. Browse Markets — MCP: list_markets
+  5. Get a Quote — MCP: get_quote
+  6. Place First Bet — MCP: build_bet_transaction
+Recruiter code for affiliate: RECRUITER
+
+--- STEP 7: Complete Onboarding Steps ---
+  Step 1: completed ✓ 
+  Step 2: completed ✓ 
+  Step 3: completed ✓ [ONBOARDED]
+  Step 4: completed ✓ [ONBOARDED]
+  Step 5: completed ✓ [ONBOARDED]
+  Step 6: completed ✓ [ACTIVE]
+
+--- STEP 8: Recruit Details + Activity Log ---
+Agent: Astro Light
+Status: active
+Wallet: RecruitWallet111111111111111111111111111111
+Affiliate Code: RECRUIT1
+Activity log:
+  [2026-02-21 18:21:55] contacted: Pitch sent via AgentNet endpoint
+  [2026-02-21 18:21:55] onboarding_started: Starting onboarding for Astro Light
+  [2026-02-21 18:21:55] step_1_completed: npx @baozi.bet/mcp-server — 69 tools loaded
+  [2026-02-21 18:21:55] step_2_completed: Creator profile created on-chain, display name set
+  [2026-02-21 18:21:55] step_3_completed: Affiliate code RECRUIT1 registered, ref=RECRUITER
+
+--- STEP 9: Recruiter Dashboard ---
+Recruiter: RECRUITER
+Funnel:
+  Discovered: 20
+  Contacted:  1
+  Onboarded:  1
+  Active:     1
+  Conversion: 5%
+
+Discovery by platform:
+  agentnet: 20
+
+============================================================
+DEMO COMPLETE
+
+Key features demonstrated:
+  1. Agent discovery from AgentNet (real network, 48+ agents)
+  2. Personalized pitch templates (5 types for different agents)
+  3. Contact tracking with outreach log
+  4. 6-step onboarding flow using real Baozi MCP tools
+  5. Recruiter affiliate code embedded in all onboarding
+  6. Tracking dashboard with conversion funnel
+  7. SQLite persistence for all recruit data
+============================================================
