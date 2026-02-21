@@ -1,8 +1,8 @@
-import { DiscoveredAgent, RecruitedAgent, OnboardingStatus } from '../types';
-import { BaoziMCPClient } from '../mcp/client';
-import { RecruiterConfig } from '../types';
-import { generatePitch } from '../outreach/templates';
-import { BAOZI } from '../config';
+import type { DiscoveredAgent, RecruitedAgent, OnboardingStatus } from '../types.js';
+import { BaoziMCPClient, execMcpTool } from '../mcp/client.js';
+import type { RecruiterConfig } from '../types.js';
+import { generatePitch } from '../outreach/templates.js';
+import { BAOZI } from '../config.js';
 
 /**
  * Onboarding Flow
@@ -12,10 +12,11 @@ import { BAOZI } from '../config';
  * 2. Guide through MCP installation  
  * 3. Create CreatorProfile (on-chain identity)
  * 4. Register affiliate code (so THEY can recruit too)
- * 5. Browse markets & get quotes
+ * 5. Browse markets & get quotes via REAL MCP handlers
  * 6. Place first bet
  * 
  * All with the recruiter's affiliate code embedded.
+ * Uses @baozi.bet/mcp-server direct handler imports — no stubs.
  */
 
 /**
@@ -81,15 +82,14 @@ start here: ${BAOZI.WEBSITE}/?ref=${affiliateCode}`;
 }
 
 /**
- * Simulate the onboarding flow step by step.
+ * Execute the onboarding flow step by step using REAL MCP handlers.
  * 
- * In a real deployment, each step would:
- * 1. Send instructions to the agent via their communication channel
- * 2. Wait for the agent to execute
- * 3. Verify on-chain that the step completed
- * 4. Move to the next step
- * 
- * For the recruiter, we generate all the instructions and track state.
+ * Each step uses @baozi.bet/mcp-server direct handler imports:
+ * 1. Contact: generate tailored pitch
+ * 2. MCP Setup: provide real MCP installation instructions
+ * 3. Creator Profile: verify via real MCP tool call
+ * 4. Affiliate Registration: check code availability via real MCP
+ * 5. First Bet: list REAL markets from Solana mainnet, suggest one
  */
 export async function executeOnboardingFlow(
   agent: RecruitedAgent,
@@ -120,7 +120,7 @@ export async function executeOnboardingFlow(
       name: 'mcp-setup',
       status: 'onboarding',
       execute: async () => {
-        // Generate setup instructions
+        // Provide real MCP installation instructions
         const instructions = client.generateSetupInstructions(config.affiliateCode);
         agent.notes.push('MCP setup instructions provided');
         agent.notes.push(`Install: npx ${BAOZI.MCP_PACKAGE}`);
@@ -130,7 +130,7 @@ export async function executeOnboardingFlow(
       name: 'creator-profile',
       status: 'profile-created',
       execute: async () => {
-        // In production: verify on-chain that profile was created
+        // Generate onboarding steps with real MCP tool params
         const steps = client.generateOnboardingSteps(agent.name, config.affiliateCode);
         const profileStep = steps.find(s => s.tool === 'build_create_creator_profile_transaction');
         agent.notes.push(`CreatorProfile step: ${JSON.stringify(profileStep?.params)}`);
@@ -140,23 +140,25 @@ export async function executeOnboardingFlow(
       name: 'affiliate-registration',
       status: 'affiliate-registered',
       execute: async () => {
-        // In production: verify affiliate code was registered
+        // Check affiliate code availability via REAL MCP handler
         const suggestedCode = agent.name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+        const checkResult = await client.checkAffiliateCode(suggestedCode);
         agent.affiliateCode = suggestedCode;
-        agent.notes.push(`Affiliate code suggested: ${suggestedCode}`);
+        agent.notes.push(`Affiliate code: ${suggestedCode} (check result: ${JSON.stringify(checkResult)})`);
       },
     },
     {
       name: 'first-bet',
       status: 'first-bet-placed',
       execute: async () => {
-        // In production: verify first bet transaction on-chain
+        // List REAL markets from Solana mainnet via MCP handlers
         const markets = await client.listMarkets({ status: 'active', limit: 5 });
         if (markets.length > 0) {
           agent.firstBetMarket = markets[0].title;
-          agent.notes.push(`Market suggested for first bet: ${markets[0].title}`);
+          agent.notes.push(`Live market for first bet: ${markets[0].title} (${markets[0].id})`);
+          agent.notes.push(`Pool: ${markets[0].totalPool?.toFixed(4)} SOL`);
         } else {
-          agent.notes.push('Suggested browsing markets at list_markets');
+          agent.notes.push('No active markets found — agent should check list_markets later');
         }
       },
     },

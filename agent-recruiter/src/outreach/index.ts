@@ -1,1 +1,1 @@
-export { generatePitch, getPitchVariants, listPitchTypes, generateAllPitches } from './templates';
+export { generatePitch, generateAllPitches, listPitchTypes, getPitchVariants } from './templates.js';

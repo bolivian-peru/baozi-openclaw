@@ -94,7 +94,7 @@ export interface MCPToolResult {
   txSignature?: string;
 }
 
-/** Market from Baozi */
+/** Market from Baozi (mapped from MCP handler) */
 export interface BaoziMarket {
   id: string;
   title: string;

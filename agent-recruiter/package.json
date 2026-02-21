@@ -1,7 +1,8 @@
 {
   "name": "@baozi/agent-recruiter",
-  "version": "1.0.0",
-  "description": "AI Agent Recruiter — discovers, onboards, and tracks AI agents to trade on Baozi prediction markets",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "AI Agent Recruiter — discovers, onboards, and tracks AI agents to trade on Baozi prediction markets. Uses @baozi.bet/mcp-server direct handler imports.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -10,29 +11,26 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
-    "dev": "ts-node src/cli.ts",
-    "test": "jest --config jest.config.js",
+    "dev": "npx tsx src/cli.ts",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --config jest.config.js",
+    "test:live": "npx tsx src/tests/test-live-integration.ts",
     "lint": "eslint src/ --ext .ts",
-    "discover": "ts-node src/cli.ts discover",
-    "onboard": "ts-node src/cli.ts onboard",
-    "dashboard": "ts-node src/cli.ts dashboard",
-    "pitch": "ts-node src/cli.ts pitch"
+    "discover": "npx tsx src/cli.ts discover",
+    "onboard": "npx tsx src/cli.ts onboard",
+    "dashboard": "npx tsx src/cli.ts dashboard",
+    "pitch": "npx tsx src/cli.ts pitch"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1",
-    "chalk": "^4.1.2",
-    "cli-table3": "^0.6.3",
-    "commander": "^12.1.0",
-    "node-fetch": "^2.7.0",
-    "ora": "^5.4.1"
+    "@baozi.bet/mcp-server": "^5.0.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.0",
-    "@types/node-fetch": "^2.6.11",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.4",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.4.5"
   },
   "engines": {

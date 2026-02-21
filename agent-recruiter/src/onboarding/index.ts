@@ -2,4 +2,4 @@ export {
   initRecruitedAgent,
   generateOnboardingPackage,
   executeOnboardingFlow,
-} from './flow';
+} from './flow.js';

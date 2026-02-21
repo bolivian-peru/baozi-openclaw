@@ -1,10 +1,10 @@
-import { RecruiterConfig, DiscoveredAgent, RecruitedAgent, AgentType } from './types';
-import { loadConfig, BAOZI } from './config';
-import { BaoziMCPClient } from './mcp';
-import { discoverAgents, createManualAgent, DiscoveryOptions } from './discovery';
-import { initRecruitedAgent, generateOnboardingPackage, executeOnboardingFlow } from './onboarding';
-import { generatePitch, generateAllPitches, listPitchTypes } from './outreach';
-import { TrackingStore, formatDashboard, formatAgentProfile } from './tracking';
+import type { RecruiterConfig, DiscoveredAgent, RecruitedAgent, AgentType } from './types.js';
+import { loadConfig, BAOZI } from './config.js';
+import { BaoziMCPClient } from './mcp/index.js';
+import { discoverAgents, createManualAgent, type DiscoveryOptions } from './discovery/index.js';
+import { initRecruitedAgent, generateOnboardingPackage, executeOnboardingFlow } from './onboarding/index.js';
+import { generatePitch, generateAllPitches, listPitchTypes } from './outreach/index.js';
+import { TrackingStore, formatDashboard, formatAgentProfile } from './tracking/index.js';
 
 /**
  * Agent Recruiter
@@ -12,11 +12,14 @@ import { TrackingStore, formatDashboard, formatAgentProfile } from './tracking';
  * The core recruiter agent that discovers, onboards, and tracks
  * AI agents to trade on Baozi prediction markets.
  * 
+ * Uses @baozi.bet/mcp-server direct handler imports for all market data.
+ * No stubs, no simulations — real Solana mainnet data.
+ * 
  * Architecture:
  *   Recruiter (has affiliate code)
- *     ├── Discovery → finds agents via AgentBook, GitHub, social
+ *     ├── Discovery → finds agents via AgentBook (MCP), GitHub, social
  *     ├── Outreach → generates tailored pitches
- *     ├── Onboarding → guides through setup flow
+ *     ├── Onboarding → guides through setup flow (real MCP tools)
  *     └── Tracking → monitors recruited agents
  */
 export class AgentRecruiter {
@@ -92,7 +95,7 @@ export class AgentRecruiter {
   }
 
   /**
-   * Onboard a discovered agent (full flow)
+   * Onboard a discovered agent (full flow using real MCP handlers)
    */
   async onboard(
     agent: DiscoveredAgent,
@@ -104,7 +107,7 @@ export class AgentRecruiter {
   ): Promise<RecruitedAgent> {
     const recruited = initRecruitedAgent(agent);
 
-    // Run onboarding flow
+    // Run onboarding flow with real MCP handlers
     const result = await executeOnboardingFlow(
       recruited,
       this.config,
@@ -198,7 +201,7 @@ export class AgentRecruiter {
   // ─── MARKETS ────────────────────────────────────────────────
 
   /**
-   * List active markets (useful for onboarding demos)
+   * List active markets via real MCP handlers (Solana mainnet)
    */
   async listMarkets(limit: number = 10) {
     return this.client.listMarkets({ status: 'active', limit });

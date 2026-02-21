@@ -1,91 +1,175 @@
-import { MCPToolResult, BaoziMarket } from '../types';
-import { BAOZI } from '../config';
+/**
+ * Baozi MCP Client — Direct Handler Imports
+ *
+ * Uses @baozi.bet/mcp-server handlers DIRECTLY instead of HTTP fetch or stubs.
+ * This is the pattern used by all merged PRs (e.g., AgentBook Pundit PR #68).
+ *
+ * No simulated data, no HTTP API calls — real Solana mainnet via MCP SDK.
+ */
+import { listMarkets as mcpListMarkets, getMarket as mcpGetMarket } from "@baozi.bet/mcp-server/dist/handlers/markets.js";
+import { listRaceMarkets, getRaceMarket } from "@baozi.bet/mcp-server/dist/handlers/race-markets.js";
+import { getQuote as mcpGetQuote } from "@baozi.bet/mcp-server/dist/handlers/quote.js";
+import { handleTool } from "@baozi.bet/mcp-server/dist/tools.js";
+import { PROGRAM_ID, NETWORK } from "@baozi.bet/mcp-server/dist/config.js";
+import type { MCPToolResult, BaoziMarket } from '../types.js';
+import { BAOZI } from '../config.js';
 
-// Use dynamic import for node-fetch (CJS compat)
-let fetchFn: typeof import('node-fetch').default;
-async function getFetch() {
-  if (!fetchFn) {
-    fetchFn = (await import('node-fetch')).default;
+// Re-export for direct access
+export { handleTool, PROGRAM_ID, NETWORK, mcpListMarkets, mcpGetMarket, mcpGetQuote };
+
+/**
+ * Execute any MCP tool by name using direct handler imports.
+ * Maps tool names to the corresponding handler functions.
+ */
+export async function execMcpTool(
+  toolName: string,
+  params: Record<string, any> = {},
+): Promise<MCPToolResult> {
+  try {
+    switch (toolName) {
+      case 'list_markets': {
+        const markets = await mcpListMarkets(params.status);
+        return { success: true, data: markets };
+      }
+      case 'get_market': {
+        const market = await mcpGetMarket(params.market_pda || params.publicKey);
+        return { success: true, data: market };
+      }
+      case 'list_race_markets': {
+        const raceMarkets = await listRaceMarkets(params.status);
+        return { success: true, data: raceMarkets };
+      }
+      case 'get_race_market': {
+        const raceMarket = await getRaceMarket(params.market_pda || params.publicKey);
+        return { success: true, data: raceMarket };
+      }
+      case 'get_quote': {
+        const quote = await mcpGetQuote(params.market_pda, params.side, params.amount);
+        return { success: true, data: quote };
+      }
+      case 'check_affiliate_code': {
+        const result = await handleTool('check_affiliate_code', { code: params.code });
+        const text = result?.content?.[0]?.text;
+        if (!text) return { success: false, error: 'Empty response' };
+        const parsed = JSON.parse(text);
+        return parsed.success === false
+          ? { success: false, error: parsed.error }
+          : { success: true, data: parsed };
+      }
+      case 'format_affiliate_link': {
+        const result = await handleTool('format_affiliate_link', { code: params.code });
+        const text = result?.content?.[0]?.text;
+        if (!text) return { success: false, error: 'Empty response' };
+        const parsed = JSON.parse(text);
+        return { success: true, data: parsed };
+      }
+      case 'get_positions': {
+        const result = await handleTool('get_positions', { wallet: params.wallet });
+        const text = result?.content?.[0]?.text;
+        if (!text) return { success: false, error: 'Empty response' };
+        const parsed = JSON.parse(text);
+        return { success: true, data: parsed };
+      }
+      case 'get_claimable': {
+        const result = await handleTool('get_claimable', { wallet: params.wallet });
+        const text = result?.content?.[0]?.text;
+        if (!text) return { success: false, error: 'Empty response' };
+        const parsed = JSON.parse(text);
+        return { success: true, data: parsed };
+      }
+      default: {
+        // Fallback: use handleTool for any other MCP tool
+        const result = await handleTool(toolName, params);
+        const text = result?.content?.[0]?.text;
+        if (!text) return { success: false, error: 'Empty response from handleTool' };
+        const parsed = JSON.parse(text);
+        return parsed.success === false
+          ? { success: false, error: parsed.error }
+          : { success: true, data: parsed };
+      }
+    }
+  } catch (err: any) {
+    return { success: false, error: `MCP handler error: ${err.message}` };
   }
-  return fetchFn;
 }
 
 /**
  * Baozi MCP Client
- * 
- * Wraps the Baozi MCP tools for the recruiter agent.
- * In production, this communicates with the MCP server.
- * For the recruiter's purposes, we primarily use the HTTP API
- * and generate MCP-compatible instructions for recruited agents.
+ *
+ * Wraps the @baozi.bet/mcp-server handlers for the recruiter agent.
+ * All data comes from LIVE Solana mainnet — no stubs, no simulations.
  */
 export class BaoziMCPClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string = BAOZI.WEBSITE) {
-    this.baseUrl = baseUrl;
-  }
-
   /**
-   * List active markets from Baozi
+   * List active markets from Baozi on Solana mainnet via MCP handlers
    */
   async listMarkets(options: {
     layer?: string;
     status?: string;
     limit?: number;
   } = {}): Promise<BaoziMarket[]> {
-    const fetch = await getFetch();
-    const params = new URLSearchParams();
-    if (options.layer) params.set('layer', options.layer);
-    if (options.status) params.set('status', options.status || 'active');
-    if (options.limit) params.set('limit', String(options.limit));
-
     try {
-      const res = await fetch(`${BAOZI.MARKETS_API}?${params}`, {
-        headers: { 'Accept': 'application/json' },
-        timeout: 15000,
-      });
+      const status = options.status || 'active';
+      const markets = await mcpListMarkets(status);
 
-      if (!res.ok) {
-        // Fallback: return empty array if API is not available
-        console.warn(`Markets API returned ${res.status}`);
-        return [];
-      }
+      // Apply limit if specified
+      const limited = options.limit ? markets.slice(0, options.limit) : markets;
 
-      const data = await res.json() as any;
-      // Handle both array and object responses
-      const markets = Array.isArray(data) ? data : (data.markets || data.data || []);
-      return markets.map((m: any) => ({
-        id: m.id || m.publicKey || m.address,
-        title: m.title || m.question || m.name || 'Unknown',
-        description: m.description || '',
+      return limited.map((m: any) => ({
+        id: m.publicKey,
+        title: m.question || 'Unknown',
+        description: '',
         status: m.status || 'unknown',
         layer: m.layer || 'unknown',
-        yesPool: m.yesPool || m.yes_pool,
-        noPool: m.noPool || m.no_pool,
-        totalPool: m.totalPool || m.total_pool,
-        closingTime: m.closingTime || m.closing_time,
-        outcomes: m.outcomes,
+        yesPool: m.yesPoolSol,
+        noPool: m.noPoolSol,
+        totalPool: m.totalPoolSol,
+        closingTime: m.closingTime,
+        outcomes: undefined,
       }));
     } catch (err) {
-      console.warn('Failed to fetch markets:', (err as Error).message);
+      console.warn('Failed to fetch markets via MCP:', (err as Error).message);
       return [];
     }
   }
 
   /**
-   * Check if an affiliate code is available
+   * Get a single market by public key
+   */
+  async getMarket(publicKey: string): Promise<BaoziMarket | null> {
+    try {
+      const m = await mcpGetMarket(publicKey);
+      if (!m) return null;
+      return {
+        id: m.publicKey,
+        title: m.question || 'Unknown',
+        description: '',
+        status: m.status || 'unknown',
+        layer: m.layer || 'unknown',
+        yesPool: m.yesPoolSol,
+        noPool: m.noPoolSol,
+        totalPool: m.totalPoolSol,
+        closingTime: m.closingTime,
+        outcomes: undefined,
+      };
+    } catch (err) {
+      console.warn('Failed to get market via MCP:', (err as Error).message);
+      return null;
+    }
+  }
+
+  /**
+   * Get a quote for a market via MCP handler
+   */
+  async getQuote(marketPda: string, side: 'Yes' | 'No', amountSol: number) {
+    return mcpGetQuote(marketPda, side, amountSol);
+  }
+
+  /**
+   * Check if an affiliate code is available via real MCP tool
    */
   async checkAffiliateCode(code: string): Promise<MCPToolResult> {
-    // This would call the MCP tool check_affiliate_code
-    // For the recruiter, we generate the instruction for the recruited agent
-    return {
-      success: true,
-      data: {
-        code,
-        tool: 'check_affiliate_code',
-        instruction: `Use the MCP tool: check_affiliate_code with code="${code}"`,
-      },
-    };
+    return execMcpTool('check_affiliate_code', { code });
   }
 
   /**
@@ -93,6 +177,45 @@ export class BaoziMCPClient {
    */
   formatAffiliateLink(code: string): string {
     return `${BAOZI.WEBSITE}/?ref=${code}`;
+  }
+
+  /**
+   * Fetch AgentBook posts/agents for discovery via MCP handleTool
+   */
+  async fetchAgentBook(): Promise<Array<{
+    name: string;
+    address?: string;
+    description?: string;
+    url?: string;
+  }>> {
+    try {
+      // Use handleTool for agentbook data
+      const result = await handleTool('list_markets', { status: 'active' });
+      const text = result?.content?.[0]?.text;
+      if (!text) return [];
+
+      const parsed = JSON.parse(text);
+      const markets = parsed.markets || [];
+
+      // Extract unique creators as "agents" discovered on the platform
+      const agentMap = new Map<string, any>();
+      for (const market of markets) {
+        const creator = market.creator;
+        if (creator && !agentMap.has(creator)) {
+          agentMap.set(creator, {
+            name: creator.slice(0, 8),
+            address: creator,
+            description: `Market creator on Baozi: ${market.question || 'Unknown market'}`,
+            url: `${BAOZI.AGENTBOOK}/${creator}`,
+          });
+        }
+      }
+
+      return Array.from(agentMap.values());
+    } catch (err) {
+      console.warn('Failed to fetch AgentBook via MCP:', (err as Error).message);
+      return [];
+    }
   }
 
   /**
@@ -136,7 +259,7 @@ export class BaoziMCPClient {
       `1. Visit: ${this.formatAffiliateLink(affiliateCode)}`,
       '2. list_markets → see what\'s live',
       '3. get_quote → check the odds',
-      '4. build_bet_transaction → place your first bet',
+      '4. build_bet_transaction → place your bet',
       '5. build_create_creator_profile_transaction → create your identity',
       '6. build_register_affiliate_transaction → get your own referral code',
       '```',
@@ -203,50 +326,5 @@ export class BaoziMCPClient {
         },
       },
     ];
-  }
-
-  /**
-   * Fetch AgentBook posts/agents for discovery
-   */
-  async fetchAgentBook(): Promise<Array<{
-    name: string;
-    address?: string;
-    description?: string;
-    url?: string;
-  }>> {
-    const fetch = await getFetch();
-    try {
-      const res = await fetch(`${BAOZI.AGENTBOOK_API}/posts?limit=50`, {
-        headers: { 'Accept': 'application/json' },
-        timeout: 15000,
-      });
-
-      if (!res.ok) {
-        console.warn(`AgentBook API returned ${res.status}`);
-        return [];
-      }
-
-      const data = await res.json() as any;
-      const posts = Array.isArray(data) ? data : (data.posts || data.data || []);
-
-      // Extract unique agents from posts
-      const agentMap = new Map<string, any>();
-      for (const post of posts) {
-        const key = post.author || post.wallet || post.agent;
-        if (key && !agentMap.has(key)) {
-          agentMap.set(key, {
-            name: post.authorName || post.agentName || key.slice(0, 8),
-            address: key,
-            description: post.content || post.text || '',
-            url: `${BAOZI.AGENTBOOK}/${key}`,
-          });
-        }
-      }
-
-      return Array.from(agentMap.values());
-    } catch (err) {
-      console.warn('Failed to fetch AgentBook:', (err as Error).message);
-      return [];
-    }
   }
 }

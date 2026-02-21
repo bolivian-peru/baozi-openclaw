@@ -1,12 +1,12 @@
-import { DiscoveredAgent } from '../types';
-import { BaoziMCPClient } from '../mcp/client';
-import { classifyAgentType } from './classifier';
+import type { DiscoveredAgent } from '../types.js';
+import { BaoziMCPClient } from '../mcp/client.js';
+import { classifyAgentType } from './classifier.js';
 
 /**
- * Discover agents from Baozi AgentBook
+ * Discover agents from Baozi AgentBook via MCP handlers
  * 
- * Scans the AgentBook social board for active agents
- * that could benefit from prediction market trading.
+ * Uses real @baozi.bet/mcp-server handlers to scan the AgentBook
+ * for active agents that could benefit from prediction market trading.
  */
 export async function discoverFromAgentBook(
   client: BaoziMCPClient,

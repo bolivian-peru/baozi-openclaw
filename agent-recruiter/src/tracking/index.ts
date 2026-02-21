@@ -1,2 +1,2 @@
-export { TrackingStore } from './store';
-export { formatDashboard, formatAgentProfile } from './dashboard';
+export { TrackingStore } from './store.js';
+export { formatDashboard, formatAgentProfile } from './dashboard.js';

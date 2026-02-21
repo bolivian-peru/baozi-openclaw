@@ -1,4 +1,4 @@
-import { RecruiterStats, RecruitedAgent } from '../types';
+import type { RecruiterStats, RecruitedAgent } from '../types.js';
 
 /**
  * Format the recruiter dashboard as a CLI-friendly string.

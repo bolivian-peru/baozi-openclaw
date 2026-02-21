@@ -1,17 +1,17 @@
-import { DiscoveredAgent, DiscoverySource } from '../types';
-import { BaoziMCPClient } from '../mcp/client';
-import { discoverFromAgentBook } from './agentbook';
+import type { DiscoveredAgent, DiscoverySource } from '../types.js';
+import { BaoziMCPClient } from '../mcp/client.js';
+import { discoverFromAgentBook } from './agentbook.js';
 import {
   discoverFromGitHub,
   discoverFromElizaOS,
   discoverFromLangChain,
   discoverFromSolanaAgentKit,
   AGENT_DIRECTORIES,
-} from './social';
-import { classifyAgentType } from './classifier';
+} from './social.js';
+import { classifyAgentType } from './classifier.js';
 
-export { classifyAgentType } from './classifier';
-export { AGENT_DIRECTORIES } from './social';
+export { classifyAgentType } from './classifier.js';
+export { AGENT_DIRECTORIES } from './social.js';
 
 export interface DiscoveryOptions {
   sources?: DiscoverySource[];

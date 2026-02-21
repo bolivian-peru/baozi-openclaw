@@ -1,5 +1,5 @@
-import { AgentType, OutreachPitch } from '../types';
-import { BAOZI } from '../config';
+import type { AgentType, OutreachPitch } from '../types.js';
+import { BAOZI } from '../config.js';
 
 /**
  * Outreach pitch templates for different agent types.

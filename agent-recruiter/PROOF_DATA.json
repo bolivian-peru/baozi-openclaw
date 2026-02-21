@@ -1,0 +1,137 @@
+{
+  "timestamp": "2026-02-21T06:52:07.209Z",
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "wallet": "FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx",
+  "mcpPackage": "@baozi.bet/mcp-server@5.0.0",
+  "totalTests": 13,
+  "passed": 13,
+  "failed": 0,
+  "results": [
+    {
+      "name": "1. Program ID matches expected",
+      "passed": true,
+      "duration": 0,
+      "details": "Expected: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Got: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ"
+    },
+    {
+      "name": "2. Fetch live markets via handleTool('list_markets')",
+      "passed": true,
+      "duration": 442,
+      "details": "Network: mainnet-beta, Program: FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ, Markets: 20"
+    },
+    {
+      "name": "3. Direct handler: listMarkets('active')",
+      "passed": true,
+      "duration": 310,
+      "details": "Got 20 markets via direct import"
+    },
+    {
+      "name": "4. Direct handler: getMarket(publicKey)",
+      "passed": true,
+      "duration": 108,
+      "details": "Market: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: ba\" | Status: Active | Pool: 0.0000 SOL"
+    },
+    {
+      "name": "5. handleTool('check_affiliate_code')",
+      "passed": true,
+      "duration": 1,
+      "details": "Code check: taken | Code: RECRUITER_TEST_12345"
+    },
+    {
+      "name": "6. handleTool('get_positions') for wallet",
+      "passed": true,
+      "duration": 265,
+      "details": "Positions: 0 for wallet FdWWx9pF..."
+    },
+    {
+      "name": "7. execMcpTool('list_markets') wrapper",
+      "passed": true,
+      "duration": 151,
+      "details": "Got 20 markets via execMcpTool"
+    },
+    {
+      "name": "8. BaoziMCPClient.listMarkets() — real MCP data",
+      "passed": true,
+      "duration": 328,
+      "details": "Got 5 markets. First: \"Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. \" | Pool: 0.0000 SOL"
+    },
+    {
+      "name": "9. AgentRecruiter.listMarkets() — end-to-end",
+      "passed": true,
+      "duration": 300,
+      "details": "Recruiter fetched 5 live markets from Solana mainnet"
+    },
+    {
+      "name": "10. Full onboarding flow with real MCP handlers",
+      "passed": true,
+      "duration": 437,
+      "details": "Status: active | Notes: 9 | Market: Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. "
+    },
+    {
+      "name": "11. Direct handler: getQuote() for live market",
+      "passed": true,
+      "duration": 76,
+      "details": "Market: 7SWR3gkS... | Valid: true | Odds: 100.00"
+    },
+    {
+      "name": "12. Agent classifier identifies types",
+      "passed": true,
+      "duration": 0,
+      "details": "crypto-analyst: crypto-analyst, trading-bot: trading-bot, social-agent: social-agent"
+    },
+    {
+      "name": "13. Dashboard renders with real data",
+      "passed": true,
+      "duration": 1,
+      "details": "Dashboard rendered: 1283 chars"
+    }
+  ],
+  "liveMarketsSample": [
+    {
+      "pda": "7SWR3gkSQ5QfTFkezK1e2MkMc3vFx23ZhSmF7EvW1Byj",
+      "question": "Will \"Sinners\" win BAFTA Best Film 2026? (Feb 22. Source: bafta.org)",
+      "status": "Active",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-21T12:00:00.000Z"
+    },
+    {
+      "pda": "9SVkyP5RTiLNukCJhp9UiGTxmVwJwBZyrxx2ppX7RcxL",
+      "question": "Will ETH be above $2800 on 2026-02-25?",
+      "status": "Active",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z"
+    },
+    {
+      "pda": "6HUCrzspwETL6jNrGv5SXwCCp8K9GKNhE3WPNnYyWAcD",
+      "question": "Will SOL close above $170 on 2026-02-25?",
+      "status": "Active",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z"
+    },
+    {
+      "pda": "9frURmcwHWCnbma7bs2ChfpxpBYmDRvHGJ5HzwNqVrzG",
+      "question": "Will BTC be above $100K on 2026-02-25?",
+      "status": "Active",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-25T04:32:21.000Z"
+    },
+    {
+      "pda": "HASHBqZ6T7d1DDCDFwHYfSGpFoKqCg7CdfMCoKQgmNTS",
+      "question": "Will \"Show HN: Micasa – track your house from the terminal\" be covered by a major news outlet (NYT, BBC, CNN, Reuters) before 2026-02-27?",
+      "status": "Active",
+      "yesPercent": 50,
+      "noPercent": 50,
+      "totalPoolSol": 0,
+      "closingTime": "2026-02-26T08:09:04.000Z"
+    }
+  ]
+}

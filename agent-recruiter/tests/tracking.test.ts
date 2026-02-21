@@ -1,9 +1,9 @@
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
-import { TrackingStore } from '../src/tracking/store';
-import { formatDashboard } from '../src/tracking/dashboard';
-import { RecruitedAgent } from '../src/types';
+import { TrackingStore } from '../src/tracking/store.js';
+import { formatDashboard } from '../src/tracking/dashboard.js';
+import type { RecruitedAgent } from '../src/types.js';
 
 describe('Tracking', () => {
   let tmpDir: string;

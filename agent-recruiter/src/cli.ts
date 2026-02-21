@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { AgentRecruiter } from './recruiter';
-import { AgentType } from './types';
+import { AgentRecruiter } from './recruiter.js';
+import { PROGRAM_ID, NETWORK } from './mcp/index.js';
+import type { AgentType } from './types.js';
 
 const program = new Command();
 
 program
   .name('baozi-recruiter')
-  .description('🥟 Baozi Agent Recruiter — AI that onboards other agents to trade')
-  .version('1.0.0');
+  .description('🥟 Baozi Agent Recruiter — AI that onboards other agents to trade (powered by @baozi.bet/mcp-server)')
+  .version('2.0.0');
 
 // ─── DISCOVER ──────────────────────────────────────────────────
 
@@ -21,7 +22,8 @@ program
   .option('-l, --limit <limit>', 'Max agents per source', '20')
   .action(async (opts) => {
     const recruiter = new AgentRecruiter();
-    console.log('\n🔍 Discovering agents...\n');
+    console.log('\n🔍 Discovering agents...');
+    console.log(`   Network: ${String(NETWORK)} | Program: ${String(PROGRAM_ID)}\n`);
 
     const sources = opts.sources.split(',').map((s: string) => s.trim());
     const agents = await recruiter.discover({
@@ -88,7 +90,7 @@ program
 
 program
   .command('onboard')
-  .description('Onboard a new agent to Baozi')
+  .description('Onboard a new agent to Baozi (uses real MCP handlers)')
   .requiredOption('-n, --name <name>', 'Agent name')
   .option('-d, --description <desc>', 'Agent description', '')
   .option('-w, --wallet <wallet>', 'Agent wallet address')
@@ -97,7 +99,8 @@ program
   .action(async (opts) => {
     const recruiter = new AgentRecruiter({ dryRun: opts.dryRun });
 
-    console.log(`\n🥟 Onboarding agent: ${opts.name}\n`);
+    console.log(`\n🥟 Onboarding agent: ${opts.name}`);
+    console.log(`   Network: ${String(NETWORK)} | Program: ${String(PROGRAM_ID)}\n`);
 
     // Add the agent
     const recruited = recruiter.addAgent(
@@ -186,27 +189,29 @@ program
 
 program
   .command('markets')
-  .description('List active Baozi prediction markets')
+  .description('List active Baozi prediction markets (LIVE from Solana mainnet)')
   .option('-l, --limit <limit>', 'Number of markets to show', '10')
   .action(async (opts) => {
     const recruiter = new AgentRecruiter();
-    console.log('\n📊 Fetching active markets...\n');
+    console.log('\n📊 Fetching active markets from Solana mainnet...');
+    console.log(`   Network: ${String(NETWORK)} | Program: ${String(PROGRAM_ID)}\n`);
 
     const markets = await recruiter.listMarkets(parseInt(opts.limit, 10));
 
     if (markets.length === 0) {
-      console.log('No markets found or API unavailable.\n');
+      console.log('No markets found.\n');
       return;
     }
 
     for (const market of markets) {
       console.log(`  [${market.status}] ${market.title}`);
-      if (market.totalPool) {
-        console.log(`    Pool: ${market.totalPool.toFixed(2)} SOL`);
+      if (market.totalPool !== undefined) {
+        console.log(`    Pool: ${market.totalPool.toFixed(4)} SOL`);
       }
-      console.log(`    ID: ${market.id}`);
+      console.log(`    PDA: ${market.id}`);
       console.log('');
     }
+    console.log(`Total: ${markets.length} active markets\n`);
   });
 
 // ─── SETUP ─────────────────────────────────────────────────────
@@ -225,19 +230,33 @@ program
 
 program
   .command('demo')
-  .description('Run a full demo: discover → pitch → onboard → dashboard')
+  .description('Run a full demo: discover → pitch → onboard → dashboard (with LIVE market data)')
   .option('-c, --code <code>', 'Affiliate code', process.env.RECRUITER_AFFILIATE_CODE || 'RECRUITER')
   .action(async (opts) => {
     const recruiter = new AgentRecruiter({
       affiliateCode: opts.code,
-      dryRun: true,
+      dryRun: false, // Use real MCP handlers
     });
 
-    console.log('\n🥟 BAOZI AGENT RECRUITER — FULL DEMO\n');
+    console.log('\n🥟 BAOZI AGENT RECRUITER — FULL DEMO');
+    console.log(`   Network: ${String(NETWORK)} | Program: ${String(PROGRAM_ID)}`);
     console.log('═'.repeat(60));
 
-    // Step 1: Discovery
-    console.log('\n📡 STEP 1: AGENT DISCOVERY\n');
+    // Step 1: Show live markets
+    console.log('\n📊 STEP 1: LIVE MARKETS FROM SOLANA MAINNET\n');
+    const markets = await recruiter.listMarkets(5);
+    if (markets.length > 0) {
+      for (const m of markets) {
+        console.log(`  • ${m.title}`);
+        console.log(`    Pool: ${m.totalPool?.toFixed(4)} SOL | Status: ${m.status}`);
+      }
+    } else {
+      console.log('  (No active markets found)');
+    }
+
+    // Step 2: Discovery
+    console.log('\n' + '═'.repeat(60));
+    console.log('\n📡 STEP 2: AGENT DISCOVERY\n');
     console.log('Scanning GitHub for AI agent projects...\n');
 
     const discovered = await recruiter.discover({
@@ -248,9 +267,9 @@ program
 
     console.log(`Found ${discovered.length} potential agents to recruit.\n`);
 
-    // Step 2: Pitch generation
+    // Step 3: Pitch generation
     console.log('═'.repeat(60));
-    console.log('\n📨 STEP 2: OUTREACH PITCHES\n');
+    console.log('\n📨 STEP 3: OUTREACH PITCHES\n');
 
     const types = recruiter.listPitchTypes();
     console.log(`Available pitch types: ${types.map(t => `${t.type} (${t.variants} variants)`).join(', ')}\n`);
@@ -261,11 +280,10 @@ program
     console.log(`  Variant: ${samplePitch.variant}`);
     console.log(`  Link: ${samplePitch.affiliateLink}\n`);
 
-    // Step 3: Onboarding
+    // Step 4: Onboarding with real MCP
     console.log('═'.repeat(60));
-    console.log('\n🚀 STEP 3: AGENT ONBOARDING\n');
+    console.log('\n🚀 STEP 4: AGENT ONBOARDING (REAL MCP HANDLERS)\n');
 
-    // Onboard a demo agent
     const demoAgent = recruiter.addAgent(
       'DemoTrader',
       'A demo trading bot for showcase purposes',
@@ -284,15 +302,19 @@ program
     });
 
     console.log(`\nFinal status: ${result.status}`);
+    console.log('Notes:');
+    for (const note of result.notes) {
+      console.log(`  • ${note}`);
+    }
 
     // Simulate some activity
     recruiter.recordBet(result.id, 2.5);
     recruiter.recordBet(result.id, 1.0);
     recruiter.recordBet(result.id, 5.0);
 
-    // Step 4: Dashboard
+    // Step 5: Dashboard
     console.log('\n' + '═'.repeat(60));
-    console.log('\n📊 STEP 4: TRACKING DASHBOARD\n');
+    console.log('\n📊 STEP 5: TRACKING DASHBOARD\n');
     console.log(recruiter.getDashboard());
 
     // Show affiliate link

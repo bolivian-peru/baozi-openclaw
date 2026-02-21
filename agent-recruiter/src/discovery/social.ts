@@ -1,14 +1,5 @@
-import { DiscoveredAgent } from '../types';
-import { classifyAgentType } from './classifier';
-
-// Use dynamic import for node-fetch (CJS compat)
-let fetchFn: typeof import('node-fetch').default;
-async function getFetch() {
-  if (!fetchFn) {
-    fetchFn = (await import('node-fetch')).default;
-  }
-  return fetchFn;
-}
+import type { DiscoveredAgent } from '../types.js';
+import { classifyAgentType } from './classifier.js';
 
 /**
  * Social platform discovery sources
@@ -25,19 +16,18 @@ export async function discoverFromGitHub(
   query: string = 'AI agent solana trading',
   limit: number = 20,
 ): Promise<DiscoveredAgent[]> {
-  const fetch = await getFetch();
   try {
     const res = await fetch(
       `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=updated&per_page=${limit}`,
       {
         headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'BaoziAgentRecruiter/1.0',
+          'User-Agent': 'BaoziAgentRecruiter/2.0',
           ...(process.env.GITHUB_TOKEN
             ? { 'Authorization': `token ${process.env.GITHUB_TOKEN}` }
             : {}),
         },
-        timeout: 15000,
+        signal: AbortSignal.timeout(15000),
       },
     );
 
@@ -72,9 +62,6 @@ export async function discoverFromGitHub(
 
 /**
  * Discover agents from ElizaOS ecosystem
- * 
- * Scans the ElizaOS GitHub organization and related repos
- * for agents that could be onboarded to Baozi.
  */
 export async function discoverFromElizaOS(): Promise<DiscoveredAgent[]> {
   return discoverFromGitHub('elizaos agent plugin', 15);

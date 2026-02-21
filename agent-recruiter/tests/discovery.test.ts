@@ -1,5 +1,5 @@
-import { classifyAgentType } from '../src/discovery/classifier';
-import { createManualAgent } from '../src/discovery';
+import { classifyAgentType } from '../src/discovery/classifier.js';
+import { createManualAgent } from '../src/discovery/index.js';
 
 describe('Agent Discovery', () => {
   describe('classifyAgentType', () => {

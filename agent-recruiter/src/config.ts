@@ -1,4 +1,4 @@
-import { RecruiterConfig } from './types';
+import { RecruiterConfig } from './types.js';
 import * as path from 'path';
 
 /**
@@ -10,7 +10,8 @@ export function loadConfig(overrides: Partial<RecruiterConfig> = {}): RecruiterC
       || process.env.RECRUITER_AFFILIATE_CODE
       || 'RECRUITER',
     walletAddress: overrides.walletAddress
-      || process.env.SOLANA_WALLET_ADDRESS,
+      || process.env.SOLANA_WALLET_ADDRESS
+      || 'FdWWx9pFvgxoE3e45dofAJ9gqygTzvHhqmUMwEdP3Nzx',
     rpcUrl: overrides.rpcUrl
       || process.env.SOLANA_RPC_URL
       || 'https://api.mainnet-beta.solana.com',

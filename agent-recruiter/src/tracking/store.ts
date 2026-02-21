@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {
+import type {
   RecruitedAgent,
   RecruiterStats,
   DiscoveredAgent,
   DiscoverySource,
   OnboardingStatus,
-} from '../types';
+} from '../types.js';
 
 /**
  * Persistent store for recruited agents and tracking data.

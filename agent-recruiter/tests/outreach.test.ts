@@ -3,8 +3,8 @@ import {
   generateAllPitches,
   listPitchTypes,
   getPitchVariants,
-} from '../src/outreach/templates';
-import { AgentType } from '../src/types';
+} from '../src/outreach/templates.js';
+import type { AgentType } from '../src/types.js';
 
 describe('Outreach Templates', () => {
   const affiliateCode = 'TEST_RECRUITER';

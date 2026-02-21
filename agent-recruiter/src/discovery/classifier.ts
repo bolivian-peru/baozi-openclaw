@@ -1,4 +1,4 @@
-import { AgentType } from '../types';
+import type { AgentType } from '../types.js';
 
 /**
  * Classify an agent's type based on name and description.
