@@ -1,0 +1,17 @@
+{
+  "name": "eliza-plugin-baozi",
+  "version": "1.0.0",
+  "description": "Baozi.bet prediction markets plugin for ElizaOS",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@elizaos/core": "latest",
+    "@solana/web3.js": "^1.91.0",
+    "bs58": "^5.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
