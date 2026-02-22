@@ -1,0 +1,20 @@
+{
+  "name": "share-card-viral-engine",
+  "version": "1.0.0",
+  "description": "Share Card Viral Engine - Auto-generate and distribute share cards for Baozi markets",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "npm run build && node dist/index.js",
+    "build": "tsc",
+    "dev": "tsc && node dist/index.js",
+    "generate": "npm run build && node dist/demo.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
