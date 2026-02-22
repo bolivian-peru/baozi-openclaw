@@ -1,0 +1,38 @@
+{
+  "created_at": "2026-02-22T02:03:31Z",
+  "wallet": "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+  "network": "mainnet-beta",
+  "program": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "markets": [
+    {
+      "question": "Will パンチ (Punch) (PUNCH) be listed on Binance or Coinbase before 2026-03-04?",
+      "category": "crypto",
+      "source": "coingecko",
+      "tx": "3RkEVSPoqfbjCRpn55yYndNP4jZBtmb2RHfobkZXFxgz3AmRmQiqRvQEihpXQNKieUBUVdtGWp8D8x4RSQk5XNXw",
+      "explorer": "https://solscan.io/tx/3RkEVSPoqfbjCRpn55yYndNP4jZBtmb2RHfobkZXFxgz3AmRmQiqRvQEihpXQNKieUBUVdtGWp8D8x4RSQk5XNXw",
+      "type": "A",
+      "close_time": "2026-03-03T02:03:32Z",
+      "event_time": "2026-03-04T02:03:32Z"
+    },
+    {
+      "question": "Will Ribbita by Virtuals (TIBBIR) be listed on Binance or Coinbase before 2026-03-04?",
+      "category": "crypto",
+      "source": "coingecko",
+      "tx": "5Hj1a3QWk54LP3CXcAnbcvGVFf7MenXKQH3Htdj4WKUtZaNy6VsoiQMcARQz3WuvQ26NmuDJAuUjNENikqELW18P",
+      "explorer": "https://solscan.io/tx/5Hj1a3QWk54LP3CXcAnbcvGVFf7MenXKQH3Htdj4WKUtZaNy6VsoiQMcARQz3WuvQ26NmuDJAuUjNENikqELW18P",
+      "type": "A",
+      "close_time": "2026-03-03T02:03:32Z",
+      "event_time": "2026-03-04T02:03:32Z"
+    },
+    {
+      "question": "Will 'How far back in time can you understand English?' be covered by a major news outlet (NYT, BBC, CNN, Reuters) before 2026-03-01?",
+      "category": "economic",
+      "source": "hackernews",
+      "tx": "23kF4jye65JikpVDi7LrnkjMdRM3AqvEKRXENhfo4CrfBPWHN4L6sAemj1YS9aiq8LDKDcwwQ8kdHwBUbBAvuZqY",
+      "explorer": "https://solscan.io/tx/23kF4jye65JikpVDi7LrnkjMdRM3AqvEKRXENhfo4CrfBPWHN4L6sAemj1YS9aiq8LDKDcwwQ8kdHwBUbBAvuZqY",
+      "type": "A",
+      "close_time": "2026-02-28T02:03:32Z",
+      "event_time": "2026-03-01T02:03:32Z"
+    }
+  ]
+}

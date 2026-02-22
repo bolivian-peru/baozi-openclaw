@@ -77,4 +77,5 @@ export interface CreatedMarket {
   closingTime: Date;
   createdAt: Date;
   trendId: string;
+  shareCardUrl?: string;
 }

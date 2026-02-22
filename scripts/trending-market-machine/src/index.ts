@@ -7,6 +7,7 @@ import { CONFIG } from "./config.ts";
 import { fetchCoinGeckoTrends } from "./sources/coingecko.ts";
 import { fetchHackerNewsTrends } from "./sources/hackernews.ts";
 import { fetchRSSFeeds } from "./sources/rss.ts";
+import { fetchRedditTrends } from "./sources/reddit.ts";
 import { generateBatch } from "./market/generator.ts";
 import { validateMarket } from "./market/validator.ts";
 import { createLabMarket, closeMCP } from "./market/creator.ts";
@@ -19,16 +20,17 @@ async function detectTrends() {
   console.log(`Time: ${new Date().toISOString()}`);
 
   // Fetch from all sources in parallel
-  const [cgTrends, hnTrends, rssTrends] = await Promise.all([
+  const [cgTrends, hnTrends, rssTrends, redditTrends] = await Promise.all([
     fetchCoinGeckoTrends().catch((e) => { console.error("CoinGecko:", e.message); return []; }),
     fetchHackerNewsTrends().catch((e) => { console.error("HN:", e.message); return []; }),
     fetchRSSFeeds().catch((e) => { console.error("RSS:", e.message); return []; }),
+    fetchRedditTrends().catch((e) => { console.error("Reddit:", e.message); return []; }),
   ]);
 
-  console.log(`Sources: CoinGecko=${cgTrends.length}, HN=${hnTrends.length}, RSS=${rssTrends.length}`);
+  console.log(`Sources: CoinGecko=${cgTrends.length}, HN=${hnTrends.length}, RSS=${rssTrends.length}, Reddit=${redditTrends.length}`);
 
   // Merge and deduplicate
-  const allTopics = mergeTopics([...cgTrends, ...hnTrends, ...rssTrends]);
+  const allTopics = mergeTopics([...cgTrends, ...hnTrends, ...rssTrends, ...redditTrends]);
   console.log(`Total unique topics: ${allTopics.length}`);
 
   // Filter out already-seen topics

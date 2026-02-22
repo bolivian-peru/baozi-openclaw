@@ -123,8 +123,10 @@ export async function checkDuplicateMarket(question: string): Promise<boolean> {
       signal: AbortSignal.timeout(10000),
     });
     if (!resp.ok) {
-      console.warn(`Duplicate check API returned ${resp.status} — treating as potential duplicate`);
-      return true;
+      // 500 = server error — don't block on server issues, proceed with creation
+      // 404 = no markets yet — definitely not a duplicate
+      console.warn(`Duplicate check API returned ${resp.status} — proceeding`);
+      return false;
     }
     const data: unknown = await resp.json();
     const markets: Array<Record<string, string>> = Array.isArray(data) ? data : (data as Record<string, unknown>).markets as Array<Record<string, string>> || [];
@@ -137,8 +139,9 @@ export async function checkDuplicateMarket(question: string): Promise<boolean> {
       if (similarity > 0.6) return true;
     }
   } catch (err) {
-    console.warn("Duplicate check failed:", (err as Error).message, "— treating as potential duplicate");
-    return true;
+    // Network errors should not block market creation
+    console.warn("Duplicate check failed:", (err as Error).message, "— proceeding");
+    return false;
   }
 
   return false;
@@ -282,9 +285,79 @@ export async function createLabMarket(
     };
 
     console.log(`  Market created! PDA: ${marketPda}`);
+
+    // Step 4: Generate share card
+    const shareCardUrl = await generateShareCard(mcp, marketPda, market.question);
+    if (shareCardUrl) {
+      console.log(`  Share card: ${shareCardUrl}`);
+      result.shareCardUrl = shareCardUrl;
+    }
+
+    // Step 5: Post to AgentBook
+    await postToAgentBook(
+      walletKeypair.publicKey.toBase58(),
+      market.question,
+      marketPda,
+      shareCardUrl
+    );
+
     return result;
   } catch (err) {
     console.error("  Market creation failed:", (err as Error).message);
     return null;
+  }
+}
+
+// ─── Share card generation ─────────────────────────────────────────────────
+
+export async function generateShareCard(
+  mcp: MCPClient,
+  marketPda: string,
+  question: string
+): Promise<string | null> {
+  try {
+    console.log("  Generating share card...");
+    const result = await mcp.callTool("generate_share_card", {
+      market_pda: marketPda,
+      question,
+    });
+    const text = (result.content || []).map((c) => c.text || "").join("\n");
+    console.log(`  Share card response: ${text.slice(0, 200)}`);
+    // Extract image URL from response
+    const urlMatch = text.match(/https?:\/\/[^\s"']+(?:\.png|\.jpg|\.gif|share[^\s"']*)/i);
+    return urlMatch ? urlMatch[0] : null;
+  } catch (err) {
+    console.warn("  Share card failed:", (err as Error).message);
+    return null;
+  }
+}
+
+// ─── AgentBook posting ─────────────────────────────────────────────────────
+
+export async function postToAgentBook(
+  walletAddress: string,
+  question: string,
+  marketPda: string,
+  shareCardUrl: string | null
+): Promise<void> {
+  const content = shareCardUrl
+    ? `🥟 New prediction market live: "${question.slice(0, 100)}" — Trade now: https://baozi.bet/markets/${marketPda} ${shareCardUrl}`
+    : `🥟 New prediction market live: "${question.slice(0, 100)}" — Trade now: https://baozi.bet/markets/${marketPda}`;
+
+  try {
+    const resp = await fetch(`${CONFIG.BAOZI_API}/agentbook/posts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ walletAddress, content }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (resp.ok) {
+      console.log("  AgentBook: posted announcement");
+    } else {
+      const body = await resp.text();
+      console.warn(`  AgentBook: ${resp.status} — ${body.slice(0, 100)}`);
+    }
+  } catch (err) {
+    console.warn("  AgentBook post failed:", (err as Error).message);
   }
 }
