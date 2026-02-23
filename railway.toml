@@ -3,6 +3,5 @@
   dockerfilePath = "trending-market-machine/Dockerfile"
 
 [deploy]
-  startCommand = "node dist/index.js"
-  healthcheckPath = "/health"
+  startCommand = "node dist/cli.js watch"
   restartPolicyType = "on_failure"
