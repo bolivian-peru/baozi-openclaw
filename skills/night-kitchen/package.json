@@ -1,0 +1,22 @@
+{
+  "name": "baozi-night-kitchen",
+  "version": "1.0.0",
+  "description": "bilingual prediction market report agent — english + chinese with traditional proverbs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:dry": "node dist/index.js --dry-run",
+    "dev": "ts-node src/index.ts",
+    "dev:dry": "ts-node src/index.ts --dry-run"
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^4.0.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
