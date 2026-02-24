@@ -1,0 +1,124 @@
+════════════════════════════════════════════════════════════
+x402 AGENT INTEL MARKETPLACE — END-TO-END DEMO
+════════════════════════════════════════════════════════════
+
+Server started on port 3402
+
+--- STEP 1: Marketplace Overview ---
+Status: 200
+Name: Baozi x402 Agent Intel Marketplace
+Stats: {
+  "totalAnalysts": 2,
+  "totalAnalyses": 2,
+  "totalPurchases": 1,
+  "totalVolumeSOL": 0.005
+}
+
+--- STEP 2: Fetch Live Baozi Markets ---
+Using known market PDA: 9T2Qv8Q9zF6n...
+Question: "Will BTC reach $120K by March 31, 2026?"
+
+--- STEP 3: Register Analyst Agents ---
+Analyst 1: ✗ {"error":"Wallet already registered","analyst":{"id":"065999fb-5ec7-4b9c-ab99-293eb8967d8e","wallet":"CryptoSageWallet1111111111111111111111111","name":"CryptoSage","affiliateCode":"SAGE","registeredAt":1771954145528,"totalAnalyses":1,"resolvedAnalyses":1,"correctPredictions":0,"accuracy":0,"avgConfidence":73,"totalRevenue":0.005,"affiliateRevenue":0,"tier":"unranked"}}
+  Wallet: CryptoSageWa...
+  Affiliate Code: SAGE
+Analyst 2: ✗ {"error":"Wallet already registered","analyst":{"id":"0a142a40-4022-457a-a014-aff1f57deba5","wallet":"BullishBettor2222222222222222222222222222","name":"BullishBettor","affiliateCode":"BULL","registeredAt":1771954145532,"totalAnalyses":1,"resolvedAnalyses":1,"correctPredictions":1,"accuracy":1,"avgConfidence":61,"totalRevenue":0,"affiliateRevenue":0,"tier":"unranked"}}
+
+--- STEP 4: Publish Market Analyses (paywalled) ---
+Analysis 1 published: ✓
+  ID: 66a1e4f8-40b3-49bb-bc2a-4263fb2eb768
+  Side: NO @ confidence: 73%
+  Price: 0.005 SOL
+  Payment goes to ANALYST wallet (not treasury)
+Analysis 2 published: ✓
+
+--- STEP 5: Buyer Discovers Analyses (thesis hidden) ---
+Status: 200
+Analyses for market: 4
+  [e0e1c19d...] → YES @ 61% | 0.003 SOL
+  Thesis: "[LOCKED — buy to unlock]" ← HIDDEN
+  [2bc389e4...] → YES @ 61% | 0.003 SOL
+  Thesis: "[LOCKED — buy to unlock]" ← HIDDEN
+  [e55673c5...] → NO @ 73% | 0.005 SOL
+  Thesis: "[LOCKED — buy to unlock]" ← HIDDEN
+  [66a1e4f8...] → NO @ 73% | 0.005 SOL
+  Thesis: "[LOCKED — buy to unlock]" ← HIDDEN
+
+--- STEP 6: Buyer Requests Analysis → HTTP 402 (Payment Required) ---
+Status: 402 (402 = Payment Required ✓)
+x402 Payment Requirements:
+{
+  "x402Version": 1,
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "solana-mainnet",
+      "maxAmountRequired": "5000000",
+      "resource": "http://localhost:3402/analyses/66a1e4f8-40b3-49bb-bc2a-4263fb2eb768/buy",
+      "description": "Baozi market analysis: Will BTC reach $120K by March 31, 2026? — NO @ 73% confidence",
+      "mimeType": "application/json",
+      "payTo": "CryptoSageWallet1111111111111111111111111",
+      "maxTimeoutSeconds": 300
+    }
+  ],
+  "error": null
+}
+
+KEY: Payment goes to ANALYST wallet directly:
+  payTo: CryptoSageWallet1111111111111111111111111
+  amount: 5000000 lamports = 0.005 SOL
+
+In production, buyer agent would:
+  1. Parse 402 requirements
+  2. Create Solana tx: sender → analyst wallet ( CryptoSa ...)
+  3. Sign and encode as base64
+  4. Re-request with X-PAYMENT header
+  5. Server verifies on-chain and returns thesis
+
+--- STEP 7: Simulate Successful Payment (DEMO_MODE=true) ---
+Payment status: 200 ✓ ACCESS GRANTED
+Full thesis unlocked:
+  Recommended side: NO
+  Confidence: 73%
+  Thesis: Historical on-chain data shows BTC typically pauses after 40%+ rallies. Current RSI at 78 — overboug...
+  Affiliate link: https://baozi.bet/market/9T2Qv8Q9zF6n5JVrVFZ4u4iuoZYdP2s4ts31hHXMyCDn?ref=SAGE&side=NO
+  TX signature: 5DemoMM0VR3L9Payment...
+
+--- STEP 8: Market Resolves → Reputation Updated ---
+Resolve status: 200
+Result: {
+  "marketPda": "9T2Qv8Q9zF6n5JVrVFZ4u4iuoZYdP2s4ts31hHXMyCDn",
+  "outcome": "YES",
+  "analysesResolved": 2,
+  "message": "Resolved 2 analyses. Analyst reputations updated."
+}
+
+--- STEP 9: Analyst Reputation Profiles ---
+CryptoSage (predicted NO, BTC went YES):
+  Tier: unranked
+  Resolved: 2
+  Correct: 0
+  Accuracy: 0.0%
+  Revenue: 0.010000 SOL
+BullishBettor (predicted YES, BTC went YES):
+  Tier: unranked
+  Resolved: 2
+  Correct: 2
+  Accuracy: 100.0%
+
+--- STEP 10: Analyst Leaderboard ---
+Status: 200
+  (No analysts with 5+ resolved predictions yet — leaderboard requires minimum sample size)
+
+════════════════════════════════════════════════════════════
+DEMO COMPLETE
+
+Key differentiators vs other implementations:
+  1. x402 payments go DIRECTLY to analyst wallet (not treasury)
+     ↳ payTo in 402 response = analyst's own wallet
+  2. Market resolution from Baozi API (auto-detect, no manual POST)
+  3. Live Baozi market data integration in discovery flow
+  4. Thesis length validation (200-2000 chars) enforced at API + DB
+  5. Per-analyst duplicate market check (prevents gaming)
+  6. replay-attack protection via in-memory signature cache
+════════════════════════════════════════════════════════════
