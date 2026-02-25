@@ -1,0 +1,10 @@
+test_baozi_issue40_filter (offline_delivery_v67.tests.test_offline_delivery.OfflineDeliveryTests.test_baozi_issue40_filter) ... ok
+test_issue10_scaffold (offline_delivery_v67.tests.test_offline_delivery.OfflineDeliveryTests.test_issue10_scaffold) ... ok
+test_issue2_vesting (offline_delivery_v67.tests.test_offline_delivery.OfflineDeliveryTests.test_issue2_vesting) ... ok
+test_issue4_airdrop (offline_delivery_v67.tests.test_offline_delivery.OfflineDeliveryTests.test_issue4_airdrop) ... ok
+test_issue7_gas (offline_delivery_v67.tests.test_offline_delivery.OfflineDeliveryTests.test_issue7_gas) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK

@@ -1,0 +1,14 @@
+$ python3 offline_delivery_v67/paypol/issue2_token_vesting.py
+events=12 total=1200000.00000000
+
+$ python3 offline_delivery_v67/paypol/issue4_airdrop.py
+root=8d02219bed1448048a991ad7ba7f54f911fb8e9090fb633de65e68e2db8ccf51 depth=1
+
+$ python3 offline_delivery_v67/paypol/issue7_gas_estimation.py
+cheapest=base costs={'ethereum': Decimal('17.6640'), 'base': Decimal('0.1104'), 'arbitrum': Decimal('0.1987')}
+
+$ python3 offline_delivery_v67/paypol/issue10_scaffold.py
+actions= [RebalanceAction(symbol='USDC', side='SELL', quantity=Decimal('0.1198')), RebalanceAction(symbol='ETH', side='BUY', quantity=Decimal('0.1198'))]
+
+$ python3 offline_delivery_v67/baozi/issue40_solution.py
+FilterResult(accepted=True, amount_usd=Decimal('120'), reason='ok')
