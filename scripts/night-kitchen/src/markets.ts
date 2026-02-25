@@ -1,18 +1,12 @@
 /**
- * markets.ts — fetch live market data from baozi on-chain
+ * markets.ts — fetch live market data from baozi via MCP
  *
- * decodes V4.7.6 market accounts directly from Solana mainnet.
- * no API key needed — reads public on-chain state.
+ * uses @baozi.bet/mcp-server (69 tools) via stdio JSON-RPC.
+ * tools used: list_markets, list_race_markets
  */
 
-const PROGRAM_ID = "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ";
-const RPC_ENDPOINT =
-  process.env.HELIUS_RPC_URL ??
-  process.env.SOLANA_RPC_URL ??
-  "https://api.mainnet-beta.solana.com";
-
-// account discriminator for boolean markets (first 8 bytes of sha256("account:Market"))
-const MARKET_DISC = [219, 190, 213, 55, 0, 227, 198, 154];
+import { spawn, type ChildProcess } from "child_process";
+import * as readline from "readline";
 
 export interface BooleanMarket {
   type: "boolean";
@@ -45,95 +39,7 @@ export interface RaceMarket {
 
 export type Market = BooleanMarket | RaceMarket;
 
-const STATUS_NAMES: Record<number, string> = {
-  0: "active",
-  1: "closed",
-  2: "resolved",
-  3: "voided",
-  4: "disputed",
-};
-
-function lamportsToSol(lamports: bigint): number {
-  return Number(lamports) / 1e9;
-}
-
-function round4(n: number): number {
-  return Math.round(n * 10000) / 10000;
-}
-
-async function rpcCall(method: string, params: unknown[]): Promise<unknown> {
-  const resp = await fetch(RPC_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-  });
-  const json = (await resp.json()) as { result?: unknown; error?: { message: string } };
-  if (json.error) throw new Error(`rpc error: ${json.error.message}`);
-  return json.result;
-}
-
-function decodeMarket(base64Data: string, pubkey: string): BooleanMarket | null {
-  try {
-    const buf = Buffer.from(base64Data, "base64");
-
-    // verify discriminator
-    for (let i = 0; i < 8; i++) {
-      if (buf[i] !== MARKET_DISC[i]) return null;
-    }
-
-    let offset = 8;
-
-    const marketId = Number(buf.readBigUInt64LE(offset));
-    offset += 8;
-
-    const questionLen = buf.readUInt32LE(offset);
-    offset += 4;
-    const question = buf.subarray(offset, offset + questionLen).toString("utf8");
-    offset += questionLen;
-
-    const closingTime = Number(buf.readBigInt64LE(offset));
-    offset += 8;
-    const resolutionTime = Number(buf.readBigInt64LE(offset));
-    offset += 8;
-
-    // auto_stop_buffer
-    offset += 8;
-
-    const yesPool = buf.readBigUInt64LE(offset);
-    offset += 8;
-    const noPool = buf.readBigUInt64LE(offset);
-    offset += 8;
-
-    // snapshot pools
-    offset += 16;
-
-    const statusCode = buf.readUInt8(offset);
-
-    const yesPoolSol = lamportsToSol(yesPool);
-    const noPoolSol = lamportsToSol(noPool);
-    const totalPoolSol = round4(yesPoolSol + noPoolSol);
-    const yesPercent = totalPoolSol > 0 ? yesPoolSol / totalPoolSol : 0.5;
-    const noPercent = totalPoolSol > 0 ? noPoolSol / totalPoolSol : 0.5;
-
-    return {
-      type: "boolean",
-      publicKey: pubkey,
-      marketId,
-      question,
-      yesPrice: round4(yesPercent),
-      noPrice: round4(noPercent),
-      poolSol: totalPoolSol,
-      closingTime: new Date(closingTime * 1000).toISOString(),
-      eventTime: new Date(resolutionTime * 1000).toISOString(),
-      resolved: statusCode >= 2,
-      status: STATUS_NAMES[statusCode] ?? "unknown",
-      category: inferCategory(question),
-    };
-  } catch (err) {
-    console.error(`decode failed for ${pubkey}:`, err);
-    return null;
-  }
-}
+let mcpProcess: ChildProcess | null = null;
 
 function inferCategory(question: string): string {
   const q = question.toLowerCase();
@@ -144,81 +50,232 @@ function inferCategory(question: string): string {
   return "general";
 }
 
-export async function fetchMarkets(): Promise<Market[]> {
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
+}
+
+interface McpMessage {
+  jsonrpc: "2.0";
+  id?: number;
+  method?: string;
+  result?: unknown;
+  error?: { code: number; message: string };
+}
+
+async function callMcpTool(
+  proc: ChildProcess,
+  rl: readline.Interface,
+  id: number,
+  tool: string,
+  args: Record<string, unknown> = {}
+): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error(`MCP tool ${tool} timed out`)), 15000);
+
+    const handler = (line: string) => {
+      try {
+        const msg = JSON.parse(line) as McpMessage;
+        if (msg.id === id) {
+          clearTimeout(timeout);
+          rl.off("line", handler);
+          if (msg.error) {
+            reject(new Error(`MCP error: ${msg.error.message}`));
+          } else {
+            resolve(msg.result);
+          }
+        }
+      } catch {
+        // ignore non-JSON lines
+      }
+    };
+
+    rl.on("line", handler);
+
+    const request = JSON.stringify({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: { name: tool, arguments: args },
+    });
+
+    proc.stdin!.write(request + "\n");
+  });
+}
+
+async function initMcp(): Promise<{ proc: ChildProcess; rl: readline.Interface }> {
+  const proc = spawn("npx", ["@baozi.bet/mcp-server@latest"], {
+    stdio: ["pipe", "pipe", "pipe"],
+    shell: false,
+  });
+
+  mcpProcess = proc;
+
+  const rl = readline.createInterface({ input: proc.stdout! });
+
+  // wait for ready signal or just proceed after initialize
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => resolve(), 5000); // proceed after 5s regardless
+    const handler = (line: string) => {
+      try {
+        const msg = JSON.parse(line) as McpMessage;
+        if (msg.id === 1) {
+          clearTimeout(timeout);
+          rl.off("line", handler);
+          resolve();
+        }
+      } catch {
+        // ignore
+      }
+    };
+    rl.on("line", handler);
+
+    proc.on("error", (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
+
+    // send initialize
+    proc.stdin!.write(
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2024-11-05",
+          capabilities: {},
+          clientInfo: { name: "night-kitchen", version: "1.0.0" },
+        },
+      }) + "\n"
+    );
+  });
+
+  // send initialized notification
+  proc.stdin!.write(
+    JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized", params: {} }) + "\n"
+  );
+
+  return { proc, rl };
+}
+
+function parseBooleanMarket(m: Record<string, unknown>): BooleanMarket {
+  // MCP fields: yesPercent (0-100), noPercent (0-100), totalPoolSol, closingTime, status, winningOutcome
+  const yesPercent = Number(m.yesPercent ?? m.yes_pool_sol ?? m.yes_pool ?? 50);
+  const noPercent = Number(m.noPercent ?? m.no_pool_sol ?? m.no_pool ?? 50);
+  const yesPrice = round4(yesPercent / 100);
+  const noPrice = round4(noPercent / 100);
+  const poolSol = round4(Number(m.totalPoolSol ?? m.pool_sol ?? 0));
+  const status = String(m.status ?? "active").toLowerCase();
+  const resolved = status === "resolved" || m.winningOutcome != null;
+
+  return {
+    type: "boolean",
+    publicKey: String(m.publicKey ?? m.pubkey ?? ""),
+    marketId: Number(m.marketId ?? m.market_id ?? 0),
+    question: String(m.question ?? ""),
+    yesPrice,
+    noPrice,
+    poolSol,
+    closingTime: String(m.closingTime ?? m.closing_time ?? ""),
+    eventTime: String(m.eventTime ?? m.event_time ?? m.closingTime ?? ""),
+    resolved,
+    status,
+    outcome: m.winningOutcome ? String(m.winningOutcome) : undefined,
+    category: String(m.category ?? inferCategory(String(m.question ?? ""))),
+  };
+}
+
+function parseRaceMarket(m: Record<string, unknown>): RaceMarket {
+  const rawOptions = (m.options as Array<Record<string, unknown>>) ?? [];
+  const options = rawOptions.map((o) => ({
+    name: String(o.name ?? o.label ?? ""),
+    probability: round4(Number(o.probability ?? o.pct ?? o.odds ?? 0)),
+  }));
+
+  const status = String(m.status ?? "active");
+
+  return {
+    type: "race",
+    publicKey: String(m.pubkey ?? m.public_key ?? m.id ?? ""),
+    question: String(m.question ?? m.title ?? ""),
+    options,
+    poolSol: round4(Number(m.pool_sol ?? 0)),
+    closingTime: String(m.closing_time ?? m.close_time ?? ""),
+    eventTime: String(m.event_time ?? m.resolution_time ?? ""),
+    resolved: status === "resolved",
+    outcome: m.outcome ? String(m.outcome) : undefined,
+    category: String(m.category ?? inferCategory(String(m.question ?? ""))),
+  };
+}
+
+function parseToolResult(result: unknown): Market[] {
   const markets: Market[] = [];
 
-  try {
-    // base58 encode of market discriminator for memcmp filter
-    // [219, 190, 213, 55, 0, 227, 198, 154] -> base58
-    const discBase58 = "dkokXHR3DTw"; // pre-computed from [219,190,213,55,0,227,198,154]
+  // MCP returns { content: [{ type: "text", text: "..." }] }
+  const content = (result as { content?: Array<{ type: string; text?: string }> })?.content ?? [];
 
-    const result = (await rpcCall("getProgramAccounts", [
-      PROGRAM_ID,
-      {
-        encoding: "base64",
-        filters: [{ memcmp: { offset: 0, bytes: discBase58 } }],
-      },
-    ])) as Array<{ pubkey: string; account: { data: [string, string] } }>;
+  for (const item of content) {
+    if (item.type !== "text" || !item.text) continue;
 
-    if (!Array.isArray(result)) return markets;
-
-    for (const acct of result) {
-      const market = decodeMarket(acct.account.data[0], acct.pubkey);
-      if (market) markets.push(market);
-    }
-  } catch (err) {
-    console.error("rpc fetch failed:", err);
-    // try direct API as fallback
+    let data: unknown;
     try {
-      const apiMarkets = await fetchFromApi();
-      markets.push(...apiMarkets);
-    } catch (apiErr) {
-      console.error("api fallback also failed:", apiErr);
+      data = JSON.parse(item.text);
+    } catch {
+      continue;
+    }
+
+    const items = Array.isArray(data) ? data : (data as { markets?: unknown[] })?.markets ?? [];
+
+    for (const m of items as Record<string, unknown>[]) {
+      if (!m || typeof m !== "object") continue;
+
+      // detect race market by presence of options array
+      if (Array.isArray(m.options) && m.options.length > 0) {
+        markets.push(parseRaceMarket(m));
+      } else {
+        markets.push(parseBooleanMarket(m));
+      }
     }
   }
 
   return markets;
 }
 
-async function fetchFromApi(): Promise<Market[]> {
-  const markets: Market[] = [];
-  try {
-    const resp = await fetch("https://baozi.bet/api/agents/proofs");
-    if (!resp.ok) return markets;
-    const data = (await resp.json()) as {
-      proofs?: Array<{
-        market_id?: number;
-        question?: string;
-        pool_sol?: number;
-        yes_pct?: number;
-        status?: string;
-      }>;
-    };
+export async function fetchMarkets(): Promise<Market[]> {
+  let proc: ChildProcess | undefined;
+  let rl: readline.Interface | undefined;
 
-    if (data.proofs && Array.isArray(data.proofs)) {
-      for (const p of data.proofs) {
-        markets.push({
-          type: "boolean",
-          publicKey: "",
-          marketId: p.market_id ?? 0,
-          question: p.question ?? "",
-          yesPrice: (p.yes_pct ?? 50) / 100,
-          noPrice: 1 - (p.yes_pct ?? 50) / 100,
-          poolSol: p.pool_sol ?? 0,
-          closingTime: "",
-          eventTime: "",
-          resolved: p.status === "resolved",
-          status: p.status ?? "active",
-          category: inferCategory(p.question ?? ""),
-        });
-      }
+  try {
+    ({ proc, rl } = await initMcp());
+
+    const booleanResult = await callMcpTool(proc, rl, 2, "list_markets", {});
+    const booleanMarkets = parseToolResult(booleanResult);
+
+    let raceMarkets: Market[] = [];
+    try {
+      const raceResult = await callMcpTool(proc, rl, 3, "list_race_markets", {});
+      raceMarkets = parseToolResult(raceResult);
+    } catch (err) {
+      console.error("race markets fetch failed (ok):", err instanceof Error ? err.message : err);
     }
+
+    return [...booleanMarkets, ...raceMarkets];
   } catch (err) {
-    console.error("proofs api failed:", err);
+    console.error("MCP fetch failed:", err instanceof Error ? err.message : err);
+    return [];
+  } finally {
+    rl?.close();
+    if (proc) {
+      proc.stdin?.end();
+      proc.kill();
+      mcpProcess = null;
+    }
   }
-  return markets;
 }
 
 export function closeMcp(): void {
-  // no-op: we use direct RPC, no MCP process to clean up
+  if (mcpProcess) {
+    mcpProcess.stdin?.end();
+    mcpProcess.kill();
+    mcpProcess = null;
+  }
 }
