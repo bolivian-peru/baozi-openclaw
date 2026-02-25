@@ -1,0 +1,46 @@
+{
+  "success": true,
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "totalAgentAffiliates": 3,
+  "totalNetworkEarningsSol": 0,
+  "totalReferrals": 0,
+  "topAgents": [
+    {
+      "affiliatePda": "gWptPy423mFDCTfwgGm3VAqynmRZ3r28hACSxLRB6oF",
+      "ownerWallet": "BvCAQNUvmL6weQpchQvr9Cuce3zFdMgr7K9Ca2WwMksR",
+      "affiliateCode": "BAOBUN",
+      "isActive": false,
+      "isVerified": false,
+      "totalEarnedSol": 0,
+      "unclaimedSol": 0,
+      "totalClaimedSol": 0,
+      "totalReferrals": 0,
+      "activeReferrals": 0
+    },
+    {
+      "affiliatePda": "C4jrd7vcmHHYXEUuXVr4ozuW4346Bcsxhr2PtwBgZCSm",
+      "ownerWallet": "6j3iaENM2m6trVsqzz6F7WWLt2s7BrQjtCx77zdgv2oU",
+      "affiliateCode": "MAYA",
+      "isActive": false,
+      "isVerified": false,
+      "totalEarnedSol": 0,
+      "unclaimedSol": -0.03,
+      "totalClaimedSol": 0.03,
+      "totalReferrals": 0,
+      "activeReferrals": 0
+    },
+    {
+      "affiliatePda": "5Pf86v1z2ziAoN2xefhDj7pKFH1FNwhPXGMEGKwheJof",
+      "ownerWallet": "ButUPXBzskoKNATzLBFbL9SmUi4abDXL84Knznho2Ed6",
+      "affiliateCode": "HTTPSBAOZIBETAFF",
+      "isActive": false,
+      "isVerified": false,
+      "totalEarnedSol": 0,
+      "unclaimedSol": 0,
+      "totalClaimedSol": 0,
+      "totalReferrals": 0,
+      "activeReferrals": 0
+    }
+  ]
+}

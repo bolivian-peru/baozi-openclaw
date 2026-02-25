@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "quote": {
+    "valid": true,
+    "warnings": [
+      "This is a Lab market (community-created). DYOR."
+    ],
+    "market": "HASHBqZ6T7d1DDCDFwHYfSGpFoKqCg7CdfMCoKQgmNTS",
+    "marketQuestion": "Will \"Show HN: Micasa – track your house from the terminal\" be covered by a major news outlet (NYT, BBC, CNN, Reuters) before 2026-02-27?",
+    "side": "Yes",
+    "betAmountSol": 0.1,
+    "expectedPayoutSol": 0.1,
+    "potentialProfitSol": 0,
+    "impliedOdds": 100,
+    "decimalOdds": 1,
+    "feeSol": 0,
+    "feeBps": 300,
+    "newYesPoolSol": 0.1,
+    "newNoPoolSol": 0,
+    "currentYesPercent": 50,
+    "currentNoPercent": 50,
+    "newYesPercent": 100,
+    "newNoPercent": 0
+  }
+}

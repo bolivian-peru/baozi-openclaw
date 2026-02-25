@@ -1,0 +1,42 @@
+{
+  "creatorProfile": {
+    "success": true,
+    "network": "mainnet-beta",
+    "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+    "transaction": {
+      "serialized": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAIEnOI9OuspgDtQoFYC+XlFSyYHdMSUuEmzEyyuZf/OIMjAoYz4ugIgDHbeUyrU8mR2yPQly2zADVJMYyhZOEttogAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA17FLX8s/OprtHsysmE7PTOp+BqlcspkSxJEkBxtgOU0d69FThzvSbt1VsMiGHbQSRle+alNZpMiaaGZHR2ouIwEDAwEAAhqL9H+RX6yMmgwAAAByZWNydWl0ZXJfdjIyAA=="
+    },
+    "creatorProfilePda": "Dxx9wjeF7k1HutS5n6h6D8aiuZ4bXHg3Vo9Qum6kJdTw",
+    "instructions": "Sign to create your creator profile"
+  },
+  "registerAffiliate": {
+    "success": true,
+    "network": "mainnet-beta",
+    "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+    "transaction": {
+      "serialized": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAMFnOI9OuspgDtQoFYC+XlFSyYHdMSUuEmzEyyuZf/OIMgjUast2Bt/2uHKm+yzDERPNHkTD3Oeu/x3Xtp5GSCIyQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdqC3l0kvyta493gWq78muLLBy9+E8JigUcxte1Y0GCrXsUtfyz86mu0ezKyYTs9M6n4GqVyymRLEkSQHG2A5TS/z7Tn7B07S388zFNY5dcVQVBDogu8o60SxLTpkXN+yAQQEAwEAAhRXeWO4fj9n2QgAAABKQVJWSVM0Mg==",
+      "affiliatePda": "3NsVrwsv8LJAzkfVG1szxZ6r5tBvw4u1mnWKnzLx4dF6"
+    },
+    "code": "JARVIS42",
+    "instructions": "Sign to register as affiliate"
+  },
+  "firstBet": {
+    "success": true,
+    "network": "mainnet-beta",
+    "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+    "transaction": {
+      "serialized": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAMGnOI9OuspgDtQoFYC+XlFSyYHdMSUuEmzEyyuZf/OIMjpbIs4VLsnx7YDLBWKihC6afan1T31xRHa8N+L9O3d2PAlzR7/R+mskLlzmGwx03/nAgjw5CNgS0CR9R6SdrYhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB2oLeXSS/K1rj3eBarvya4ssHL34TwmKBRzG17VjQYKtexS1/LPzqa7R7MrJhOz0zqfgapXLKZEsSRJAcbYDlNhD6OmHzSs33s501+CLureoefBkZLTKemgLbG2EwUKYcBBQYEAgEFAAMRiYn3/enzMKoBgJaYAAAAAAA=",
+      "positionPda": "GiBzSLXvppSyLpt3ajj8qqHSiu777g8Mt4coKtodAsxs"
+    },
+    "simulation": {
+      "success": false,
+      "unitsConsumed": 0,
+      "error": "\"AccountNotFound\""
+    },
+    "quote": {
+      "expectedPayoutSol": 0.01,
+      "potentialProfitSol": 0
+    },
+    "instructions": "Sign the transaction with your wallet and send to Solana network"
+  }
+}
