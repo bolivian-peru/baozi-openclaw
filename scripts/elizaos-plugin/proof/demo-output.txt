@@ -1,0 +1,82 @@
+=== Baozi ElizaOS Plugin Demo ===
+
+Connecting to Baozi MCP server...
+Connected!
+
+1. Listing active Lab markets...
+{
+  "success": true,
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "count": 21,
+  "filter": {
+    "status": "Active",
+    "layer": "Lab"
+  },
+  "markets": [
+    {
+      "publicKey": "6HUCrzspwETL6jNrGv5SXwCCp8K9GKNhE3WPNnYyWAcD",
+      "marketId": "86",
+      "question": "Will SOL close above $170 on 2026-02-25?",
+      "status": "Active",
+...
+
+2. Getting market creation fees...
+{
+  "success": true,
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "fees": {
+    "official": {
+      "lamports": 10000000,
+      "sol": 0.01
+    },
+    "lab": {
+      "lamports": 10000000,
+      "sol": 0.01
+    },
+    "private": {
+      "lamports": 100
+
+
+3. Getting market timing rules...
+{
+  "success": true,
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "rules": {
+    "minEventBufferHours": 12,
+    "recommendedEventBufferHours": 24,
+    "bettingFreezeSeconds": 300,
+    "maxMarketDurationDays": 365
+  },
+
+
+4. Validating sample market question...
+{
+  "success": true,
+  "network": "mainnet-beta",
+  "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+  "question": "Will Solana price exceed $200 by April 15, 2026?",
+  "wouldBeBlocked": true,
+  "valid": false,
+  "errors": [
+    "BLOCKED: Must specify event_time (Type A) or measurement_start (Type B)",
+    "BLOCKED: Must specify verifiable data source for resolution"
+  ],
+  "warnings": [],
+  "ruleViolations": [
+    {
+      "rule": "Market Classification",
+      "description": "v7.2 r
+
+
+=== Demo Complete ===
+
+Plugin actions available:
+  - LIST_BAOZI_MARKETS: Browse active prediction markets
+  - GET_BAOZI_QUOTE: Get implied odds before betting
+  - PLACE_BAOZI_BET: Build unsigned bet transaction
+  - GET_BAOZI_POSITIONS: Check wallet positions and P&L
+  - CREATE_BAOZI_MARKET: Create a new Lab prediction market
+  - CLAIM_BAOZI_WINNINGS: Claim winnings from resolved markets

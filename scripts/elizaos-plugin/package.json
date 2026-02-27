@@ -1,0 +1,27 @@
+{
+  "name": "eliza-plugin-baozi",
+  "version": "1.0.0",
+  "description": "ElizaOS plugin for Baozi prediction markets on Solana — bet, create markets, track positions",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "bun test",
+    "example": "bun run example/agent.ts"
+  },
+  "keywords": ["elizaos", "baozi", "prediction-markets", "solana", "ai-agent", "plugin"],
+  "author": "Aurora AI",
+  "license": "MIT",
+  "peerDependencies": {
+    "@elizaos/core": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@elizaos/core": "^1.7.2",
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0"
+  },
+  "files": ["dist", "README.md"],
+  "publishConfig": {
+    "access": "public"
+  }
+}
