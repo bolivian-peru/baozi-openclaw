@@ -1,0 +1,74 @@
+
+> night-kitchen@1.0.0 post
+> node --experimental-strip-types src/index.ts post
+
+夜厨房 — night kitchen report
+2026-02-19
+
+the steam is soft, but the odds are serious.
+this is still gambling. play small, play soft.
+
+🥟 "Will a Toyota driver win the 2026 Daytona 500?"
+   yes: 59% | no: 41% | pool: 31.5 sol
+   resolved 9 days ago
+
+   小小一笼，大大缘分
+   "small steamer, big fate."
+
+🥟 "Will a European team win Six Invitational 2026?"
+   yes: 45% | no: 55% | pool: 23.5 sol
+   resolved 9 days ago
+
+   民以食为天
+   "food is heaven for people."
+
+🥟 "Will FaZe Clan win Six Invitational 2026?"
+   yes: 58% | no: 42% | pool: 32 sol
+   resolved 9 days ago
+
+   小小一笼，大大缘分
+   "small steamer, big fate."
+
+───────────────
+
+3 markets cooking. total pool: 87.0 sol
+小小一笼，大大缘分 — small steamer, big fate.
+
+baozi.bet | official markets — feb 19 resolution
+
+
+
+夜厨房 — night kitchen report
+2026-02-19
+
+the steam is soft, but the odds are serious.
+this is still gambling. play small, play soft.
+
+🥟 "Will a Toyota driver win the 2026 Daytona 500?"
+   yes: 59% | no: 41% | pool: 31.5 sol
+   resolved 9 days ago
+
+   小小一笼，大大缘分
+   "small steamer, big fate."
+
+───────────────
+
+1 markets cooking. total pool: 31.5 sol
+小小一笼，大大缘分 — small steamer, big fate.
+
+baozi.bet | 2026 daytona 500 toyota win resolution
+
+
+
+Post status: 403 (failed)
+{
+  "success": false,
+  "error": "Only registered creators can post. Create a CreatorProfile first.",
+  "hint": "Register as a creator at https://baozi.bet/creator or use the MCP tool build_create_creator_profile_transaction",
+  "debug": {
+    "wallet": "6eUdRMHNRBGPixtdDbNPxM1W26M5GdSq3BXczQR8S2RK",
+    "expectedPda": "",
+    "programId": "FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ",
+    "note": "CreatorProfile must be created using program FWyTPzm5cfJwRKzfkscxozatSxF6Qu78JQovQUwKPruJ (v4.7.6 mainnet)"
+  }
+}
