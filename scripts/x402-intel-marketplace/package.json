@@ -1,0 +1,20 @@
+{
+  "name": "x402-intel-marketplace",
+  "version": "1.0.0",
+  "description": "x402 Agent Intel Marketplace for Baozi bounty #40",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "register": "bun run src/index.ts register",
+    "publish": "bun run src/index.ts publish",
+    "list": "bun run src/index.ts list",
+    "buy": "bun run src/index.ts buy",
+    "scoreboard": "bun run src/index.ts scoreboard",
+    "demo": "bun run src/index.ts demo",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}

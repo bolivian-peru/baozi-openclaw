@@ -1,0 +1,9 @@
+Onboarding updated for @macroMina
+Status: onboarding
+Stage: activation
+Affiliate: https://baozi.bet/agents/ref?tool=build_affiliate_link&handle=macroMina&campaign=b41_launch&source=telegram&code=macromina-mm4ansa8
+Affiliate valid: yes
+- Intake completed via telegram channel
+- Compliance check completed with basic KYC stub
+- Affiliate link generated with code macromina-mm4ansa8
+- Dry run mode enabled: activation step simulated

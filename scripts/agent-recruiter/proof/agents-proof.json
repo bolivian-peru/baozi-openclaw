@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "updatedAt": "2026-02-27T02:49:52.112Z",
+  "agents": [
+    {
+      "id": "agent_builderbenedict_4anjzj",
+      "handle": "builderBenedict",
+      "persona": "builder",
+      "channel": "github",
+      "region": "EU",
+      "audienceSize": 12400,
+      "engagementRate": 0.081,
+      "discoverySource": "oss_repo_signal",
+      "fitNotes": [
+        "Ships bot infra weekly",
+        "Already active in Solana tools"
+      ],
+      "score": 33,
+      "status": "discovered",
+      "tags": [
+        "infra",
+        "solana",
+        "automation"
+      ],
+      "createdAt": "2026-02-27T02:49:41.359Z",
+      "updatedAt": "2026-02-27T02:49:41.359Z",
+      "onboarding": {
+        "stage": "none",
+        "checklist": {
+          "intakeComplete": false,
+          "complianceComplete": false,
+          "affiliateIssued": false,
+          "affiliateValidated": false,
+          "activated": false
+        }
+      }
+    },
+    {
+      "id": "agent_macromina_4anjzj",
+      "handle": "macroMina",
+      "persona": "content",
+      "channel": "x",
+      "region": "SEA",
+      "audienceSize": 84200,
+      "engagementRate": 0.061,
+      "discoverySource": "x_trending_search",
+      "fitNotes": [
+        "Consistent prediction threads",
+        "Strong audience trust"
+      ],
+      "score": 45,
+      "status": "onboarding",
+      "tags": [
+        "macro",
+        "crypto",
+        "creator"
+      ],
+      "createdAt": "2026-02-27T02:49:41.359Z",
+      "updatedAt": "2026-02-27T02:49:52.111Z",
+      "onboarding": {
+        "stage": "activation",
+        "checklist": {
+          "intakeComplete": true,
+          "complianceComplete": true,
+          "affiliateIssued": true,
+          "affiliateValidated": true,
+          "activated": false
+        },
+        "affiliate": {
+          "code": "macromina-mm4ansa8",
+          "url": "https://baozi.bet/agents/ref?tool=build_affiliate_link&handle=macroMina&campaign=b41_launch&source=telegram&code=macromina-mm4ansa8",
+          "generatedAt": "2026-02-27T02:49:52.112Z",
+          "checkedAt": "2026-02-27T02:49:52.112Z",
+          "isValid": true
+        }
+      },
+      "outreach": {
+        "templateId": "persona_content_v1",
+        "channel": "telegram",
+        "generatedAt": "2026-02-27T02:49:47.007Z",
+        "response": "none"
+      }
+    },
+    {
+      "id": "agent_opsnara_4anjzj",
+      "handle": "opsNara",
+      "persona": "operator",
+      "channel": "discord",
+      "region": "US",
+      "audienceSize": 18900,
+      "engagementRate": 0.074,
+      "discoverySource": "community_referral",
+      "fitNotes": [
+        "Runs high-retention campaigns",
+        "Excellent partner follow-through"
+      ],
+      "score": 33,
+      "status": "discovered",
+      "tags": [
+        "ops",
+        "growth",
+        "community"
+      ],
+      "createdAt": "2026-02-27T02:49:41.359Z",
+      "updatedAt": "2026-02-27T02:49:41.359Z",
+      "onboarding": {
+        "stage": "none",
+        "checklist": {
+          "intakeComplete": false,
+          "complianceComplete": false,
+          "affiliateIssued": false,
+          "affiliateValidated": false,
+          "activated": false
+        }
+      }
+    },
+    {
+      "id": "agent_quantyuto_4anjzj",
+      "handle": "quantYuto",
+      "persona": "quant",
+      "channel": "telegram",
+      "region": "JP",
+      "audienceSize": 9700,
+      "engagementRate": 0.092,
+      "discoverySource": "signal_channel_scan",
+      "fitNotes": [
+        "Publishes transparent hit-rate logs",
+        "Data-driven style"
+      ],
+      "score": 35,
+      "status": "discovered",
+      "tags": [
+        "quant",
+        "signals",
+        "alpha"
+      ],
+      "createdAt": "2026-02-27T02:49:41.359Z",
+      "updatedAt": "2026-02-27T02:49:41.359Z",
+      "onboarding": {
+        "stage": "none",
+        "checklist": {
+          "intakeComplete": false,
+          "complianceComplete": false,
+          "affiliateIssued": false,
+          "affiliateValidated": false,
+          "activated": false
+        }
+      }
+    }
+  ]
+}
