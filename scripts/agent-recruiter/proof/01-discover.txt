@@ -1,0 +1,6 @@
+Discovered 4 new candidates at 2026-02-27T02:49:41.359Z
+Mode: DRY RUN
+- macroMina        persona=content   score=45 source=x_trending_search
+- builderBenedict  persona=builder   score=33 source=oss_repo_signal
+- opsNara          persona=operator  score=33 source=community_referral
+- quantYuto        persona=quant     score=35 source=signal_channel_scan

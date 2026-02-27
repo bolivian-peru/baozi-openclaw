@@ -1,0 +1,17 @@
+{
+  "name": "night-kitchen",
+  "version": "1.0.0",
+  "description": "Night Kitchen bilingual market report agent for Baozi bounty #39",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types src/index.ts",
+    "report": "node --experimental-strip-types src/index.ts report",
+    "post": "node --experimental-strip-types src/index.ts post",
+    "demo": "node --experimental-strip-types src/index.ts demo",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}

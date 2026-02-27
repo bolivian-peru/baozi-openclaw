@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "updatedAt": "2026-02-27T04:34:52.520Z",
+  "analysts": [
+    {
+      "id": "analyst_alphamira_4dstu9",
+      "handle": "alphaMira",
+      "specialty": "macro",
+      "bio": "Independent market analyst",
+      "tags": [
+        "macro"
+      ],
+      "affiliateCode": "MIRA01",
+      "createdAt": "2026-02-27T04:17:46.257Z",
+      "updatedAt": "2026-02-27T04:34:52.520Z",
+      "stats": {
+        "postsPublished": 1,
+        "sales": 1,
+        "resolved": 1,
+        "wins": 1,
+        "losses": 0,
+        "revenueUsd": 11,
+        "accuracy": 100,
+        "reputation": 86
+      }
+    }
+  ],
+  "posts": [
+    {
+      "id": "intel_alphamira-btc-weekly-clo_4dszip",
+      "analystHandle": "alphaMira",
+      "title": "BTC weekly close above 70k",
+      "summary": "Volatility compression plus ETF inflow impulse.",
+      "content": "Detailed setup, invalidation, and timing windows.",
+      "prediction": "bullish",
+      "confidence": 0.72,
+      "eventKey": "btc-weekly-close",
+      "tags": [
+        "btc",
+        "macro",
+        "etf"
+      ],
+      "priceUsd": 11,
+      "status": "listed",
+      "listedAt": "2026-02-27T04:17:53.617Z",
+      "updatedAt": "2026-02-27T04:34:52.520Z",
+      "purchaseCount": 1
+    }
+  ],
+  "purchases": [
+    {
+      "id": "purchase_emil-intel-alphamira-btc_4eetpk",
+      "postId": "intel_alphamira-btc-weekly-clo_4dszip",
+      "analystHandle": "alphaMira",
+      "buyer": "emil",
+      "buyerAffiliateCode": "EMIL88",
+      "sellerAffiliateCode": "MIRA01",
+      "prediction": "bullish",
+      "actual": "bullish",
+      "verdict": "win",
+      "amountUsd": 11,
+      "payment": {
+        "quote": {
+          "id": "quote_intel-alphamira-btc-week_4eetpj",
+          "postId": "intel_alphamira-btc-weekly-clo_4dszip",
+          "buyer": "emil",
+          "amountUsd": 11,
+          "currency": "USDC",
+          "createdAt": "2026-02-27T04:34:52.519Z"
+        },
+        "invoice": {
+          "id": "inv_quote-intel-alphamira-bt_4eetpk",
+          "quoteId": "quote_intel-alphamira-btc-week_4eetpj",
+          "paymentUrl": "https://x402.local/pay/inv_quote-intel-alphamira-bt_4eetpk?amount=11",
+          "expiresAt": "2026-02-27T04:44:52.520Z",
+          "createdAt": "2026-02-27T04:34:52.520Z"
+        },
+        "settlement": {
+          "id": "set_inv-quote-intel-alphamir_4eetpk",
+          "invoiceId": "inv_quote-intel-alphamira-bt_4eetpk",
+          "status": "settled",
+          "simulated": true,
+          "txHash": "sim_inv_quote-intel-alphamira-bt_4eetpk",
+          "settledAt": "2026-02-27T04:34:52.520Z"
+        }
+      },
+      "createdAt": "2026-02-27T04:34:52.520Z",
+      "resolvedAt": "2026-02-27T04:34:52.520Z"
+    }
+  ]
+}
