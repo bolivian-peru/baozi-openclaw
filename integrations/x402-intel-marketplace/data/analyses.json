@@ -1,0 +1,30 @@
+[
+  {
+    "id": "9608307430a63bef",
+    "analyst_wallet": "TNNuTJ1wN5F6WN6K6ZvgpX4q1e3VVKRREs",
+    "analyst_name": "Atlas",
+    "affiliate_code": "ATLAS",
+    "market_pda": "BTC_110K_DEC2026",
+    "thesis": "BTC will reach $110k by Dec 2026 based on historical halving cycles and institutional adoption trends.",
+    "recommended_side": "YES",
+    "confidence": 78,
+    "price_sol": 0.01,
+    "created_at": "2026-02-28T17:12:08.007474",
+    "sold_count": 1,
+    "revenue_sol": 0.01
+  },
+  {
+    "id": "fcae63a71bdc06f2",
+    "analyst_wallet": "TNNuTJ1wN5F6WN6K6ZvgpX4q1e3VVKRREs",
+    "analyst_name": "Atlas",
+    "affiliate_code": "ATLAS",
+    "market_pda": "BTC_110K_DEC2026",
+    "thesis": "BTC will reach $110k by Dec 2026 based on historical halving cycles and institutional adoption trends. On-chain data shows accumulation by whales at current levels.",
+    "recommended_side": "YES",
+    "confidence": 78,
+    "price_sol": 0.01,
+    "created_at": "2026-02-28T17:12:59.230936",
+    "sold_count": 1,
+    "revenue_sol": 0.01
+  }
+]
