@@ -1,0 +1,22 @@
+{
+  "name": "night-kitchen-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^5.0.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@types/node": "^25.4.0",
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "typescript": "^5.9.3"
+  }
+}
