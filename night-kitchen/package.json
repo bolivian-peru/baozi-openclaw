@@ -1,0 +1,30 @@
+{
+  "name": "@baozi/night-kitchen",
+  "version": "1.0.0",
+  "description": "Night Kitchen bilingual Baozi market report agent",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "night-kitchen": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts preview",
+    "preview": "tsx src/cli.ts preview",
+    "post": "tsx src/cli.ts post",
+    "test": "tsx src/tests/run.ts"
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^5.0.0",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}
