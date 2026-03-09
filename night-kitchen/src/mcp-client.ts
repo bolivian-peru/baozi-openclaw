@@ -7,10 +7,15 @@ export async function listActiveMarkets(limit = 8): Promise<Market[]> {
     return [];
   }
 
-  return rawMarkets
+  const markets = rawMarkets
     .map(normalizeMarket)
-    .filter((market): market is Market => Boolean(market))
-    .slice(0, limit);
+    .filter((market): market is Market => Boolean(market));
+
+  const ranked = [...markets].sort((a, b) => b.pool.total - a.pool.total);
+  const withLiquidity = ranked.filter((market) => market.pool.total > 0);
+  const withoutLiquidity = ranked.filter((market) => market.pool.total <= 0);
+
+  return [...withLiquidity, ...withoutLiquidity].slice(0, limit);
 }
 
 function normalizeMarket(raw: any): Market | null {
