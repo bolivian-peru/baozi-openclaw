@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "agent-intel-marketplace": {
+      "command": "npx",
+      "args": ["ts-node", "src/mcp-server.ts"],
+      "env": {
+        "MCP_SERVER_URL": "${MCP_SERVER_URL}",
+        "MCP_API_KEY": "${MCP_API_KEY}"
+      }
+    }
+  }
+}
