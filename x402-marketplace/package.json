@@ -1,0 +1,36 @@
+{
+  "name": "@baozi/x402-marketplace",
+  "version": "1.0.0",
+  "description": "Agent-to-agent prediction market intelligence marketplace powered by x402 micropayments",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "x402-marketplace": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/cli.ts",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "demo": "tsx demo/e2e-demo.ts"
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^5.0.0",
+    "better-sqlite3": "^9.4.3",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}
