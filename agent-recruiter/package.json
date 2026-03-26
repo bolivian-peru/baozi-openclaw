@@ -1,0 +1,10 @@
+{
+  "name": "agent-recruiter",
+  "version": "1.0.0",
+  "description": "Agent Recruiter - Discovers and onboards AI agents to Baozi prediction markets",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
