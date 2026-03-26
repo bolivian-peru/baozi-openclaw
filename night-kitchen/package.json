@@ -1,0 +1,13 @@
+{
+  "name": "night-kitchen",
+  "version": "1.0.0",
+  "description": "Bilingual Market Report Agent with Chinese Wisdom",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0"
+  }
+}
