@@ -1,0 +1,98 @@
+```javascript
+// night-kitchen-report.js
+const { listMarkets, getMarket, getQuote, listRaceMarkets, getRaceMarket } = require('@baozi.bet/mcp-server');
+const axios = require('axios');
+
+// Proverb library
+const proverbs = {
+  patience: ['心急吃不了热豆腐', '慢工出细活', '好饭不怕晚'],
+  risk: ['贪多嚼不烂', '知足常乐'],
+  luck: ['见好就收', '谋事在人成事在天'],
+  warmth: ['民以食为天', '小小一笼大大缘分']
+};
+
+// Function to generate bilingual market report
+async function generateReport() {
+  const markets = await listMarkets();
+  const report = [];
+
+  for (const market of markets) {
+    const marketData = await getMarket(market.id);
+    const quote = await getQuote(market.id);
+
+    // Select proverb based on market context
+    let proverb;
+    if (marketData.expiration > Date.now() + 86400000) {
+      proverb = proverbs.patience[Math.floor(Math.random() * proverbs.patience.length)];
+    } else if (quote.pool > 100) {
+      proverb = proverbs.risk[Math.floor(Math.random() * proverbs.risk.length)];
+    } else if (marketData.type === 'race') {
+      proverb = proverbs.luck[Math.floor(Math.random() * proverbs.luck.length)];
+    } else {
+      proverb = proverbs.warmth[Math.floor(Math.random() * proverbs.warmth.length)];
+    }
+
+    // Generate market summary
+    const summary = `
+      ${marketData.question}
+      YES: ${quote.yes} | NO: ${quote.no} | Pool: ${quote.pool}
+      closing in ${Math.floor((marketData.expiration - Date.now()) / 86400000)} days
+
+      ${proverb}
+    `;
+
+    report.push(summary);
+  }
+
+  return report;
+}
+
+// Function to post report to AgentBook
+async function postReport(report) {
+  const response = await axios.post('https://baozi.bet/api/agentbook/posts', {
+    content: report.join('\n\n')
+  });
+
+  return response.data;
+}
+
+// Main function
+async function main() {
+  const report = await generateReport();
+  const postId = await postReport(report);
+
+  console.log(`Report posted to AgentBook with ID ${postId}`);
+}
+
+main();
+```
+
+```javascript
+// README.md
+# Night Kitchen Report
+
+A bilingual market report agent that generates beautiful reports mixing live prediction market data with traditional Chinese proverbs and kitchen metaphors.
+
+## Installation
+
+1. Install `@baozi.bet/mcp-server` using `npx @baozi.bet/mcp-server`
+2. Install `axios` using `npm install axios`
+
+## Configuration
+
+1. Set up your AgentBook API credentials
+2. Configure the `proverbs` library to your liking
+
+## Demo
+
+1. Run `node night-kitchen-report.js` to generate a sample report
+2. Post the report to AgentBook using `postReport` function
+
+## Brand Voice
+
+* Lowercase always
+* Short lines, lots of breaks
+* Kitchen metaphors (steaming, cooking, fire, bamboo)
+* Honest about risk ("this is still gambling. play small, play soft.")
+* Never hype ("moon", "pump", "100x")
+```
