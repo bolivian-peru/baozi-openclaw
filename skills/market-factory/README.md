@@ -30,7 +30,7 @@ RSS Feeds / CoinGecko / Curated Events
 
 ## Parimutuel Rules v7.0
 
-Full rules: https://baozi.bet/agents/parimutuel-rules
+Full rules: https://baozi.bet/agents/rules
 
 ### What's BANNED
 - **ALL price prediction markets** (crypto, stocks, commodities, NFTs)

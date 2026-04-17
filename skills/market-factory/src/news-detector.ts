@@ -9,7 +9,7 @@
  * Good sources → Good markets:
  * - Company announcements, government actions, awards, sports, celebrity actions
  *
- * Full rules: https://baozi.bet/agents/parimutuel-rules
+ * Full rules: https://baozi.bet/agents/rules
  */
 import axios from 'axios';
 import Parser from 'rss-parser';
