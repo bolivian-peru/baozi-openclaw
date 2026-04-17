@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+/**
+ * list-markets — browse Baozi prediction markets.
+ *
+ * Usage:
+ *   scripts/list-markets [--status active|closed|all]
+ *                        [--layer official|lab|private|all]
+ *                        [--query "search term"]
+ *                        [--limit N]
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { parseArgs, printJson, die } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const status = args.status || 'active';
+const layer = args.layer || 'all';
+const limit = Number(args.limit || 25);
+const query = args.query || undefined;
+
+const STATUS_MAP = { active: 'Active', closed: 'Closed', resolved: 'Resolved', all: undefined };
+const LAYER_MAP = { official: 'Official', lab: 'Lab', private: 'Private', all: undefined };
+
+const mcpArgs = { limit };
+if (STATUS_MAP[status] !== undefined) mcpArgs.status = STATUS_MAP[status];
+if (LAYER_MAP[layer] !== undefined) mcpArgs.layer = LAYER_MAP[layer];
+if (query) mcpArgs.search = query;
+
+try {
+  const result = await callMcp('list_markets', mcpArgs);
+  const markets = Array.isArray(result) ? result : (result?.markets || []);
+
+  if (args.json) {
+    printJson(markets);
+  } else {
+    printJson({
+      count: markets.length,
+      markets: markets.map((m) => ({
+        publicKey: m.publicKey || m.marketPda,
+        marketId: m.marketId,
+        question: m.question,
+        layer: m.layer,
+        status: m.status,
+        closingTime: m.closingTime,
+        yesPercent: m.yesPercent,
+        noPercent: m.noPercent,
+        totalPoolSol: m.totalPoolSol,
+        isBettingOpen: m.isBettingOpen,
+      })),
+    });
+  }
+} catch (e) {
+  die(e.message);
+}

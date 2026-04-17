@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+/**
+ * get-portfolio — view all positions for a wallet.
+ *
+ * Usage:
+ *   scripts/get-portfolio <wallet>
+ *   scripts/get-portfolio --wallet <pubkey>
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+let wallet = args.wallet || args._[0];
+
+// Fall back to the local keypair if no wallet provided
+if (!wallet) {
+  try {
+    wallet = loadKeypair().publicKey.toBase58();
+  } catch {
+    usage([
+      'usage: scripts/get-portfolio <wallet>',
+      '       scripts/get-portfolio --wallet <pubkey>',
+      '',
+      'or set SOLANA_PRIVATE_KEY to use your own wallet automatically.',
+    ]);
+  }
+}
+
+try {
+  const positions = await callMcp('get_positions', { wallet });
+  const claimable = await callMcp('get_claimable', { wallet }).catch(() => null);
+
+  printJson({
+    wallet,
+    positions: Array.isArray(positions) ? positions : (positions?.positions || positions),
+    claimable,
+  });
+} catch (e) {
+  die(e.message);
+}

@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+/**
+ * claim-winnings — claim SOL from a resolved market.
+ *
+ * Usage:
+ *   scripts/claim-winnings --market-id <pubkey>
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const marketId = args.marketId || args._[0];
+if (!marketId) usage([
+  'usage: scripts/claim-winnings --market-id <pubkey>',
+]);
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+
+try {
+  const built = await callMcp('build_claim_winnings_transaction', {
+    user_wallet: userWallet,
+    market: marketId,
+  });
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    claim: {
+      market: marketId,
+      wallet: userWallet,
+    },
+  });
+} catch (e) {
+  die(e.message);
+}

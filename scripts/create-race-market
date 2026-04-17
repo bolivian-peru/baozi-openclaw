@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+/**
+ * create-race-market — create a multi-outcome (2-10) race market.
+ *
+ * Usage:
+ *   scripts/create-race-market --question "Who will win?" \
+ *                              --outcomes "Team A,Team B,Team C" \
+ *                              --closing-time "2026-06-01T00:00:00Z"
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const question = args.question;
+const outcomesCsv = args.outcomes;
+const closingTime = args.closingTime;
+
+if (!question || !outcomesCsv || !closingTime) usage([
+  'usage: scripts/create-race-market --question "Who wins?" \\',
+  '                                   --outcomes "A,B,C" \\',
+  '                                   --closing-time <ISO8601>',
+  '',
+  '  --outcomes: comma-separated, 2-10 outcomes',
+]);
+
+const outcomes = outcomesCsv.split(',').map((s) => s.trim()).filter(Boolean);
+if (outcomes.length < 2 || outcomes.length > 10) die('must provide 2-10 outcomes');
+if (question.length < 10 || question.length > 200) die('question must be 10-200 characters');
+
+const closingMs = Date.parse(closingTime);
+if (Number.isNaN(closingMs)) die(`invalid closing-time: ${closingTime}`);
+if (closingMs <= Date.now() + 3_600_000) die('closing-time must be > 1 hour in the future');
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+
+try {
+  const built = await callMcp('build_create_race_market_transaction', {
+    user_wallet: userWallet,
+    question,
+    outcomes,
+    closing_time: closingTime,
+    layer: 'Lab',
+  });
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    marketPda: built.marketPda || built.market || null,
+    market: {
+      question,
+      outcomes,
+      closingTime,
+      layer: 'Lab',
+      creator: userWallet,
+    },
+  });
+} catch (e) {
+  die(e.message);
+}

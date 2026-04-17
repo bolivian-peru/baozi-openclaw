@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+/**
+ * claim-affiliate — claim accumulated affiliate referral commissions.
+ *
+ * Usage:
+ *   scripts/claim-affiliate
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { printJson, die } from '../lib/cli.mjs';
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+
+try {
+  // Show pending earnings first
+  const info = await callMcp('get_affiliate_info', { wallet: userWallet }).catch(() => null);
+
+  const built = await callMcp('build_claim_affiliate_transaction', {
+    user_wallet: userWallet,
+  });
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    claim: {
+      wallet: userWallet,
+      pendingBeforeClaim: info?.pendingSol ?? info?.unclaimed ?? null,
+    },
+  });
+} catch (e) {
+  die(e.message);
+}

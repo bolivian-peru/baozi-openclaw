@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+/**
+ * create-market — create a boolean (Yes/No) Lab market.
+ *
+ * Usage:
+ *   scripts/create-market --question "Will X happen by Y?" \
+ *                         --closing-time "2026-06-01T00:00:00Z" \
+ *                         [--yes-label "Yes"] [--no-label "No"]
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const question = args.question;
+const closingTime = args.closingTime;
+const yesLabel = args.yesLabel || 'Yes';
+const noLabel = args.noLabel || 'No';
+
+if (!question || !closingTime) usage([
+  'usage: scripts/create-market --question "Will X by Y?" --closing-time <ISO8601>',
+  '                              [--yes-label "Yes"] [--no-label "No"]',
+  '',
+  'closing-time must be at least 1 hour in the future.',
+]);
+
+if (question.length < 10 || question.length > 200) {
+  die('question must be 10-200 characters');
+}
+
+const closingMs = Date.parse(closingTime);
+if (Number.isNaN(closingMs)) die(`invalid closing-time: ${closingTime}`);
+if (closingMs <= Date.now() + 3_600_000) die('closing-time must be > 1 hour in the future');
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+
+try {
+  // Pre-flight: validate question
+  const validation = await callMcp('validate_market_question', { question }).catch(() => null);
+  if (validation?.valid === false) {
+    die(`question validation failed: ${validation.error || JSON.stringify(validation)}`);
+  }
+
+  const built = await callMcp('build_create_lab_market_transaction', {
+    user_wallet: userWallet,
+    question,
+    closing_time: closingTime,
+    yes_label: yesLabel,
+    no_label: noLabel,
+  });
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    marketPda: built.marketPda || built.market || null,
+    market: {
+      question,
+      closingTime,
+      yesLabel,
+      noLabel,
+      layer: 'Lab',
+      creator: userWallet,
+    },
+  });
+} catch (e) {
+  die(e.message);
+}

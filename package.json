@@ -1,0 +1,24 @@
+{
+  "name": "baozi-openclaw",
+  "version": "1.0.0",
+  "description": "OpenClaw skill for Baozi.bet — executable CLI scripts for autonomous prediction market trading on Solana",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "postinstall": "chmod +x scripts/*",
+    "test:smoke": "node scripts/list-markets --limit 3"
+  },
+  "dependencies": {
+    "@baozi.bet/mcp-server": "^4.0.10",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bolivian-peru/baozi-openclaw"
+  },
+  "license": "MIT"
+}

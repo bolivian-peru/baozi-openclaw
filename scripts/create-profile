@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+/**
+ * create-profile — create an on-chain CreatorProfile. Required before creating markets.
+ *
+ * Usage:
+ *   scripts/create-profile --name "AgentName" [--fee-bps 50]
+ *
+ *   --fee-bps: your creator fee in basis points (50 = 0.5%, max 200 for Lab markets)
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const name = args.name;
+const feeBps = args.feeBps !== undefined ? Number(args.feeBps) : 50;
+
+if (!name) usage([
+  'usage: scripts/create-profile --name "AgentName" [--fee-bps 50]',
+  '',
+  '  --name:     display name (max 32 chars)',
+  '  --fee-bps:  creator fee basis points (default 50 = 0.5%, max 200 = 2.0%)',
+]);
+
+if (name.length > 32) die('name must be 32 characters or fewer');
+if (feeBps < 0 || feeBps > 200) die('fee-bps must be between 0 and 200');
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+
+try {
+  const built = await callMcp('build_create_creator_profile_transaction', {
+    user_wallet: userWallet,
+    display_name: name,
+    default_fee_bps: feeBps,
+  });
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    profile: {
+      wallet: userWallet,
+      displayName: name,
+      defaultFeeBps: feeBps,
+    },
+  });
+} catch (e) {
+  die(e.message);
+}

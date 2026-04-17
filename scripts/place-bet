@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+/**
+ * place-bet — bet SOL on a market outcome. Requires SOLANA_PRIVATE_KEY.
+ *
+ * Usage:
+ *   scripts/place-bet --market-id <pubkey> --outcome 0|1 --amount 0.05
+ *                     [--affiliate <wallet>]
+ *
+ * Pre-flight checks:
+ *   - validates market is active, not past closing time, not frozen
+ *   - fetches quote for expected payout
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const marketId = args.marketId;
+const outcomeArg = args.outcome;
+const amount = Number(args.amount);
+const affiliate = args.affiliate || undefined;
+
+if (!marketId || outcomeArg === undefined || !amount) usage([
+  'usage: scripts/place-bet --market-id <pubkey> --outcome 0|1 --amount <SOL>',
+  '                          [--affiliate <wallet>]',
+  '',
+  'outcome: 0 = Yes (first outcome), 1 = No (second outcome)',
+  'amount:  0.01 to 100 SOL',
+]);
+
+const outcome = Number(outcomeArg);
+if (outcome !== 0 && outcome !== 1) die('outcome must be 0 (Yes) or 1 (No)');
+if (amount < 0.01 || amount > 100) die('amount must be between 0.01 and 100 SOL');
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+const side = outcome === 0 ? 'Yes' : 'No';
+
+try {
+  // Pre-flight: quote
+  const quote = await callMcp('get_quote', {
+    market: marketId,
+    side,
+    amount_sol: amount,
+  });
+
+  if (quote?.error || quote?.valid === false) {
+    die(`quote rejected: ${quote?.error || 'invalid'}`);
+  }
+
+  // Build transaction
+  const built = await callMcp('build_bet_transaction', {
+    market: marketId,
+    outcome: side,
+    amount_sol: amount,
+    user_wallet: userWallet,
+    ...(affiliate ? { affiliate_code: affiliate } : {}),
+  });
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  // Sign + submit
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    bet: {
+      market: marketId,
+      side,
+      amountSol: amount,
+      expectedPayoutSol: quote.expectedPayoutSol,
+      impliedOdds: quote.impliedOdds,
+      feeSol: quote.feeSol,
+    },
+  });
+} catch (e) {
+  die(e.message);
+}

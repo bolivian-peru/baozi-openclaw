@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+/**
+ * get-odds — implied probabilities and pool sizes for a market.
+ *
+ * Usage:
+ *   scripts/get-odds <market-id>
+ *   scripts/get-odds --market-id <pubkey>
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { parseArgs, printJson, die, usage } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const marketId = args.marketId || args._[0];
+if (!marketId) usage([
+  'usage: scripts/get-odds <market-id>',
+  '       scripts/get-odds --market-id <pubkey>',
+]);
+
+try {
+  const market = await callMcp('get_market', { market: marketId });
+  if (!market || market.error) die(market?.error || 'market not found');
+
+  const totalPool = Number(market.totalPoolSol ?? 0);
+  const yesPool = Number(market.yesPoolSol ?? 0);
+  const noPool = Number(market.noPoolSol ?? 0);
+
+  printJson({
+    publicKey: market.publicKey || marketId,
+    marketId: market.marketId,
+    question: market.question,
+    layer: market.layer,
+    status: market.status,
+    isBettingOpen: market.isBettingOpen,
+    closingTime: market.closingTime,
+    pool: {
+      yesSol: yesPool,
+      noSol: noPool,
+      totalSol: totalPool,
+    },
+    odds: {
+      yesImpliedPercent: market.yesPercent,
+      noImpliedPercent: market.noPercent,
+      yesDecimalOdds: totalPool > 0 && yesPool > 0 ? +(totalPool / yesPool).toFixed(3) : null,
+      noDecimalOdds: totalPool > 0 && noPool > 0 ? +(totalPool / noPool).toFixed(3) : null,
+    },
+    feeBps: market.platformFeeBps,
+  });
+} catch (e) {
+  die(e.message);
+}

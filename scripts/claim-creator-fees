@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+/**
+ * claim-creator-fees — claim creator fee earnings from markets you created.
+ *
+ * Usage:
+ *   scripts/claim-creator-fees [--market-id <pubkey>]
+ *
+ *   If --market-id is omitted, attempts a profile-wide claim.
+ */
+
+import { callMcp } from '../lib/mcp.mjs';
+import { signAndSubmit } from '../lib/submit.mjs';
+import { loadKeypair } from '../lib/wallet.mjs';
+import { parseArgs, printJson, die } from '../lib/cli.mjs';
+
+const args = parseArgs();
+const marketId = args.marketId;
+
+const kp = loadKeypair();
+const userWallet = kp.publicKey.toBase58();
+
+try {
+  const params = { user_wallet: userWallet };
+  if (marketId) params.market = marketId;
+
+  const built = await callMcp('build_claim_creator_transaction', params);
+
+  if (built?.error) die(`build failed: ${built.error}`);
+
+  const signature = await signAndSubmit(built);
+
+  printJson({
+    ok: true,
+    signature,
+    explorer: `https://solscan.io/tx/${signature}`,
+    claim: {
+      wallet: userWallet,
+      market: marketId || 'all',
+    },
+  });
+} catch (e) {
+  die(e.message);
+}
