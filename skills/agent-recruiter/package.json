@@ -1,0 +1,22 @@
+{
+  "name": "baozi-agent-recruiter",
+  "version": "2.0.0",
+  "description": "Agent Recruiter for Baozi bounty #41: discover, onboard, and track recruited agents",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "demo": "ts-node src/index.ts demo --affiliate-code JARVIS --limit 12",
+    "proof": "ts-node src/index.ts proof --affiliate-code JARVIS --wallet BZQguC9CQAZrW8jMWGi19fUoubqECGtaSkStsv1kbLDd"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
