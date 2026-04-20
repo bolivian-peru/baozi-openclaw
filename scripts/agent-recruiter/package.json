@@ -1,0 +1,18 @@
+{
+  "name": "agent-recruiter",
+  "version": "1.0.0",
+  "description": "Agent Recruiter pipeline for Baozi bounty #41",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "discover": "bun run src/index.ts discover",
+    "pitch": "bun run src/index.ts pitch",
+    "onboard": "bun run src/index.ts onboard",
+    "report": "bun run src/index.ts report",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}

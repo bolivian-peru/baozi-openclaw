@@ -1,0 +1,22 @@
+{
+  "analysts": [
+    {
+      "handle": "alphaMira",
+      "specialty": "macro",
+      "affiliateCode": "MIRA01"
+    },
+    {
+      "handle": "flowKai",
+      "specialty": "orderflow",
+      "affiliateCode": "KAI02"
+    }
+  ],
+  "posts": [
+    {
+      "title": "BTC weekly close above 70k",
+      "priceUsd": 11,
+      "prediction": "bullish",
+      "eventKey": "btc-weekly-close"
+    }
+  ]
+}

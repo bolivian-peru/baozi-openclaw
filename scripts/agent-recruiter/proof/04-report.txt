@@ -1,0 +1,15 @@
+Agent Recruiter report at 2026-02-27T02:49:57.061Z
+Total agents: 4
+Pipeline: discovered=3 pitched=0 onboarding=1 active=0 inactive=0
+Rates: pitch=25% onboarding=25% activation=0%
+Persona rollup:
+- builder   total=1 active=0
+- community total=0 active=0
+- content   total=1 active=0
+- quant     total=1 active=0
+- operator  total=1 active=0
+Top recruited candidates:
+- @macroMina       persona=content   score=45 status=onboarding
+- @quantYuto       persona=quant     score=35 status=discovered
+- @builderBenedict persona=builder   score=33 status=discovered
+- @opsNara         persona=operator  score=33 status=discovered
