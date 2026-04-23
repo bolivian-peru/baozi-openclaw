@@ -1,0 +1,27 @@
+{
+  "name": "night-kitchen",
+  "version": "1.0.0",
+  "description": "夜厨房 — Bilingual market report agent with Chinese wisdom (Baozi bounty #39)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "report": "tsx src/cli.ts report",
+    "post": "tsx src/cli.ts post",
+    "demo": "tsx src/cli.ts report --dry-run",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "commander": "^12.1.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
