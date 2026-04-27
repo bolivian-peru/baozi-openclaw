@@ -1,0 +1,14 @@
+{
+  "wallets": [
+    "DemoWallet123456789"
+  ],
+  "alerts": {
+    "claimable": true,
+    "closingSoon": true,
+    "closingSoonHours": 6,
+    "oddsShift": true,
+    "oddsShiftThreshold": 15
+  },
+  "channel": "console",
+  "pollIntervalMinutes": 5
+}
