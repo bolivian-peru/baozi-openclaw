@@ -1,0 +1,28 @@
+{
+  "wallets": [
+    "WALLET1_ADDRESS",
+    "WALLET2_ADDRESS"
+  ],
+  "alerts": {
+    "claimable": true,
+    "closingSoon": true,
+    "closingSoonHours": 6,
+    "oddsShift": true,
+    "oddsShiftThreshold": 15
+  },
+  "channel": "console",
+  "pollIntervalMinutes": 15,
+  
+  "telegram": {
+    "token": "YOUR_BOT_TOKEN",
+    "chatId": "YOUR_CHAT_ID"
+  },
+  
+  "discord": {
+    "webhookUrl": "YOUR_DISCORD_WEBHOOK"
+  },
+  
+  "webhook": {
+    "url": "YOUR_WEBHOOK_URL"
+  }
+}
